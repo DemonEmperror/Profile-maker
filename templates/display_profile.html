@@ -758,7 +758,7 @@
                   <div class="education-item">
                     <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
                     {% if edu.get('start_date') or edu.get('end_date') %}
-                      <div>{{ edu.get('start_date', 'N/A') }} - {{ edu.get('end_date', 'N/A') }}</div>
+                      <div>{{ edu.get('start_date', 'N/A') | format_date }} - {{ edu.get('end_date', 'N/A') | format_date }}</div>
                     {% endif %}
                   </div>
                 </li>
@@ -786,7 +786,7 @@
         {% if profile.get('professional_summary') and 'summary-section' not in hidden_sections %}
         <div class="section" data-section-id="summary-section">
           <h2 class="section-title">
-            <span class="section-title-text">Professional Summary</span>
+            <span class="section-title-text">Professional Achievements</span>
             <button class="hide-toggle" onclick="toggleSectionVisibility('summary-section')" data-section="summary-section">
               <span class="toggle-icon">👁️</span>
               <span class="toggle-text">Hide</span>
@@ -816,7 +816,7 @@
               <div class="work-item">
                 <div class="work-role">{{ work.get('role', '') | safe }}</div>
                 {% if work.get('start_date') or work.get('end_date') %}
-                  <div>{{ work.get('start_date', 'N/A') }} - {{ work.get('end_date', 'N/A') }}</div>
+                  <div>{{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}</div>
                 {% endif %}
                 <div class="work-responsibilities">
                   {% if work.get('responsibilities') %}
@@ -1008,7 +1008,7 @@
               {% if personal.get('date_of_joining') %}
               <div class="personal-detail-item">
                 <div class="personal-detail-label">Date of Joining:</div>
-                <div class="personal-detail-value">{{ personal.get('date_of_joining', '') | safe }}</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_joining', '') | format_date }}</div>
               </div>
               {% endif %}
               {% if personal.get('overall_experience') %}
@@ -1020,7 +1020,7 @@
               {% if personal.get('date_of_birth') %}
               <div class="personal-detail-item">
                 <div class="personal-detail-label">Date of Birth:</div>
-                <div class="personal-detail-value">{{ personal.get('date_of_birth', '') | safe }}</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_birth', '') | format_date }}</div>
               </div>
               {% endif %}
               {% if personal.get('contact_number') %}
