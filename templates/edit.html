@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Resume</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .profile-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .profile-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      color: white;
+      padding: 3rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    .profile-name {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 1;
+    }
+    .profile-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+    .profile-content {
+      padding: 2.5rem;
+    }
+    .section {
+      margin-bottom: 2.5rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #f8fafc;
+      border-left: 4px solid #3b82f6;
+      transition: all 0.3s ease;
+    }
+    .section.hidden {
+      opacity: 0.5;
+      background: #fee2e2;
+      border-left-color: #ef4444;
+    }
+    .section.hidden .section-content {
+      display: none;
+    }
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #1e40af;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: space-between;
+    }
+    .section-title-text {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-title-text::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #3b82f6;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .hide-toggle {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .hide-toggle:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+    .hide-toggle.hidden-state {
+      background: #10b981;
+    }
+    .hide-toggle.hidden-state:hover {
+      background: #059669;
+    }
+    .section-content {
+      color: #374151;
+      line-height: 1.6;
+    }
+    .section-content label {
+      display: block;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+    .section-content input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    .section-content input:invalid {
+      border-color: #ef4444;
+    }
+    .section-content .contenteditable {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      min-height: 100px;
+      outline: none;
+      background: white;
+    }
+    .section-content .contenteditable:invalid {
+      border-color: #ef4444;
+    }
+    .section-content .contenteditable:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .section-content .contenteditable ul {
+      list-style: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .section-content .contenteditable ol {
+      list-style: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .section-content .contenteditable li {
+      padding: 0.5rem 0;
+      position: relative;
+    }
+    .section-content .contenteditable b,
+    .section-content .contenteditable strong {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .section-content .contenteditable i,
+    .section-content .contenteditable em {
+      font-style: italic;
+    }
+    .section-content .contenteditable u {
+      text-decoration: underline;
+    }
+    .section-item {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border-left: 3px solid #f59e0b;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .add-item, .remove-item {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .remove-item {
+      background: #ef4444;
+    }
+    .add-item:hover {
+      background: #2563eb;
+    }
+    .remove-item:hover {
+      background: #dc2626;
+    }
+    .control-panel {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      padding: 1.5rem;
+      margin: -2.5rem -2.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .control-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .control-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+    .download-section {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      margin: 2rem -2.5rem -2.5rem;
+      padding: 2rem 2.5rem;
+      text-align: center;
+    }
+    .download-btn {
+      background: white;
+      color: #059669;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0.5rem;
+    }
+    .download-btn:hover {
+      transform: translateY(-2px);
+      background: #f0fdf4;
+    }
+    .format-button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    .format-button:hover {
+      background: #1e40af;
+    }
+    .format-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .format-modal-content {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .format-toolbar {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: #f3f2f1;
+      border-radius: 4px;
+    }
+    .format-toolbar button {
+      background: none;
+      border: none;
+      padding: 6px 8px;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 4px;
+    }
+    .format-toolbar button:hover {
+      background: #e1dfdd;
+    }
+    .format-editor {
+      width: 100%;
+      min-height: 200px;
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      outline: none;
+    }
+    .format-editor ul {
+      list-style: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .format-editor ol {
+      list-style: decimal;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .format-editor li {
+      padding: 0.5rem 0;
+      position: relative;
+    }
+    .format-editor b,
+    .format-editor strong {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .format-editor i,
+    .format-editor em {
+      font-style: italic;
+    }
+    .format-editor u {
+      text-decoration: underline;
+    }
+    .format-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+    .format-actions button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .format-actions .save {
+      background: #10b981;
+      color: white;
+    }
+    .format-actions .cancel {
+      background: #ef4444;
+      color: white;
+    }
+    .error-message {
+      color: #ef4444;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .loader-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #007bff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loader-text {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: #333;
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      .profile-content {
+        padding: 1.5rem;
+      }
+      .section {
+        padding: 1rem;
+      }
+      .section-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .control-panel {
+        flex-direction: column;
+        text-align: center;
+      }
+      .profile-name {
+        font-size: 2rem;
+      }
+      .format-toolbar {
+        flex-wrap: wrap;
+      }
+    }
+    @media print {
+      .control-panel, .download-section, .hide-toggle, .format-button, .format-modal, .loader-overlay {
+        display: none !important;
+      }
+      .profile-container {
+        box-shadow: none;
+        border-radius: 0;
+      }
+      .section {
+        border-left: 3px solid #3b82f6;
+        box-shadow: none;
+      }
+      .section-item {
+        border-left: 2px solid #f59e0b;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="profile-header">
+      <h1 class="profile-name">{{ profile.get('name', 'Edit Your Profile') | safe }}</h1>
+    </div>
+    <div class="profile-content">
+      <form id="editForm" method="POST" action="{{ url_for('update_profile') }}">
+        <input type="hidden" name="hidden_sections" id="hidden_sections" value="{{ hidden_sections | tojson | safe }}">
+        <input type="hidden" name="action" value="save">
+
+        <div class="control-panel">
+          <div>
+            <h3 style="margin: 0; font-size: 1.125rem;">Edit Resume</h3>
+            <p style="margin: 0.5rem 0 0; opacity: 0.9; font-size: 0.875rem;">Modify your resume details</p>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button type="submit" class="control-btn">Save Changes</button>
+            <button type="button" class="control-btn" onclick="showAllSections()">Show All</button>
+            <button type="button" class="control-btn" onclick="hideAllSections()">Hide All</button>
+            <a href="{{ url_for('display_profile') }}" class="control-btn">Back to View</a>
+          </div>
+        </div>
+
+        <div class="section" id="personal-details-section" data-section-id="personal-details-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Personal Details</span>
+            <button type="button" class="hide-toggle" onclick="toggleSectionVisibility('personal-details-section')" data-section="personal-details-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" value="{{ profile.get('name', '') | safe }}" required />
+            {% for key in ['employee_id', 'designation', 'date_of_joining', 'overall_experience', 'date_of_birth', 'contact_number', 'permanent_address', 'local_address', 'passport_details'] %}
+            <label for="{{ key }}">{{ key.replace('_', ' ').title() }}</label>
+            <input type="{{ 'date' if key in ['date_of_joining', 'date_of_birth'] else 'text' }}" id="{{ key }}" name="personal_details[{{ key }}]" value="{{ profile.get('personal_details', {}).get(key, '') | safe }}" {{ 'required' if key == 'contact_number' else '' }} />
+            {% if key == 'date_of_birth' %}
+            <div class="error-message" id="date_of_birth_error">Age must be greater than 18 years.</div>
+            {% elif key == 'contact_number' %}
+            <div class="error-message" id="contact_number_error">Contact number must be 10 digits.</div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="section" id="education-section" data-section-id="education-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Education, Training & Certifications</span>
+            <button type="button" class="hide-toggle" onclick="toggleSectionVisibility('education-section')" data-section="education-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <div id="education-items">
+              {% for edu in profile.get('education_training_certifications', []) %}
+              <div class="section-item" id="edu_item_{{ loop.index }}">
+                <label for="etc_{{ loop.index }}">Title</label>
+                <input type="text" id="etc_{{ loop.index }}" name="education_training_certifications[]" value="{{ edu.get('title', '') | safe }}" required />
+                <label for="edu_start_{{ loop.index }}">Start Date</label>
+                <input type="date" id="edu_start_{{ loop.index }}" name="education_start_date[]" value="{{ edu.get('start_date', '') | safe }}" />
+                <label for="edu_end_{{ loop.index }}">End Date</label>
+                <input type="date" id="edu_end_{{ loop.index }}" name="education_end_date[]" value="{{ edu.get('end_date', '') | safe }}" />
+                <div class="error-message" id="edu_duration_error_{{ loop.index }}">Course duration must be between 3 months and 4 years.</div>
+                <button type="button" class="remove-item">Remove</button>
+              </div>
+              {% endfor %}
+            </div>
+            <button type="button" class="add-item" data-section="education">Add Education</button>
+          </div>
+        </div>
+
+        <div class="section" id="experience-section" data-section-id="experience-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Total Experience</span>
+            <button type="button" class="hide-toggle" onclick="toggleSectionVisibility('experience-section')" data-section="experience-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <label for="total_experience">Total Experience</label>
+            <input type="text" id="total_experience" name="total_experience" value="{{ profile.get('total_experience', '') | safe }}" readonly />
+          </div>
+        </div>
+
+        <div class="section" id="summary-section" data-section-id="summary-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Professional Summary</span>
+            <button type="button" class="hide-toggle" onclick="toggleSectionVisibility('summary-section')" data-section="summary-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <label for="professional_summary">Professional Summary</label>
+            <div class="contenteditable" id="professional_summary" contenteditable="true">{{ profile.get('professional_summary', '') | safe }}</div>
+            <button type="button" class="format-button" onclick="openFormatModal('professional_summary')">Format</button>
+            <input type="hidden" id="professional_summary_hidden" name="professional_summary">
+          </div>
+        </div>
+
+        <div class="section" id="projects-section" data-section-id="projects-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Projects</span>
+            <button type="button" class="hide-toggle" onclick="toggleSectionVisibility('projects-section')" data-section="projects-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <h3 style="font-size: 1.125rem; font-weight: 600; color: #059669; margin-bottom: 0.5rem;">NetWeb Projects</h3>
+            <div id="netweb-projects">
+              {% for p in profile.get('netweb_projects', []) %}
+              <div class="section-item">
+                <label for="netweb_title_{{ loop.index }}">Title</label>
+                <input type="text" id="netweb_title_{{ loop.index }}" name="netweb_projects[title][]" value="{{ p.get('title', '') | safe }}" required />
+                <label for="netweb_desc_{{ loop.index }}">Description</label>
+                <div class="contenteditable" id="netweb_desc_{{ loop.index }}" contenteditable="true">{{ p.get('description', '') | safe }}</div>
+                <button type="button" class="format-button" onclick="openFormatModal('netweb_desc_{{ loop.index }}')">Format</button>
+                <input type="hidden" id="netweb_desc_{{ loop.index }}_hidden" name="netweb_projects[description][]">
+                <button type="button" class="remove-item">Remove</button>
+              </div>
+              {% endfor %}
+            </div>
+            <button type="button" class="add-item" data-section="netweb_projects">Add NetWeb Project</button>
+            <h3 style="font-size: 1.125rem; font-weight: 600; color: #6b21a8; margin-top: 1rem; margin-bottom: 0.5rem;">Past Projects</h3>
+            <div id="past-projects">
+              {% for p in profile.get('past_projects', []) %}
+              <div class="section-item">
+                <label for="past_title_{{ loop.index }}">Title</label>
+                <input type="text" id="past_title_{{ loop.index }}" name="past_projects[title][]" value="{{ p.get('title', '') | safe }}" required />
+                <label for="past_desc_{{ loop.index }}">Description</label>
+                <div class="contenteditable" id="past_desc_{{ loop.index }}" contenteditable="true">{{ p.get('description', '') | safe }}</div>
+                <button type="button" class="format-button" onclick="openFormatModal('past_desc_{{ loop.index }}')">Format</button>
+                <input type="hidden" id="past_desc_{{ loop.index }}_hidden" name="past_projects[description][]">
+                <button type="button" class="remove-item">Remove</button>
+              </div>
+              {% endfor %}
+            </div>
+            <button type="button" class="add-item" data-section="past_projects">Add Past Project</button>
+          </div>
+        </div>
+
+        <div class="section" id="roles-section" data-section-id="roles-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Roles and Responsibilities</span>
+            <button type="button" class="hide-toggle" onclick="toggleSectionVisibility('roles-section')" data-section="roles-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <label for="roles_responsibilities">Roles and Responsibilities</label>
+            <div class="contenteditable" id="roles_responsibilities" contenteditable="true">{{ profile.get('roles_responsibilities', '') | safe }}</div>
+            <button type="button" class="format-button" onclick="openFormatModal('roles_responsibilities')">Format</button>
+            <input type="hidden" id="roles_responsibilities_hidden" name="roles_responsibilities">
+          </div>
+        </div>
+
+        <div class="section" id="work-experience-section" data-section-id="work-experience-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Work Experience</span>
+            <button type="button" class="hide-toggle" onclick="toggleSectionVisibility('work-experience-section')" data-section="work-experience-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <div id="work-experience-items">
+              {% for exp in profile.get('work_experience', []) %}
+              <div class="section-item">
+                <label for="work_start_{{ loop.index }}">Start Date</label>
+                <input type="date" id="work_start_{{ loop.index }}" name="work_experience[start_date][]" value="{{ exp.get('start_date', '') | safe }}" />
+                <label for="work_end_{{ loop.index }}">End Date</label>
+                <input type="date" id="work_end_{{ loop.index }}" name="work_experience[end_date][]" value="{{ exp.get('end_date', '') | safe }}" />
+                <label for="work_role_{{ loop.index }}">Role</label>
+                <input type="text" id="work_role_{{ loop.index }}" name="work_experience[role][]" value="{{ exp.get('role', '') | safe }}" required />
+                <label for="work_resp_{{ loop.index }}">Responsibilities</label>
+                <div class="contenteditable" id="work_resp_{{ loop.index }}" contenteditable="true">{{ exp.get('responsibilities', '') | safe }}</div>
+                <button type="button" class="format-button" onclick="openFormatModal('work_resp_{{ loop.index }}')">Format</button>
+                <input type="hidden" id="work_resp_{{ loop.index }}_hidden" name="work_experience[responsibilities][]">
+                <button type="button" class="remove-item">Remove</button>
+              </div>
+              {% endfor %}
+            </div>
+            <button type="button" class="add-item" data-section="work_experience">Add Work Experience</button>
+          </div>
+        </div>
+
+        <div class="section" id="skills-section" data-section-id="skills-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Technical Skill Set</span>
+            <button type="button" class="hide-toggle" onclick="toggleSectionVisibility('skills-section')" data-section="skills-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            {% for category in ['web_technologies', 'scripting_languages', 'frameworks', 'databases', 'web_servers', 'tools'] %}
+            <div class="skill-category">
+              <h3 style="font-size: 1.125rem; font-weight: 600; color: #7c3aed; margin-bottom: 0.5rem;">{{ category.replace('_', ' ').title() }}</h3>
+              <div id="{{ category }}-items">
+                {% for skill in profile.get('technical_skills', {}).get(category, []) %}
+                <div class="section-item">
+                  <input type="text" name="technical_skills[{{ category }}][]" value="{{ skill | safe }}" required />
+                  <button type="button" class="remove-item">Remove</button>
+                </div>
+                {% endfor %}
+              </div>
+              <button type="button" class="add-item" data-section="{{ category }}">Add Skill</button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="download-section">
+          <h3 style="color: white; margin-bottom: 1.5rem; font-size: 1.25rem;">Download Your Resume</h3>
+          <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem;">
+            <button type="submit" class="control-btn">Save Changes</button>
+            <!-- Uncomment for DOCX and XLSX support -->
+            <!-- <button type="submit" class="download-btn" formaction="{{ url_for('download_docx') }}">📄 Download DOCX</button> -->
+            <!-- <button type="submit" class="download-btn" formaction="{{ url_for('download_xlsx') }}">📄 Download XLSX</button> -->
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="formatModal" class="format-modal">
+    <div class="format-modal-content">
+      <h3>Format Text</h3>
+      <div class="format-toolbar">
+        <button type="button" onclick="formatModalText('bold')"><b>B</b></button>
+        <button type="button" onclick="formatModalText('italic')"><i>I</i></button>
+        <button type="button" onclick="formatModalText('underline')"><u>U</u></button>
+        <button type="button" onclick="formatModalText('insertUnorderedList')">• List</button>
+        <button type="button" onclick="formatModalText('insertOrderedList')">1. List</button>
+      </div>
+      <div class="format-editor" id="formatEditor" contenteditable="true"></div>
+      <div class="format-actions">
+        <button class="save" onclick="saveFormatChanges()">Save</button>
+        <button class="cancel" onclick="closeFormatModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loader-overlay" id="loaderOverlay">
+    <div class="loader"></div>
+    <div class="loader-text">Processing... Please wait</div>
+  </div>
+
+  <script>
+    let hiddenSections = [];
+    let currentFieldId = '';
+    let educationIndex = "{{ profile.get('education_training_certifications', []) | length | tojson | safe }}" || 0;
+
+    try {
+      const hiddenSectionsElement = document.getElementById('hidden_sections');
+      if (hiddenSectionsElement) {
+        const hiddenSectionsRaw = JSON.parse(hiddenSectionsElement.value);
+        hiddenSections = Array.isArray(hiddenSectionsRaw) ? hiddenSectionsRaw : [];
+      }
+    } catch (e) {
+      console.error('Error parsing hidden_sections:', e);
+      hiddenSections = [];
+    }
+
+    window.addEventListener('load', () => {
+      hiddenSections.forEach(sectionId => {
+        const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+        const button = document.querySelector(`[data-section="${sectionId}"]`);
+        if (section && button) {
+          section.classList.add('hidden');
+          button.classList.add('hidden-state');
+          const icon = button.querySelector('.toggle-icon');
+          const text = button.querySelector('.toggle-text');
+          icon.textContent = '🙈';
+          text.textContent = 'Show';
+        }
+      });
+      updateHiddenSectionsInputs();
+      console.log('Page loaded, hidden sections initialized:', hiddenSections);
+      setupEditableFields();
+      setupValidation();
+    });
+
+    function setupEditableFields() {
+      document.querySelectorAll('.contenteditable').forEach(div => {
+        const hiddenInput = document.getElementById(div.id + '_hidden');
+        if (hiddenInput) {
+          hiddenInput.value = div.innerHTML;
+          div.addEventListener('input', () => {
+            hiddenInput.value = div.innerHTML;
+          });
+        }
+      });
+    }
+
+    function setupValidation() {
+      // Age validation
+      const dobInput = document.getElementById('date_of_birth');
+      dobInput.addEventListener('change', validateAge);
+
+      // Contact number validation
+      const contactNumber = document.getElementById('contact_number');
+      contactNumber.addEventListener('input', validateContactNumber);
+
+      // Overall experience calculation
+      const joiningDateInput = document.getElementById('date_of_joining');
+      joiningDateInput.addEventListener('change', updateOverallExperience);
+
+      // Education duration validation
+      document.querySelectorAll('[id^=edu_start_]').forEach(startDate => {
+        startDate.addEventListener('change', () => validateEducationDuration(startDate.id));
+      });
+      document.querySelectorAll('[id^=edu_end_]').forEach(endDate => {
+        endDate.addEventListener('change', () => validateEducationDuration(endDate.id));
+      });
+    }
+
+    function validateAge() {
+      const dobInput = document.getElementById('date_of_birth');
+      const error = document.getElementById('date_of_birth_error');
+      const dob = new Date(dobInput.value);
+      const today = new Date();
+      const age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      const dayDiff = today.getDate() - dob.getDate();
+      let adjustedAge = age;
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        adjustedAge--;
+      }
+      if (adjustedAge < 18) {
+        error.style.display = 'block';
+        dobInput.style.borderColor = '#ef4444';
+        return false;
+      } else {
+        error.style.display = 'none';
+        dobInput.style.borderColor = '#d1d5db';
+        return true;
+      }
+    }
+
+    function validateContactNumber() {
+      const contactNumber = document.getElementById('contact_number');
+      const error = document.getElementById('contact_number_error');
+      const value = contactNumber.value.trim();
+      const isValid = /^\d{10}$/.test(value);
+      if (!isValid) {
+        error.style.display = 'block';
+        contactNumber.style.borderColor = '#ef4444';
+        return false;
+      } else {
+        error.style.display = 'none';
+        contactNumber.style.borderColor = '#d1d5db';
+        return true;
+      }
+    }
+
+    function validateEducationDuration(inputId) {
+      const index = inputId.match(/\d+$/)[0];
+      const startDate = document.getElementById(`edu_start_${index}`).value;
+      const endDate = document.getElementById(`edu_end_${index}`).value;
+      const error = document.getElementById(`edu_duration_error_${index}`);
+      
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffMonths = (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth();
+        
+        if (diffMonths < 3 || diffMonths > 48) {
+          error.style.display = 'block';
+          document.getElementById(`edu_start_${index}`).style.borderColor = '#ef4444';
+          document.getElementById(`edu_end_${index}`).style.borderColor = '#ef4444';
+          return false;
+        } else {
+          error.style.display = 'none';
+          document.getElementById(`edu_start_${index}`).style.borderColor = '#d1d5db';
+          document.getElementById(`edu_end_${index}`).style.borderColor = '#d1d5db';
+          return true;
+        }
+      }
+      return true;
+    }
+
+    function updateOverallExperience() {
+      const joiningDate = document.getElementById('date_of_joining').value;
+      const experienceField = document.getElementById('total_experience');
+      if (joiningDate) {
+        const joinDate = new Date(joiningDate);
+        const today = new Date();
+        const years = today.getFullYear() - joinDate.getFullYear();
+        const months = today.getMonth() - joinDate.getMonth();
+        let experience = '';
+        if (years > 0) {
+          experience += `${years} year${years > 1 ? 's' : ''}`;
+        }
+        if (months > 0) {
+          experience += `${years > 0 ? ' and ' : ''}${months} month${months > 1 ? 's' : ''}`;
+        }
+        experienceField.value = experience || '0 years';
+      }
+    }
+
+    function validateForm() {
+      let isValid = true;
+      const requiredInputs = document.querySelectorAll('input[required]');
+      requiredInputs.forEach(input => {
+        if (!input.value.trim()) {
+          isValid = false;
+          input.style.borderColor = '#ef4444';
+        } else {
+          input.style.borderColor = '#d1d5db';
+        }
+      });
+      if (!validateAge()) isValid = false;
+      if (!validateContactNumber()) isValid = false;
+      document.querySelectorAll('[id^=edu_item_]').forEach(item => {
+        const index = item.id.match(/\d+$/)[0];
+        if (!validateEducationDuration(`edu_start_${index}`)) {
+          isValid = false;
+        }
+      });
+      return isValid;
+    }
+
+    function openFormatModal(fieldId) {
+      currentFieldId = fieldId;
+      const field = document.getElementById(fieldId);
+      const editor = document.getElementById('formatEditor');
+      editor.innerHTML = field.innerHTML;
+      document.getElementById('formatModal').style.display = 'flex';
+      editor.focus();
+    }
+
+    function closeFormatModal() {
+      document.getElementById('formatModal').style.display = 'none';
+      currentFieldId = '';
+      document.getElementById('formatEditor').innerHTML = '';
+    }
+
+    function formatModalText(command) {
+      const editor = document.getElementById('formatEditor');
+      document.execCommand(command, false, null);
+      editor.focus();
+      if (currentFieldId) {
+        const field = document.getElementById(currentFieldId);
+        field.innerHTML = editor.innerHTML;
+        field.dispatchEvent(new Event('input'));
+        updateHiddenField(currentFieldId);
+        if (currentFieldId.includes('_desc_') || currentFieldId.includes('_resp_')) {
+          updateProjectDescriptions(currentFieldId.split('_')[0]);
+        }
+      }
+    }
+
+    function saveFormatChanges() {
+      if (currentFieldId) {
+        const editor = document.getElementById('formatEditor');
+        const field = document.getElementById(currentFieldId);
+        field.innerHTML = editor.innerHTML;
+        field.dispatchEvent(new Event('input'));
+        updateHiddenField(currentFieldId);
+        if (currentFieldId.includes('_desc_') || currentFieldId.includes('_resp_')) {
+          updateProjectDescriptions(currentFieldId.split('_')[0]);
+        }
+        closeFormatModal();
+      }
+    }
+
+    function updateHiddenField(elementId) {
+      const editable = document.getElementById(elementId);
+      const hiddenInput = document.getElementById(`${elementId}_hidden`);
+      if (editable && hiddenInput) {
+        hiddenInput.value = editable.innerHTML.trim();
+        console.log(`Updated ${elementId}_hidden:`, hiddenInput.value);
+      }
+    }
+
+    function updateProjectDescriptions(type) {
+      const containers = document.querySelectorAll(`#${type}-projects .section-item`);
+      containers.forEach((container, projectIndex) => {
+        const descEditable = document.getElementById(`${type}_desc_${projectIndex + 1}`);
+        const descHidden = document.getElementById(`${type}_desc_${projectIndex + 1}_hidden`);
+        if (descEditable && descHidden) {
+          descHidden.value = descEditable.innerHTML.trim();
+          console.log(`Updated ${type}_desc_${projectIndex + 1}_hidden:`, descHidden.value);
+        }
+      });
+      const workContainers = document.querySelectorAll(`#work-experience-items .section-item`);
+      workContainers.forEach((container, projectIndex) => {
+        const respEditable = document.getElementById(`work_resp_${projectIndex + 1}`);
+        const respHidden = document.getElementById(`work_resp_${projectIndex + 1}_hidden`);
+        if (respEditable && respHidden) {
+          respHidden.value = respEditable.innerHTML.trim();
+          console.log(`Updated work_resp_${projectIndex + 1}_hidden:`, respHidden.value);
+        }
+      });
+    }
+
+    function toggleSectionVisibility(sectionId) {
+      const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+      const button = document.querySelector(`[data-section="${sectionId}"]`);
+      const icon = button.querySelector('.toggle-icon');
+      const text = button.querySelector('.toggle-text');
+      
+      if (hiddenSections.includes(sectionId)) {
+        hiddenSections = hiddenSections.filter(id => id !== sectionId);
+        section.classList.remove('hidden');
+        button.classList.remove('hidden-state');
+        icon.textContent = '👁️';
+        text.textContent = 'Hide';
+      } else {
+        hiddenSections.push(sectionId);
+        section.classList.add('hidden');
+        button.classList.add('hidden-state');
+        icon.textContent = '🙈';
+        text.textContent = 'Show';
+      }
+      
+      updateHiddenSectionsInputs();
+    }
+
+    function showAllSections() {
+      hiddenSections = [];
+      document.querySelectorAll('[data-section-id]').forEach(section => {
+        section.classList.remove('hidden');
+      });
+      document.querySelectorAll('.hide-toggle').forEach(button => {
+        button.classList.remove('hidden-state');
+        const icon = button.querySelector('.toggle-icon');
+        const text = button.querySelector('.toggle-text');
+        icon.textContent = '👁️';
+        text.textContent = 'Hide';
+      });
+      updateHiddenSectionsInputs();
+    }
+
+    function hideAllSections() {
+      hiddenSections = [];
+      document.querySelectorAll('[data-section-id]').forEach(section => {
+        const sectionId = section.getAttribute('data-section-id');
+        hiddenSections.push(sectionId);
+        section.classList.add('hidden');
+      });
+      document.querySelectorAll('.hide-toggle').forEach(button => {
+        button.classList.add('hidden-state');
+        const icon = button.querySelector('.toggle-icon');
+        const text = button.querySelector('.toggle-text');
+        icon.textContent = '🙈';
+        text.textContent = 'Show';
+      });
+      updateHiddenSectionsInputs();
+    }
+
+    function updateHiddenSectionsInputs() {
+      const hiddenSectionsInput = document.getElementById('hidden_sections');
+      if (hiddenSectionsInput) {
+        hiddenSectionsInput.value = JSON.stringify(hiddenSections);
+      }
+    }
+
+    document.querySelectorAll('.add-item').forEach(button => {
+      button.addEventListener('click', function() {
+        const section = this.getAttribute('data-section');
+        const container = document.getElementById(`${section}-items`);
+        const index = container.querySelectorAll('.section-item').length + 1;
+        let itemHtml = '';
+
+        if (section === 'education') {
+          itemHtml = `
+            <div class="section-item" id="edu_item_${index}">
+              <label for="etc_${index}">Title</label>
+              <input type="text" id="etc_${index}" name="education_training_certifications[]" required />
+              <label for="edu_start_${index}">Start Date</label>
+              <input type="date" id="edu_start_${index}" name="education_start_date[]" />
+              <label for="edu_end_${index}">End Date</label>
+              <input type="date" id="edu_end_${index}" name="education_end_date[]" />
+              <div class="error-message" id="edu_duration_error_${index}">Course duration must be between 3 months and 4 years.</div>
+              <button type="button" class="remove-item">Remove</button>
+            </div>`;
+        } else if (section === 'netweb_projects') {
+          itemHtml = `
+            <div class="section-item">
+              <label for="netweb_title_${index}">Title</label>
+              <input type="text" id="netweb_title_${index}" name="netweb_projects[title][]" required />
+              <label for="netweb_desc_${index}">Description</label>
+              <div class="contenteditable" id="netweb_desc_${index}" contenteditable="true"></div>
+              <button type="button" class="format-button" onclick="openFormatModal('netweb_desc_${index}')">Format</button>
+              <input type="hidden" id="netweb_desc_${index}_hidden" name="netweb_projects[description][]">
+              <button type="button" class="remove-item">Remove</button>
+            </div>`;
+        } else if (section === 'past_projects') {
+          itemHtml = `
+            <div class="section-item">
+              <label for="past_title_${index}">Title</label>
+              <input type="text" id="past_title_${index}" name="past_projects[title][]" required />
+              <label for="past_desc_${index}">Description</label>
+              <div class="contenteditable" id="past_desc_${index}" contenteditable="true"></div>
+              <button type="button" class="format-button" onclick="openFormatModal('past_desc_${index}')">Format</button>
+              <input type="hidden" id="past_desc_${index}_hidden" name="past_projects[description][]">
+              <button type="button" class="remove-item">Remove</button>
+            </div>`;
+        } else if (section === 'work_experience') {
+          itemHtml = `
+            <div class="section-item">
+              <label for="work_start_${index}">Start Date</label>
+              <input type="date" id="work_start_${index}" name="work_experience[start_date][]" />
+              <label for="work_end_${index}">End Date</label>
+              <input type="date" id="work_end_${index}" name="work_experience[end_date][]" />
+              <label for="work_role_${index}">Role</label>
+              <input type="text" id="work_role_${index}" name="work_experience[role][]" required />
+              <label for="work_resp_${index}">Responsibilities</label>
+              <div class="contenteditable" id="work_resp_${index}" contenteditable="true"></div>
+              <button type="button" class="format-button" onclick="openFormatModal('work_resp_${index}')">Format</button>
+              <input type="hidden" id="work_resp_${index}_hidden" name="work_experience[responsibilities][]">
+              <button type="button" class="remove-item">Remove</button>
+            </div>`;
+        } else {
+          itemHtml = `
+            <div class="section-item">
+              <input type="text" name="technical_skills[${section}][]" required />
+              <button type="button" class="remove-item">Remove</button>
+            </div>`;
+        }
+
+        container.insertAdjacentHTML('beforeend', itemHtml);
+        const newDiv = container.querySelector(`#${section === 'netweb_projects' ? 'netweb_desc' : section === 'past_projects' ? 'past_desc' : section === 'work_experience' ? 'work_resp' : 'etc'}_${index}`);
+        if (newDiv && newDiv.classList.contains('contenteditable')) {
+          const hiddenInput = document.getElementById(newDiv.id + '_hidden');
+          if (hiddenInput) {
+            newDiv.addEventListener('input', () => {
+              hiddenInput.value = newDiv.innerHTML;
+            });
+          }
+        }
+        // Add validation for new education items
+        if (section === 'education') {
+          document.getElementById(`edu_start_${index}`).addEventListener('change', () => validateEducationDuration(`edu_start_${index}`));
+          document.getElementById(`edu_end_${index}`).addEventListener('change', () => validateEducationDuration(`edu_end_${index}`));
+        }
+      });
+    });
+
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('remove-item')) {
+        if (confirm('Are you sure you want to remove this item?')) {
+          e.target.closest('.section-item').remove();
+        }
+      }
+    });
+
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+      if (!validateForm()) {
+        e.preventDefault();
+        alert('Please correct the errors in the form.');
+        return;
+      }
+      updateProjectDescriptions('netweb');
+      updateProjectDescriptions('past');
+      updateProjectDescriptions('work');
+      updateHiddenField('professional_summary');
+      updateHiddenField('roles_responsibilities');
+      document.getElementById('loaderOverlay').style.display = 'flex';
+    });
+  </script>
+</body>
+</html>

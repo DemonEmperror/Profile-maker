@@ -1,0 +1,340 @@
+/* Modern Professional Profile Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.profile-container {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: white;
+  padding: 3rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+.profile-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.profile-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+}
+
+.profile-content {
+  padding: 2.5rem;
+}
+
+.section {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+  transition: all 0.3s ease;
+}
+
+.section:hover {
+  background: #f1f5f9;
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: #3b82f6;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.section-content {
+  color: #374151;
+  line-height: 1.6;
+}
+
+.section-content p {
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+
+.section-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.section-content li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.section-content li:last-child {
+  border-bottom: none;
+}
+
+.section-content li::before {
+  content: '▶';
+  position: absolute;
+  left: 0;
+  color: #3b82f6;
+  font-size: 0.8rem;
+}
+
+/* Education item styling */
+.education-item {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-left: 3px solid #f59e0b;
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.education-item::before {
+  display: none;
+}
+
+.education-degree {
+  font-weight: 600;
+  color: #d97706;
+  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.education-date {
+  color: #6b7280;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.education-date::before {
+  content: '📅';
+  font-size: 0.8rem;
+}
+
+/* Override for education section specifically */
+.education-section .section-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.education-section .section-content li {
+  padding: 0;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.education-section .section-content li::before {
+  display: none;
+}
+
+.project-item {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-left: 3px solid #10b981;
+}
+
+.project-title {
+  font-weight: 600;
+  color: #059669;
+  margin-bottom: 0.5rem;
+}
+
+.project-description {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.skill-category {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 3px solid #8b5cf6;
+}
+
+.skill-category-title {
+  font-weight: 600;
+  color: #7c3aed;
+  margin-bottom: 0.5rem;
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-tag {
+  background: #ede9fe;
+  color: #7c3aed;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.personal-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.personal-detail-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.personal-detail-label {
+  font-weight: 600;
+  color: #374151;
+  min-width: 120px;
+}
+
+.personal-detail-value {
+  color: #6b7280;
+  flex: 1;
+}
+
+.download-section {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  margin: 2rem -2.5rem -2.5rem;
+  padding: 2rem 2.5rem;
+  text-align: center;
+}
+
+.download-btn {
+  background: white;
+  color: #059669;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  background: #f0fdf4;
+}
+
+.download-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-name {
+    font-size: 2rem;
+  }
+  
+  .profile-content {
+    padding: 1.5rem;
+  }
+  
+  .section {
+    padding: 1rem;
+  }
+  
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .personal-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+    padding: 0;
+  }
+  
+  .profile-container {
+    box-shadow: none;
+    border-radius: 0;
+  }
+  
+  .profile-header {
+    background: #1e40af !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .download-section {
+    display: none;
+  }
+}

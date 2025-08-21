@@ -1,0 +1,7 @@
+Flask
+PyPDF2
+python-docx
+spacy
+language-tool-python
+Werkzeug
+pdfkit

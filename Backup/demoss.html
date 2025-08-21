@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Processing System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .step-indicator {
+            position: relative;
+        }
+        
+        .step-indicator::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 100px;
+            height: 2px;
+            background: #e5e7eb;
+            transform: translateY(-50%);
+        }
+        
+        .step-indicator.active::after {
+            background: #3b82f6;
+        }
+        
+        .step-indicator:last-child::after {
+            display: none;
+        }
+        
+        .grammar-suggestion {
+            transition: all 0.3s ease;
+        }
+        
+        .grammar-suggestion:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .profile-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .step-content {
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-gray-900">Resume Processing System</h1>
+                <div class="text-sm text-gray-500">NetWeb Software</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <div class="step-indicator active flex items-center space-x-2" id="step1-indicator">
+                <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium">1</div>
+                <span class="text-sm font-medium text-blue-600">Input Resume</span>
+            </div>
+            <div class="step-indicator flex items-center space-x-2" id="step2-indicator">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-medium">2</div>
+                <span class="text-sm font-medium text-gray-500">Grammar Check</span>
+            </div>
+            <div class="step-indicator flex items-center space-x-2" id="step3-indicator">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-medium">3</div>
+                <span class="text-sm font-medium text-gray-500">Profile Preview</span>
+            </div>
+            <div class="step-indicator flex items-center space-x-2" id="step4-indicator">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-medium">4</div>
+                <span class="text-sm font-medium text-gray-500">Download</span>
+            </div>
+        </div>
+
+        <!-- Step 1: Input Resume -->
+        <div id="step1" class="step-content bg-white rounded-lg shadow-lg p-6 fade-in">
+            <h2 class="text-xl font-semibold mb-4">Upload Resume or Enter Text</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload File</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                        <input type="file" id="fileInput" accept=".pdf,.docx,.txt" class="hidden">
+                        <div class="cursor-pointer" onclick="document.getElementById('fileInput').click()">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-600">Click to upload or drag and drop</p>
+                            <p class="text-xs text-gray-500">PDF, DOCX, TXT files only</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="textInput" class="block text-sm font-medium text-gray-700 mb-2">Or Enter Resume Text</label>
+                    <textarea 
+                        id="textInput" 
+                        rows="10" 
+                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        placeholder="Paste your resume text here...&#10;&#10;Example:&#10;John Doe&#10;Software Developer&#10;&#10;Experience:&#10;- 3 years in web development&#10;- Proficient in React, Node.js&#10;- Worked on multiple e-commerce projects&#10;&#10;Education:&#10;- Bachelor's in Computer Science&#10;- Graduated: 2020"></textarea>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="processResume()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium">
+                    Process Resume
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Grammar Check -->
+        <div id="step2" class="step-content bg-white rounded-lg shadow-lg p-6 hidden">
+            <h2 class="text-xl font-semibold mb-4">Grammar Check & Corrections</h2>
+            <div class="mb-6">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <h3 class="font-medium text-blue-900 mb-2">Original Text:</h3>
+                    <div id="originalText" class="text-sm text-blue-800 bg-white p-3 rounded border max-h-40 overflow-y-auto"></div>
+                </div>
+                
+                <div id="grammarSuggestions" class="space-y-3"></div>
+            </div>
+            
+            <div class="flex justify-between">
+                <div class="space-x-3">
+                    <button onclick="skipGrammar()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors">
+                        Skip Grammar Check
+                    </button>
+                    <button onclick="autoCorrect()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                        Auto-Correct All
+                    </button>
+                </div>
+                <button onclick="applyCorrections()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium">
+                    Apply Selected Corrections
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Profile Preview -->
+        <div id="step3" class="step-content bg-white rounded-lg shadow-lg p-6 hidden">
+            <h2 class="text-xl font-semibold mb-4">Profile Preview</h2>
+            <div id="profilePreview" class="space-y-6"></div>
+            <div class="mt-6 flex justify-between">
+                <button onclick="editProfile()" class="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition-colors">
+                    Edit Profile Data
+                </button>
+                <button onclick="generatePDF()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors font-medium">
+                    Generate Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Download -->
+        <div id="step4" class="step-content bg-white rounded-lg shadow-lg p-6 hidden">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2">Profile Generated Successfully!</h2>
+                <p class="text-gray-600 mb-6">Your professional profile has been created and is ready for download.</p>
+                
+                <div id="finalProfile" class="bg-gray-50 rounded-lg p-6 mb-6"></div>
+                
+                <div class="space-x-4">
+                    <button onclick="downloadPDF()" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium">
+                        📄 Download PDF
+                    </button>
+                    <button onclick="startOver()" class="bg-gray-500 text-white px-4 py-3 rounded-md hover:bg-gray-600 transition-colors">
+                        Start Over
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto mx-4">
+            <h3 class="text-lg font-semibold mb-4">Edit Profile Data</h3>
+            <div id="editForm" class="space-y-4"></div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="closeEditModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="saveProfileEdits()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let resumeText = '';
+        let grammarSuggestions = [];
+        let profileData = {};
+        let acceptedCorrections = [];
+
+        // Sample grammar suggestions for demo
+        const sampleGrammarSuggestions = [
+            {
+                id: 0,
+                offset: 15,
+                length: 8,
+                message: "Consider using a more professional tone",
+                original: "good at",
+                suggestions: ["proficient in", "skilled in", "experienced with"],
+                rule_id: "TONE_SUGGESTION",
+                category: "Style"
+            },
+            {
+                id: 1,
+                offset: 45,
+                length: 3,
+                message: "This word may be misspelled",
+                original: "teh",
+                suggestions: ["the", "tech", "team"],
+                rule_id: "SPELLING_ERROR",
+                category: "Spelling"
+            }
+        ];
+
+        function updateStepIndicator(step) {
+            // Reset all indicators
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step${i}-indicator`);
+                const circle = indicator.querySelector('div');
+                const text = indicator.querySelector('span');
+                
+                if (i < step) {
+                    // Completed step
+                    circle.className = 'w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center text-sm font-medium';
+                    text.className = 'text-sm font-medium text-green-600';
+                    indicator.classList.add('active');
+                } else if (i === step) {
+                    // Current step
+                    circle.className = 'w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium';
+                    text.className = 'text-sm font-medium text-blue-600';
+                    indicator.classList.add('active');
+                } else {
+                    // Future step
+                    circle.className = 'w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-medium';
+                    text.className = 'text-sm font-medium text-gray-500';
+                    indicator.classList.remove('active');
+                }
+            }
+        }
+
+        function showStep(step) {
+            // Hide all steps
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`step${i}`).classList.add('hidden');
+            }
+            
+            // Show current step
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            document.getElementById(`step${step}`).classList.add('fade-in');
+            
+            currentStep = step;
+            updateStepIndicator(step);
+        }
+
+        function processResume() {
+            const fileInput = document.getElementById('fileInput');
+            const textInput = document.getElementById('textInput');
+            
+            if (fileInput.files.length > 0) {
+                resumeText = `Sample resume content from file: ${fileInput.files[0].name}\n\nJohn Doe - Software Developer\n\nI am good at programming and have worked with teh latest technologies. I have experience in developing web applications using React, Node.js, and MongoDB.`;
+            } else if (textInput.value.trim()) {
+                resumeText = textInput.value.trim();
+            } else {
+                alert('Please upload a file or enter resume text.');
+                return;
+            }
+
+            // Simulate grammar check
+            document.getElementById('originalText').textContent = resumeText;
+            
+            // Generate grammar suggestions
+            grammarSuggestions = sampleGrammarSuggestions;
+            displayGrammarSuggestions();
+            
+            showStep(2);
+        }
+
+        function displayGrammarSuggestions() {
+            const container = document.getElementById('grammarSuggestions');
+            container.innerHTML = '';
+            
+            if (grammarSuggestions.length === 0) {
+                container.innerHTML = '<div class="text-green-600 font-medium">✓ No grammar issues found!</div>';
+                return;
+            }
+            
+            grammarSuggestions.forEach(suggestion => {
+                const div = document.createElement('div');
+                div.className = 'grammar-suggestion bg-yellow-50 border border-yellow-200 rounded-lg p-4';
+                div.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">${suggestion.category}</span>
+                                <span class="text-sm text-gray-600">${suggestion.message}</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium">Original:</span> 
+                                <span class="bg-red-100 text-red-800 px-1 rounded">${suggestion.original}</span>
+                            </div>
+                            <div class="mt-2">
+                                <span class="text-sm font-medium">Suggestions:</span>
+                                <div class="mt-1 space-x-2">
+                                    ${suggestion.suggestions.map(s => 
+                                        `<button onclick="selectSuggestion(${suggestion.id}, '${s}')" 
+                                         class="suggestion-btn bg-green-100 text-green-800 px-2 py-1 rounded text-xs hover:bg-green-200 transition-colors">${s}</button>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="correction_${suggestion.id}" class="ml-4 mt-1">
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function selectSuggestion(id, replacement) {
+            const checkbox = document.getElementById(`correction_${id}`);
+            checkbox.checked = true;
+            
+            // Update accepted corrections
+            const existingIndex = acceptedCorrections.findIndex(c => c.id === id);
+            if (existingIndex >= 0) {
+                acceptedCorrections[existingIndex].replacement = replacement;
+            } else {
+                const suggestion = grammarSuggestions.find(s => s.id === id);
+                acceptedCorrections.push({
+                    id: id,
+                    offset: suggestion.offset,
+                    length: suggestion.length,
+                    replacement: replacement
+                });
+            }
+            
+            // Visual feedback
+            const buttons = document.querySelectorAll(`[onclick*="selectSuggestion(${id}"]`);
+            buttons.forEach(btn => btn.classList.remove('bg-blue-100', 'text-blue-800'));
+            event.target.classList.add('bg-blue-100', 'text-blue-800');
+        }
+
+        function skipGrammar() {
+            generateProfileData(resumeText);
+            showStep(3);
+        }
+
+        function autoCorrect() {
+            let correctedText = resumeText;
+            grammarSuggestions.forEach(suggestion => {
+                if (suggestion.suggestions.length > 0) {
+                    correctedText = correctedText.replace(suggestion.original, suggestion.suggestions[0]);
+                }
+            });
+            generateProfileData(correctedText);
+            showStep(3);
+        }
+
+        function applyCorrections() {
+            let correctedText = resumeText;
+            acceptedCorrections.sort((a, b) => b.offset - a.offset); // Sort in reverse order
+            
+            acceptedCorrections.forEach(correction => {
+                const start = correction.offset;
+                const end = start + correction.length;
+                correctedText = correctedText.substring(0, start) + correction.replacement + correctedText.substring(end);
+            });
+            
+            generateProfileData(correctedText);
+            showStep(3);
+        }
+
+        function generateProfileData(text) {
+            // Simulate AI processing to generate structured data
+            profileData = {
+                name: "John Doe",
+                professional_summary: "Experienced Software Developer with 3+ years in web development, proficient in modern technologies and frameworks.",
+                education_training_certifications: [
+                    { degree: "Bachelor's in Computer Science", completion_date: "2020" },
+                    { degree: "React.js Certification", completion_date: "2021" }
+                ],
+                total_experience: "3+ years in software development",
+                netweb_projects: [
+                    { title: "E-commerce Platform", description: "Developed a full-stack e-commerce solution using React and Node.js" },
+                    { title: "Dashboard Analytics", description: "Created real-time analytics dashboard with data visualization" }
+                ],
+                past_projects: [
+                    { title: "Portfolio Website", description: "Personal portfolio showcasing projects and skills" }
+                ],
+                roles_responsibilities: "Frontend development, API integration, code review, mentoring junior developers",
+                technical_skills: {
+                    web_technologies: ["HTML", "CSS", "JavaScript", "TypeScript"],
+                    scripting_languages: ["Python", "JavaScript", "Node.js"],
+                    frameworks: ["React", "Express.js", "Next.js"],
+                    databases: ["MongoDB", "MySQL", "PostgreSQL"],
+                    web_servers: ["Apache", "Nginx"],
+                    tools: ["Git", "Docker", "VS Code", "Webpack"]
+                },
+                personal_details: {
+                    employee_id: "NW001",
+                    designation: "Senior Software Developer",
+                    date_of_joining: "2022-01-15",
+                    overall_experience: "3 years",
+                    contact_number: "+1-234-567-8900",
+                    permanent_address: "123 Main St, Tech City, TC 12345"
+                }
+            };
+            
+            displayProfilePreview();
+        }
+
+        function displayProfilePreview() {
+            const container = document.getElementById('profilePreview');
+            container.innerHTML = `
+                <div class="profile-card rounded-lg p-6 mb-6">
+                    <h3 class="text-2xl font-bold mb-2">${profileData.name}</h3>
+                    <p class="text-blue-100">${profileData.professional_summary}</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold mb-3 text-gray-800">Technical Skills</h4>
+                        <div class="space-y-2">
+                            ${Object.entries(profileData.technical_skills).map(([category, skills]) => 
+                                `<div><span class="font-medium text-sm text-gray-600">${category.replace(/_/g, ' ').toUpperCase()}:</span> ${skills.join(', ')}</div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold mb-3 text-gray-800">Experience & Projects</h4>
+                        <div class="space-y-2 text-sm">
+                            <div><strong>Total Experience:</strong> ${profileData.total_experience}</div>
+                            <div><strong>NetWeb Projects:</strong> ${profileData.netweb_projects.length}</div>
+                            <div><strong>Past Projects:</strong> ${profileData.past_projects.length}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function editProfile() {
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('editModal').classList.add('flex');
+            
+            const form = document.getElementById('editForm');
+            form.innerHTML = `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input type="text" id="edit_name" value="${profileData.name}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
+                    <textarea id="edit_summary" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">${profileData.professional_summary}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Total Experience</label>
+                    <input type="text" id="edit_experience" value="${profileData.total_experience}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+                    <input type="text" id="edit_designation" value="${profileData.personal_details.designation}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            `;
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('flex');
+        }
+
+        function saveProfileEdits() {
+            profileData.name = document.getElementById('edit_name').value;
+            profileData.professional_summary = document.getElementById('edit_summary').value;
+            profileData.total_experience = document.getElementById('edit_experience').value;
+            profileData.personal_details.designation = document.getElementById('edit_designation').value;
+            
+            displayProfilePreview();
+            closeEditModal();
+        }
+
+        function generatePDF() {
+            // Simulate profile generation
+            document.getElementById('finalProfile').innerHTML = `
+                <div class="profile-card rounded-lg p-6 text-center">
+                    <h3 class="text-xl font-bold mb-2">${profileData.name}</h3>
+                    <p class="text-blue-100 mb-4">${profileData.personal_details.designation}</p>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4 text-sm">
+                        <div class="grid grid-cols-2 gap-4 text-left">
+                            <div><strong>Experience:</strong> ${profileData.total_experience}</div>
+                            <div><strong>Employee ID:</strong> ${profileData.personal_details.employee_id}</div>
+                            <div><strong>Join Date:</strong> ${profileData.personal_details.date_of_joining}</div>
+                            <div><strong>Projects:</strong> ${profileData.netweb_projects.length + profileData.past_projects.length}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            showStep(4);
+        }
+
+        function downloadPDF() {
+            // Simulate PDF download
+            const link = document.createElement('a');
+            link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(profileData, null, 2));
+            link.download = `${profileData.name.replace(/\s+/g, '_')}_Profile.txt`;
+            link.click();
+            
+            alert('Profile downloaded successfully! (In a real implementation, this would be a PDF)');
+        }
+
+        function startOver() {
+            currentStep = 1;
+            resumeText = '';
+            grammarSuggestions = [];
+            profileData = {};
+            acceptedCorrections = [];
+            
+            document.getElementById('fileInput').value = '';
+            document.getElementById('textInput').value = '';
+            
+            showStep(1);
+        }
+
+        // File input handler
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                document.getElementById('textInput').value = '';
+            }
+        });
+
+        // Initialize
+        showStep(1);
+    </script>
+</body>
+</html>

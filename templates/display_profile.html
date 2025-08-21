@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Professional Resume - Default Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 1rem 0.5rem;
+      }
+      .profile-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        position: relative;
+        max-width: 850px;
+        margin: 0 auto;
+        padding-bottom: 2rem;
+      }
+      .profile-header {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: white;
+        padding: 1rem;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-15px) rotate(180deg); }
+      }
+      .profile-name {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 1;
+        line-height: 1.1;
+        text-align: center;
+      }
+      .profile-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+        line-height: 1.3;
+        text-align: center;
+      }
+      .profile-content {
+        padding: 1.5rem;
+      }
+      .section {
+        margin-bottom: 0.75rem;
+        padding: 0.875rem;
+        border-radius: 8px;
+        background: #f8fafc;
+        border-left: 3px solid #3b82f6;
+        transition: all 0.3s ease;
+        position: relative;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .section:hover {
+        background: #f1f5f9;
+        transform: translateX(3px);
+        box-shadow: 0 3px 8px rgba(59, 130, 246, 0.12);
+      }
+      .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: space-between;
+        line-height: 1.2;
+      }
+      .section-title-text {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .section-title-text::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        background: #3b82f6;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .hide-toggle {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .hide-toggle:hover {
+        background: #dc2626;
+        transform: scale(1.05);
+      }
+      .hide-toggle.hidden-state {
+        background: #10b981;
+      }
+      .hide-toggle.hidden-state:hover {
+        background: #059669;
+      }
+      .section-content {
+        color: #374151;
+        line-height: 1.5;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        overflow: hidden;
+      }
+      .section-content.hidden {
+        max-height: 0;
+        opacity: 0;
+        display: none;
+      }
+      .section.hidden {
+        opacity: 0.5;
+        background: #fee2e2;
+        border-left-color: #ef4444;
+      }
+      .section.hidden .section-content {
+        display: none;
+      }
+      .section-content p {
+        margin-bottom: 0.75rem;
+        text-align: justify;
+      }
+      .section-content ul, .section-content ol {
+        padding-left: 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+      .section-content ul {
+        list-style: disc;
+      }
+      .section-content ol {
+        list-style: decimal;
+      }
+      .section-content li {
+        padding: 0.3rem 0;
+        position: relative;
+        line-height: 1.4;
+      }
+      .section-content b, .section-content strong {
+        font-weight: 600;
+        color: #1f2937;
+      }
+      .section-content i, .section-content em {
+        font-style: italic;
+      }
+      .section-content u {
+        text-decoration: underline;
+      }
+      .education-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-left: 3px solid #f59e0b;
+        position: relative;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .education-degree {
+        font-weight: 600;
+        color: #d97706;
+        margin-bottom: 0.4rem;
+        font-size: 1rem;
+        line-height: 1.3;
+      }
+      .project-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-left: 3px solid #10b981;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .project-title {
+        font-weight: 600;
+        color: #059669;
+        margin-bottom: 0.4rem;
+        line-height: 1.3;
+      }
+      .project-description {
+        color: #6b7280;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+      .project-description ul {
+        list-style: disc;
+        padding-left: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+      .project-description ol {
+        list-style: decimal;
+        padding-left: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+      .work-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-left: 3px solid #3b82f6;
+        position: relative;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .work-role {
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 0.4rem;
+        font-size: 1rem;
+        line-height: 1.3;
+      }
+      .work-responsibilities {
+        color: #6b7280;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+      .work-responsibilities ul {
+        list-style: disc;
+        padding-left: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+      .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 0.4rem;
+        align-items: start;
+      }
+      .skill-category {
+        background: white;
+        padding: 0.6rem;
+        border-radius: 6px;
+        border-left: 2px solid #8b5cf6;
+        min-height: fit-content;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .skill-category-title {
+        font-weight: 600;
+        color: #7c3aed;
+        margin-bottom: 0.35rem;
+        font-size: 0.85rem;
+        line-height: 1.1;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        flex-shrink: 0;
+      }
+      .skill-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.2rem;
+        align-content: flex-start;
+        flex: 1;
+      }
+      .skill-tag {
+        background: #ede9fe;
+        color: #7c3aed;
+        padding: 0.125rem 0.45rem;
+        border-radius: 10px;
+        font-size: 0.72rem;
+        font-weight: 500;
+        line-height: 1.05;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+        margin-bottom: 0.05rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .skill-tag:hover {
+        background: #ddd6fe;
+        transform: scale(1.02);
+      }
+      .skills-grid.technical-skills {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.3rem;
+      }
+      .skills-grid.technical-skills .skill-category {
+        padding: 0.5rem;
+        border-radius: 5px;
+      }
+      .skills-grid.technical-skills .skill-category-title {
+        font-size: 0.8rem;
+        margin-bottom: 0.3rem;
+        letter-spacing: 0.2px;
+      }
+      .skills-grid.technical-skills .skill-tags {
+        gap: 0.15rem;
+      }
+      .skills-grid.technical-skills .skill-tag {
+        font-size: 0.68rem;
+        padding: 0.1rem 0.35rem;
+        border-radius: 8px;
+      }
+      .skill-category.many-skills {
+        grid-column: span 1;
+      }
+      .skill-category.many-skills .skill-tags {
+        gap: 0.15rem;
+        justify-content: flex-start;
+      }
+      .skill-category.many-skills .skill-tag {
+        font-size: 0.68rem;
+        padding: 0.1rem 0.35rem;
+        margin-bottom: 0.03rem;
+      }
+      .skills-grid.compact {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 0.25rem;
+      }
+      .skills-grid.compact .skill-category {
+        padding: 0.45rem;
+      }
+      .skills-grid.compact .skill-category-title {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+      }
+      .skills-grid.compact .skill-tags {
+        gap: 0.12rem;
+      }
+      .skills-grid.compact .skill-tag {
+        font-size: 0.65rem;
+        padding: 0.08rem 0.3rem;
+      }
+      .personal-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 0.75rem;
+      }
+      .personal-detail-item {
+        background: white;
+        padding: 0.875rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .personal-detail-label {
+        font-weight: 600;
+        color: #374151;
+        min-width: 100px;
+        font-size: 0.9rem;
+      }
+      .personal-detail-value {
+        color: #6b7280;
+        flex: 1;
+        font-size: 0.9rem;
+      }
+      .download-section {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        margin: 1.5rem -1.5rem -1.5rem;
+        padding: 1.5rem 1.5rem;
+        text-align: center;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .download-btn {
+        background: white;
+        color: #059669;
+        border: none;
+        padding: 0.875rem 1.75rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+        margin: 0.4rem;
+      }
+      .download-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.16);
+        background: #f0fdf4;
+      }
+      .download-btn:active {
+        transform: translateY(0);
+      }
+      .control-panel {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 1.25rem;
+        margin: -1.5rem -1.5rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.875rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .control-btn {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .control-btn:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-1px);
+      }
+      .design-switcher {
+        background: rgba(255,255,255,0.15);
+        padding: 0.875rem;
+        border-radius: 8px;
+        margin-bottom: 1.25rem;
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+      }
+      .design-btn {
+        background: rgba(255,255,255,0.2);
+        color: #d1d5db;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 0.4rem 0.875rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .design-btn.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+      }
+      .design-btn:hover {
+        background: rgb(229, 232, 236);
+        transform: scale(1.05);
+      }
+      .design-icon {
+        font-size: 1.1rem;
+      }
+      .footer {
+        background: #f1f5f9;
+        padding: 0.5rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: #374151;
+        border-top: 1px solid #e5e7eb;
+        width: 100%;
+        max-width: 850px;
+        margin: 0 auto;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .footer-left {
+        font-weight: 600;
+        text-align: left;
+      }
+      .footer-center {
+        font-style: italic;
+        text-align: center;
+      }
+      .footer-right {
+        font-weight: 500;
+        text-align: right;
+      }
+      @media (max-width: 768px) {
+        .profile-name {
+          font-size: 1.8rem;
+        }
+        .profile-content {
+          padding: 1rem;
+        }
+        .section {
+          padding: 0.75rem;
+          margin-bottom: 0.6rem;
+        }
+        .skills-grid {
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 0.25rem;
+        }
+        .skills-grid .skill-category {
+          padding: 0.45rem;
+        }
+        .skills-grid .skill-category-title {
+          font-size: 0.75rem;
+          margin-bottom: 0.25rem;
+        }
+        .skills-grid .skill-tags {
+          gap: 0.12rem;
+        }
+        .skills-grid .skill-tag {
+          font-size: 0.65rem;
+          padding: 0.08rem 0.3rem;
+        }
+        .skills-grid.technical-skills {
+          grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+          gap: 0.2rem;
+        }
+        .skills-grid.technical-skills .skill-tag {
+          font-size: 0.6rem;
+          padding: 0.07rem 0.25rem;
+        }
+        .personal-details-grid {
+          grid-template-columns: 1fr;
+          gap: 0.625rem;
+        }
+        .section-title {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.75rem;
+          font-size: 1.1rem;
+        }
+        .control-panel {
+          flex-direction: column;
+          text-align: center;
+          padding: 1rem;
+        }
+        .design-switcher {
+          justify-content: center;
+          padding: 0.75rem;
+        }
+        .footer {
+          flex-direction: column;
+          gap: 0.25rem;
+          text-align: center;
+          padding: 0.75rem;
+        }
+        .footer-left, .footer-center, .footer-right {
+          text-align: center;
+        }
+      }
+      @media print {
+        @page {
+          margin: 0.5cm;
+        }
+        body {
+          background: white !important;
+          padding: 0;
+          margin: 0;
+          font-size: 11pt;
+          line-height: 1.3;
+        }
+        .profile-container {
+          box-shadow: none;
+          border-radius: 0;
+          max-width: 100%;
+          padding-bottom: 1cm;
+        }
+        .profile-header {
+          background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+          padding: 1cm;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        .profile-name {
+          font-size: 16pt;
+          page-break-after: avoid;
+          text-align: center;
+        }
+        .profile-subtitle {
+          font-size: 9pt;
+          text-align: center;
+        }
+        .profile-content {
+          padding: 0.75cm;
+        }
+        .section {
+          margin-bottom: 8pt;
+          padding: 6pt;
+          border-left: 2px solid #3b82f6;
+          page-break-inside: avoid;
+          background: #f8fafc !important;
+          box-shadow: none;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .section.hidden {
+          display: none !important;
+        }
+        .section-title {
+          font-size: 12pt;
+          page-break-after: avoid;
+          justify-content: flex-start;
+        }
+        .section-title-text::before {
+          width: 4pt;
+          height: 4pt;
+        }
+        .section-content {
+          font-size: 9pt;
+        }
+        .section-content ul, .section-content ol {
+          padding-left: 12pt;
+        }
+        .section-content li {
+          padding: 2pt 0;
+          page-break-inside: avoid;
+        }
+        .education-item, .project-item, .work-item, .skill-category, .personal-detail-item {
+          padding: 6pt;
+          border-left: 2px solid;
+          box-shadow: none;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .education-degree, .project-title, .work-role, .skill-category-title {
+          font-size: 10pt;
+        }
+        .project-description, .work-responsibilities, .personal-detail-value {
+          font-size: 8pt;
+        }
+        .skill-tags {
+          gap: 2pt;
+        }
+        .skill-tag {
+          font-size: 6pt;
+          padding: 0.5pt 3pt;
+          border-radius: 8px;
+        }
+        .download-section, .control-panel, .hide-toggle, .design-switcher, .skills-download-btn {
+          display: none !important;
+        }
+        .footer {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          width: 100%;
+          background: #f1f5f9 !important;
+          border-top: 1pt solid #e5e7eb;
+          padding: 4pt 0.5cm;
+          font-size: 8pt;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          page-break-inside: avoid;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .footer-left {
+          font-weight: 600;
+          text-align: left;
+        }
+        .footer-center {
+          font-style: italic;
+          text-align: center;
+        }
+        .footer-right {
+          font-weight: 500;
+          text-align: right;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="profile-container">
+      <div class="profile-header">
+        <h1 class="profile-name">{{ profile.get('name', '') | safe }}</h1>
+      </div>
+      
+      <div class="profile-content">
+        <div class="control-panel">
+          <div>
+            <h3 style="margin: 0; font-size: 1.125rem;">Resume Customization</h3>
+            <p style="margin: 0.5rem 0 0; opacity: 0.9; font-size: 0.875rem;">Hide sections you don't want to include in the final document</p>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="control-btn" onclick="showAllSections()">Show All</button>
+            <button class="control-btn" onclick="hideAllSections()">Hide All</button>
+            <a href="{{ url_for('edit_profile') }}" class="control-btn">Edit Profile</a>
+          </div>
+          <div class="design-switcher">
+            <button class="design-btn active" data-design="display_profile" onclick="switchDesign('display_profile')" title="Default Design: Professional Gradient Theme">
+              <span class="design-icon"></span> Default Design
+            </button>
+            <button class="design-btn" data-design="d1" onclick="switchDesign('d1')" title="Design 1: Modern Gradient Theme">
+              <span class="design-icon"></span> Design 1
+            </button>
+            <button class="design-btn" data-design="d2" onclick="switchDesign('d2')" title="Design 2: Clean Minimalist Theme">
+              <span class="design-icon"></span> Design 2
+            </button>
+            <button class="design-btn" data-design="d3" onclick="switchDesign('d3')" title="Design 3: Professional Corporate Theme">
+              <span class="design-icon"></span> Design 3
+            </button>
+          </div>
+        </div>
+
+        {% if profile.get('education_training_certifications') and 'education-section' not in hidden_sections %}
+        <div class="section education-section" data-section-id="education-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Education, Training & Certifications</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('education-section')" data-section="education-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <ul>
+              {% for edu in profile.get('education_training_certifications', []) %}
+                <li>
+                  <div class="education-item">
+                    <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
+                    {% if edu.get('start_date') or edu.get('end_date') %}
+                      <div>{{ edu.get('start_date', 'N/A') }} - {{ edu.get('end_date', 'N/A') }}</div>
+                    {% endif %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if profile.get('total_experience') and 'experience-section' not in hidden_sections %}
+        <div class="section" data-section-id="experience-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Total Experience</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('experience-section')" data-section="experience-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <div>{{ profile.get('total_experience', '') | safe }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if profile.get('professional_summary') and 'summary-section' not in hidden_sections %}
+        <div class="section" data-section-id="summary-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Professional Summary</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('summary-section')" data-section="summary-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <ul>
+              {% for line in profile.get('professional_summary', '').split('\n') if line.strip() %}
+                <li>{{ line.lstrip('- ').strip() | safe }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if profile.get('work_experience') and 'work-experience-section' not in hidden_sections %}
+        <div class="section" data-section-id="work-experience-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Work Experience</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('work-experience-section')" data-section="work-experience-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            {% for work in profile.get('work_experience', []) %}
+              <div class="work-item">
+                <div class="work-role">{{ work.get('role', '') | safe }}</div>
+                {% if work.get('start_date') or work.get('end_date') %}
+                  <div>{{ work.get('start_date', 'N/A') }} - {{ work.get('end_date', 'N/A') }}</div>
+                {% endif %}
+                <div class="work-responsibilities">
+                  {% if work.get('responsibilities') %}
+                    <ul>
+                      {% for line in work.get('responsibilities', '').split('\n') if line.strip() %}
+                        <li>{{ line.lstrip('- ').strip() | safe }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if (profile.get('netweb_projects') or profile.get('past_projects')) and 'projects-section' not in hidden_sections %}
+        <div class="section" data-section-id="projects-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Projects</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('projects-section')" data-section="projects-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            {% if profile.get('netweb_projects') %}
+              <h3 style="font-size: 1.125rem; font-weight: 600; color: #059669; margin-bottom: 0.5rem;">NetWeb Projects</h3>
+              {% for p in profile.get('netweb_projects', []) %}
+                <div class="project-item">
+                  <div class="project-title">{{ p.get('title', '') | safe }}</div>
+                  <div class="project-description">
+                    <ul>
+                      {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                        <li>{{ desc.strip() + '.' | safe }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              {% endfor %}
+            {% endif %}
+            {% if profile.get('past_projects') %}
+              <h3 style="font-size: 1.125rem; font-weight: 600; color: #6b21a8; margin-top: 1rem; margin-bottom: 0.5rem;">Past Projects</h3>
+              {% for p in profile.get('past_projects', []) %}
+                <div class="project-item">
+                  <div class="project-title">{{ p.get('title', '') | safe }}</div>
+                  <div class="project-description">
+                    <ul>
+                      {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                        <li>{{ desc.strip() + '.' | safe }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if profile.get('roles_responsibilities') and 'roles-section' not in hidden_sections %}
+        <div class="section" data-section-id="roles-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Roles and Responsibilities</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('roles-section')" data-section="roles-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <ul>
+              {% for line in profile.get('roles_responsibilities', '').split('\n') if line.strip() %}
+                <li>{{ line.lstrip('- ').strip() | safe }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+
+        {% set skills = profile.get('technical_skills', {}) %}
+        {% if skills and (skills.get('web_technologies') or skills.get('scripting_languages') or skills.get('frameworks') or skills.get('databases') or skills.get('web_servers') or skills.get('tools')) and 'skills-section' not in hidden_sections %}
+        <div class="section" data-section-id="skills-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Technical Skill Set</span>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="hide-toggle" onclick="toggleSectionVisibility('skills-section')" data-section="skills-section">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide</span>
+              </button>
+              <form method="POST" action="/download_xlsx" id="download-skills-xlsx-form" style="display: inline;">
+                <input type="hidden" name="skills_only" value="true">
+                <input type="hidden" name="hidden_sections" id="hidden-sections-skills-xlsx" value='{{ hidden_sections | tojson | safe }}'>
+                <input type="hidden" name="design" id="design-skills-xlsx" value='{{ session.get("design", "display_profile") }}'>
+                <button type="submit" class="download-btn skills-download-btn" onclick="handleDownloadSkillsXlsx()">📊 Download Skills XLSX</button>
+              </form>
+            </div>
+          </h2>
+          <div class="section-content">
+            <div class="skills-grid">
+              {% if skills.get('web_technologies') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Web Technologies</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('web_technologies', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('scripting_languages') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Scripting Languages</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('scripting_languages', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('frameworks') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Frameworks</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('frameworks', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('databases') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Databases</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('databases', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('web_servers') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Web Servers</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('web_servers', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('tools') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Tools</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('tools', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% set personal = profile.get('personal_details', {}) %}
+        {% if personal and (personal.get('employee_id') or personal.get('designation') or personal.get('date_of_joining') or personal.get('overall_experience') or personal.get('date_of_birth') or personal.get('contact_number') or personal.get('permanent_address') or personal.get('local_address') or personal.get('passport_details')) and 'personal-details-section' not in hidden_sections %}
+        <div class="section" data-section-id="personal-details-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Personal Details</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('personal-details-section')" data-section="personal-details-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <div class="personal-details-grid">
+              {% if personal.get('employee_id') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Employee ID:</div>
+                <div class="personal-detail-value">{{ personal.get('employee_id', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('designation') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Designation:</div>
+                <div class="personal-detail-value">{{ personal.get('designation', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('date_of_joining') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Date of Joining:</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_joining', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('overall_experience') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Overall Experience:</div>
+                <div class="personal-detail-value">{{ personal.get('overall_experience', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('date_of_birth') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Date of Birth:</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_birth', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('contact_number') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Contact Number:</div>
+                <div class="personal-detail-value">{{ personal.get('contact_number', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('permanent_address') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Permanent Address:</div>
+                <div class="personal-detail-value">{{ personal.get('permanent_address', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('local_address') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Local Address:</div>
+                <div class="personal-detail-value">{{ personal.get('local_address', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('passport_details') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Passport:</div>
+                <div class="personal-detail-value">{{ personal.get('passport_details', '') | safe }}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      
+      <div class="download-section">
+        <h3 style="color: white; margin-bottom: 1.5rem; font-size: 1.25rem;">Download Your Resume</h3>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem;">
+          <form method="POST" action="/download" id="download-form" style="display: inline;">
+            <input type="hidden" name="profile_data" id="profile-data" value='{{ profile | tojson | safe }}'>
+            <input type="hidden" name="hidden_sections" id="hidden-sections" value='{{ hidden_sections | tojson | safe }}'>
+            <input type="hidden" name="design" id="design" value='{{ session.get("design", "display_profile") }}'>
+            <button type="submit" class="download-btn" onclick="handleDownload()">📄 Download PDF</button>
+          </form>
+        </div>
+        <p style="color: rgba(255,255,255,0.8); margin-top: 1rem; font-size: 0.875rem;"></p>
+      </div>
+
+      <div class="footer">
+        <div class="footer-left">NetWeb Software</div>
+        <div class="footer-center">Confidential</div>
+        <div class="footer-right"></div>
+      </div>
+    </div>
+
+    <script type="application/json" id="hidden-sections-data">
+      {{ hidden_sections | tojson | safe }}
+    </script>
+
+    <script>
+      let hiddenSections = [];
+      try {
+        const hiddenSectionsElement = document.getElementById('hidden-sections-data');
+        if (hiddenSectionsElement) {
+          const hiddenSectionsRaw = JSON.parse(hiddenSectionsElement.textContent);
+          hiddenSections = Array.isArray(hiddenSectionsRaw) ? hiddenSectionsRaw : [];
+        }
+      } catch (e) {
+        console.error('Error parsing hidden_sections from script tag:', e);
+        hiddenSections = [];
+      }
+
+      window.addEventListener('load', () => {
+        hiddenSections.forEach(sectionId => {
+          const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+          const button = document.querySelector(`[data-section="${sectionId}"]`);
+          if (section && button) {
+            section.classList.add('hidden');
+            button.classList.add('hidden-state');
+            const icon = button.querySelector('.toggle-icon');
+            const text = button.querySelector('.toggle-text');
+            icon.textContent = '🙈';
+            text.textContent = 'Show';
+          }
+        });
+        updateHiddenSectionsInputs();
+        console.log('Page loaded, hidden sections initialized:', hiddenSections);
+      });
+
+      function toggleSectionVisibility(sectionId) {
+        const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+        const button = document.querySelector(`[data-section="${sectionId}"]`);
+        const icon = button.querySelector('.toggle-icon');
+        const text = button.querySelector('.toggle-text');
+        
+        if (hiddenSections.includes(sectionId)) {
+          hiddenSections = hiddenSections.filter(id => id !== sectionId);
+          section.classList.remove('hidden');
+          button.classList.remove('hidden-state');
+          icon.textContent = '👁️';
+          text.textContent = 'Hide';
+          console.log(`Showing section: ${sectionId}`);
+        } else {
+          hiddenSections.push(sectionId);
+          section.classList.add('hidden');
+          button.classList.add('hidden-state');
+          icon.textContent = '🙈';
+          text.textContent = 'Show';
+          console.log(`Hiding section: ${sectionId}`);
+        }
+        
+        updateHiddenSectionsInputs();
+        console.log('Updated hidden sections:', hiddenSections);
+      }
+
+      function showAllSections() {
+        hiddenSections = [];
+        const sections = document.querySelectorAll('[data-section-id]');
+        const buttons = document.querySelectorAll('.hide-toggle');
+        
+        sections.forEach(section => {
+          section.classList.remove('hidden');
+        });
+        
+        buttons.forEach(button => {
+          button.classList.remove('hidden-state');
+          const icon = button.querySelector('.toggle-icon');
+          const text = button.querySelector('.toggle-text');
+          icon.textContent = '👁️';
+          text.textContent = 'Hide';
+        });
+        
+        updateHiddenSectionsInputs();
+        console.log('Showing all sections');
+      }
+
+      function hideAllSections() {
+        const sections = document.querySelectorAll('[data-section-id]');
+        const buttons = document.querySelectorAll('.hide-toggle');
+        
+        hiddenSections = [];
+        sections.forEach(section => {
+          const sectionId = section.getAttribute('data-section-id');
+          hiddenSections.push(sectionId);
+          section.classList.add('hidden');
+        });
+        
+        buttons.forEach(button => {
+          button.classList.add('hidden-state');
+          const icon = button.querySelector('.toggle-icon');
+          const text = button.querySelector('.toggle-text');
+          icon.textContent = '🙈';
+          text.textContent = 'Show';
+        });
+        
+        updateHiddenSectionsInputs();
+        console.log('Hiding all sections');
+      }
+
+      function updateHiddenSectionsInputs() {
+        const hiddenSectionsJSON = JSON.stringify(hiddenSections);
+        const inputs = [
+          document.getElementById('hidden-sections'),
+          document.getElementById('hidden-sections-skills-xlsx')
+        ];
+        inputs.forEach(input => {
+          if (input) {
+            input.value = hiddenSectionsJSON;
+          }
+        });
+        console.log('Updated hidden sections inputs with:', hiddenSectionsJSON);
+      }
+
+      function switchDesign(design) {
+        $.ajax({
+          url: '/switch_design',
+          type: 'POST',
+          data: { design: design },
+          success: function(data) {
+            if (data.html) {
+              $('body').html(data.html);
+              hiddenSections.forEach(sectionId => {
+                const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+                const button = document.querySelector(`[data-section="${sectionId}"]`);
+                if (section && button) {
+                  section.classList.add('hidden');
+                  button.classList.add('hidden-state');
+                  const icon = button.querySelector('.toggle-icon');
+                  const text = button.querySelector('.toggle-text');
+                  icon.textContent = '🙈';
+                  text.textContent = 'Show';
+                }
+              });
+              updateHiddenSectionsInputs();
+              attachEventListeners();
+              const designInputs = [
+                document.getElementById('design'),
+                document.getElementById('design-skills-xlsx')
+              ];
+              designInputs.forEach(input => {
+                if (input) {
+                  input.value = design;
+                }
+              });
+              console.log(`Switched to design: ${design}`);
+            } else if (data.error) {
+              console.error('Design switch failed:', data.error);
+              alert('Failed to switch design: ' + data.error);
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error('AJAX request for design switch failed:', error);
+            alert('Failed to switch design. Please try again.');
+          }
+        });
+      }
+
+      function handleDownload() {
+        updateHiddenSectionsInputs();
+        const form = document.getElementById('download-form');
+        const profileDataInput = document.getElementById('profile-data');
+        
+        try {
+          const profileData = JSON.parse(profileDataInput.value);
+          profileDataInput.value = encodeURIComponent(JSON.stringify(profileData));
+          console.log('Submitting PDF download with profile_data:', profileData, 'hidden_sections:', hiddenSections, 'design:', document.getElementById('design').value);
+          form.submit();
+        } catch (e) {
+          console.error('Error encoding profile_data for PDF:', e);
+          alert('Error preparing resume data for PDF download. Please try again.');
+        }
+      }
+
+      function handleDownloadSkillsXlsx() {
+        updateHiddenSectionsInputs();
+        const form = document.getElementById('download-skills-xlsx-form');
+        console.log('Submitting Skills XLSX download with hidden_sections:', hiddenSections, 'design:', document.getElementById('design-skills-xlsx').value);
+        form.submit();
+      }
+
+      function attachEventListeners() {
+        const sections = document.querySelectorAll('.section');
+        sections.forEach(section => {
+          section.addEventListener('mouseenter', function() {
+            if (!this.classList.contains('hidden')) {
+              this.style.transform = 'translateX(10px)';
+              this.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.2)';
+            }
+          });
+          section.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+            this.style.boxShadow = '';
+          });
+        });
+
+        document.addEventListener('submit', function(event) {
+          updateHiddenSectionsInputs();
+          console.log('Form submission: hidden sections updated to', JSON.stringify(hiddenSections));
+        });
+
+        document.addEventListener('keydown', function(event) {
+          if (event.ctrlKey || event.metaKey) {
+            switch(event.key) {
+              case 'h':
+                event.preventDefault();
+                hideAllSections();
+                break;
+              case 's':
+                event.preventDefault();
+                showAllSections();
+                break;
+              case 'd':
+                event.preventDefault();
+                handleDownload();
+                break;
+            }
+          }
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', attachEventListeners);
+    </script>
+  </body>
+</html>

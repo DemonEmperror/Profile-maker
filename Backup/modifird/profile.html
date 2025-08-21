@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Resume</title>
+    <script src="https://cdn.grammarly.com/web-sdk/v1/sdk.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .profile-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-content {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+        }
+
+        .section-content {
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .section-content.hidden {
+            max-height: 0;
+            opacity: 0;
+            display: none;
+        }
+
+        .toggle-button {
+            margin-left: auto;
+            font-size: 0.9rem;
+            color: #3b82f6;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .field {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: #374151;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #374151;
+            background: #fff;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+            outline: none;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .field-group {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 3px solid #10b981;
+        }
+
+        .action-buttons {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            margin: 2rem -2rem -2rem;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .action-buttons button {
+            background: white;
+            color: #059669;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin: 0 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .action-buttons button:hover {
+            background: #f0fdf4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .grammarly-editor-plugin {
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 1rem;
+            }
+            .profile-name {
+                font-size: 1.8rem;
+            }
+            .profile-content {
+                padding: 1rem;
+            }
+            .section {
+                padding: 1rem;
+            }
+            .action-buttons button {
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .profile-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            .profile-header {
+                background: #1e40af !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .action-buttons, .toggle-button {
+                display: none;
+            }
+            .grammarly-editor-plugin {
+                border: none !important;
+            }
+            .section-content.hidden {
+                display: block !important;
+                max-height: none !important;
+                opacity: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1 class="profile-name">Professional Resume</h1>
+        </div>
+        <div class="profile-content">
+            <form id="profile-form" method="POST" action="/update_profile">
+                <input type="hidden" name="profile_data" value='{{ profile | tojson | safe }}'>
+                <input type="hidden" name="hidden_sections" id="hidden-sections" value='{{ hidden_sections | tojson | default("[]") | safe }}'>
+
+                <div class="section">
+                    <h2 class="section-title" onclick="toggleSection('name-section')">Name <button type="button" class="toggle-button">Hide</button></h2>
+                    <div id="name-section" class="section-content {% if 'name-section' in hidden_sections | default([]) %}hidden{% endif %}">
+                        <div class="field">
+                            <label for="name">Name:</label>
+                            <input type="text" id="name" name="name" value="{{ profile.name | default('') }}" data-grammarly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title" onclick="toggleSection('education-section')">Education, Training, Certifications <button type="button" class="toggle-button">Hide</button></h2>
+                    <div id="education-section" class="section-content {% if 'education-section' in hidden_sections | default([]) %}hidden{% endif %}">
+                        <div id="education_training_certifications">
+                            {% for item in profile.education_training_certifications | default([]) %}
+                                <div class="field">
+                                    <input type="text" name="education_training_certifications[]" value="{{ item | default('') }}" id="etc_{{ loop.index0 }}" data-grammarly>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title" onclick="toggleSection('experience-section')">Total Experience <button type="button" class="toggle-button">Hide</button></h2>
+                    <div id="experience-section" class="section-content {% if 'experience-section' in hidden_sections | default([]) %}hidden{% endif %}">
+                        <div class="field">
+                            <label for="total_experience">Total Experience:</label>
+                            <input type="text" id="total_experience" name="total_experience" value="{{ profile.total_experience | default('') }}" data-grammarly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title" onclick="toggleSection('summary-section')">Professional Summary <button type="button" class="toggle-button">Hide</button></h2>
+                    <div id="summary-section" class="section-content {% if 'summary-section' in hidden_sections | default([]) %}hidden{% endif %}">
+                        <div class="field">
+                            <label for="professional_summary">Summary:</label>
+                            <textarea id="professional_summary" name="professional_summary" data-grammarly>{{ profile.professional_summary | default('') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title" onclick="toggleSection('netweb-projects-section')">Net/Web Projects <button type="button" class="toggle-button">Hide</button></h2>
+                    <div id="netweb-projects-section" class="section-content {% if 'netweb-projects-section' in hidden_sections | default([]) %}hidden{% endif %}">
+                        <div id="netweb_projects">
+                            {% for project in profile.netweb_projects | default([]) %}
+                                <div class="field field-group">
+                                    <label>Title:</label>
+                                    <input type="text" name="netweb_projects[title][]" value="{{ project.title | default('') }}" id="netweb_title_{{ loop.index0 }}" data-grammarly>
+                                    <label>Description:</label>
+                                    <textarea name="netweb_projects[description][]" id="netweb_desc_{{ loop.index0 }}" data-grammarly>{{ project.description | default('') }}</textarea>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title" onclick="toggleSection('past-projects-section')">Past Projects <button type="button" class="toggle-button">Hide</button></h2>
+                    <div id="past-projects-section" class="section-content {% if 'past-projects-section' in hidden_sections | default([]) %}hidden{% endif %}">
+                        <div id="past_projects">
+                            {% for project in profile.past_projects | default([]) %}
+                                <div class="field field-group">
+                                    <label>Title:</label>
+                                    <input type="text" name="past_projects[title][]" value="{{ project.title | default('') }}" id="past_title_{{ loop.index0 }}" data-grammarly>
+                                    <label>Description:</label>
+                                    <textarea name="past_projects[description][]" id="past_desc_{{ loop.index0 }}" data-grammarly>{{ project.description | default('') }}</textarea>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title" onclick="toggleSection('roles-section')">Roles and Responsibilities <button type="button" class="toggle-button">Hide</button></h2>
+                    <div id="roles-section" class="section-content {% if 'roles-section' in hidden_sections | default([]) %}hidden{% endif %}">
+                        <div class="field">
+                            <label for="roles_responsibilities">Roles:</label>
+                            <textarea id="roles_responsibilities" name="roles_responsibilities" data-grammarly>{{ profile.roles_responsibilities | default('') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title" onclick="toggleSection('skills-section')">Technical Skills <button type="button" class="toggle-button">Hide</button></h2>
+                    <div id="skills-section" class="section-content {% if 'skills-section' in hidden_sections | default([]) %}hidden{% endif %}">
+                        <div class="field">
+                            <label>Web Technologies:</label>
+                            <div id="technical_skills_web_technologies">
+                                {% for skill in profile.technical_skills.web_technologies | default([]) %}
+                                    <input type="text" name="technical_skills[web_technologies][]" value="{{ skill | default('') }}" id="web_tech_{{ loop.index0 }}" data-grammarly>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>Scripting Languages:</label>
+                            <div id="technical_skills_scripting_languages">
+                                {% for skill in profile.technical_skills.scripting_languages | default([]) %}
+                                    <input type="text" name="technical_skills[scripting_languages][]" value="{{ skill | default('') }}" id="script_lang_{{ loop.index0 }}" data-grammarly>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>Frameworks:</label>
+                            <div id="technical_skills_frameworks">
+                                {% for skill in profile.technical_skills.frameworks | default([]) %}
+                                    <input type="text" name="technical_skills[frameworks][]" value="{{ skill | default('') }}" id="framework_{{ loop.index0 }}" data-grammarly>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>Databases:</label>
+                            <div id="technical_skills_databases">
+                                {% for skill in profile.technical_skills.databases | default([]) %}
+                                    <input type="text" name="technical_skills[databases][]" value="{{ skill | default('') }}" id="database_{{ loop.index0 }}" data-grammarly>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>Web Servers:</label>
+                            <div id="technical_skills_web_servers">
+                                {% for skill in profile.technical_skills.web_servers | default([]) %}
+                                    <input type="text" name="technical_skills[web_servers][]" value="{{ skill | default('') }}" id="web_server_{{ loop.index0 }}" data-grammarly>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>Tools:</label>
+                            <div id="technical_skills_tools">
+                                {% for skill in profile.technical_skills.tools | default([]) %}
+                                    <input type="text" name="technical_skills[tools][]" value="{{ skill | default('') }}" id="tool_{{ loop.index0 }}" data-grammarly>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title" onclick="toggleSection('personal-details-section')">Personal Details <button type="button" class="toggle-button">Hide</button></h2>
+                    <div id="personal-details-section" class="section-content {% if 'personal-details-section' in hidden_sections | default([]) %}hidden{% endif %}">
+                        <div class="field">
+                            <label for="employee_id">Employee ID:</label>
+                            <input type="text" id="employee_id" name="personal_details[employee_id]" value="{{ profile.personal_details.employee_id | default('') }}" data-grammarly>
+                        </div>
+                        <div class="field">
+                            <label for="permanent_address">Permanent Address:</label>
+                            <textarea id="permanent_address" name="personal_details[permanent_address]" data-grammarly>{{ profile.personal_details.permanent_address | default('') }}</textarea>
+                        </div>
+                        <div class="field">
+                            <label for="local_address">Local Address:</label>
+                            <textarea id="local_address" name="personal_details[local_address]" data-grammarly>{{ profile.personal_details.local_address | default('') }}</textarea>
+                        </div>
+                        <div class="field">
+                            <label for="contact_number">Contact Number:</label>
+                            <input type="text" id="contact_number" name="personal_details[contact_number]" value="{{ profile.personal_details.contact_number | default('') }}" data-grammarly>
+                        </div>
+                        <div class="field">
+                            <label for="date_of_joining">Date of Joining:</label>
+                            <input type="text" id="date_of_joining" name="personal_details[date_of_joining]" value="{{ profile.personal_details.date_of_joining | default('') }}" data-grammarly>
+                        </div>
+                        <div class="field">
+                            <label for="designation">Designation:</label>
+                            <input type="text" id="designation" name="personal_details[designation]" value="{{ profile.personal_details.designation | default('') }}" data-grammarly>
+                        </div>
+                        <div class="field">
+                            <label for="overall_experience">Overall Experience:</label>
+                            <input type="text" id="overall_experience" name="personal_details[overall_experience]" value="{{ profile.personal_details.overall_experience | default('') }}" data-grammarly>
+                        </div>
+                        <div class="field">
+                            <label for="date_of_birth">Date of Birth:</label>
+                            <input type="text" id="date_of_birth" name="personal_details[date_of_birth]" value="{{ profile.personal_details.date_of_birth | default('') }}" data-grammarly>
+                        </div>
+                        <div class="field">
+                            <label for="passport_details">Passport Details:</label>
+                            <input type="text" id="passport_details" name="personal_details[passport_details]" value="{{ profile.personal_details.passport_details | default('') }}" data-grammarly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" name="action" value="save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Grammarly SDK
+        Grammarly.init({
+            clientId: 'YOUR_GRAMMARLY_CLIENT_ID' // Replace with your Grammarly client ID
+        });
+
+        // Track hidden sections with error handling
+        let hiddenSections;
+        try {
+            hiddenSections = JSON.parse('{{ hidden_sections | tojson | default("[]") | safe }}');
+            if (!Array.isArray(hiddenSections)) {
+                console.warn('hidden_sections is not an array, defaulting to []');
+                hiddenSections = [];
+            }
+        } catch (e) {
+            console.error('Error parsing hidden_sections:', e);
+            hiddenSections = [];
+        }
+        console.log('Initial hidden sections:', hiddenSections);
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const button = section.parentElement.querySelector('.toggle-button');
+            if (!section || !button) {
+                console.error(`Section or button not found for ID: ${sectionId}`);
+                return;
+            }
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+                button.textContent = 'Hide';
+                hiddenSections = hiddenSections.filter(id => id !== sectionId);
+            } else {
+                section.classList.add('hidden');
+                button.textContent = 'Show';
+                if (!hiddenSections.includes(sectionId)) {
+                    hiddenSections.push(sectionId);
+                }
+            }
+            document.getElementById('hidden-sections').value = JSON.stringify(hiddenSections);
+            console.log(`Toggled section: ${sectionId}, Hidden: ${section.classList.contains('hidden')}, Hidden Sections: ${JSON.stringify(hiddenSections)}`);
+        }
+
+        // Apply hidden state on page load
+        window.addEventListener('load', () => {
+            hiddenSections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.classList.add('hidden');
+                    section.parentElement.querySelector('.toggle-button').textContent = 'Show';
+                    console.log(`Applied hidden class to: ${sectionId}`);
+                } else {
+                    console.warn(`Section not found: ${sectionId}`);
+                }
+            });
+            document.getElementById('hidden-sections').value = JSON.stringify(hiddenSections);
+            console.log(`Applied hidden sections on load: ${JSON.stringify(hiddenSections)}`);
+        });
+
+        document.getElementById('profile-form').addEventListener('submit', function(event) {
+            console.log('Form submission started');
+            console.log('Hidden sections before submission:', hiddenSections);
+            const formData = new FormData(this);
+            for (let [key, value] of formData.entries()) {
+                console.log(`Form data: ${key}=${value}`);
+            }
+            // Update hidden-sections input before submission
+            document.getElementById('hidden-sections').value = JSON.stringify(hiddenSections);
+            console.log('Hidden sections set in form:', document.getElementById('hidden-sections').value);
+            // Temporarily unhide sections to ensure data is included
+            document.querySelectorAll('.section-content.hidden').forEach(section => {
+                section.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

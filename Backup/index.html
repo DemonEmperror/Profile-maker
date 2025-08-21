@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload Resume | AI Profile Generator</title>
+  <link rel="stylesheet" href="/static/css/profile.css" />
+  <link rel="stylesheet" href="https://unpkg.com/heroicons@2.0.0/24/outline/heroicons.min.css">
+</head>
+<body>
+
+  <header class="profile-header">
+    <h1>AI Employee Profile Generator</h1>
+    
+  </header>
+
+  <section class="container section secondary">
+    <h2 class="section-title">Upload Resume or Enter Text</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+      <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 600px; margin: auto;">
+        <label>
+          <strong>Select File (PDF / DOCX / TXT):</strong>
+          <input type="file" name="file_input" class="card" style="padding: 1rem; width: 100%;" />
+        </label>
+
+        <label>
+          <strong>Or Paste Profile Text:</strong>
+          <textarea name="text_input" rows="2" placeholder="Paste full resume text here..." class="card" style="width: 100%; padding: 1rem;"></textarea>
+        </label>
+
+        <button class="download-btn" type="submit">Generate Profile</button>
+      </div>
+    </form>
+  </section>
+
+  <footer class="footer">
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grammar Suggestions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .highlight {
+      background-color: #fef08a;
+      border-bottom: 2px dashed #facc15;
+      cursor: pointer;
+    }
+    .suggestion-box {
+      background-color: #f9fafb;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #d1d5db;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <div class="max-w-5xl mx-auto p-6">
+    <h1 class="text-3xl font-semibold mb-6">📝 Grammar Suggestions</h1>
+
+    <form action="/process_grammar" method="POST">
+      <input type="hidden" name="original_text" id="original_text" value="{{ original_text|tojson }}">
+      <input type="hidden" name="corrections" id="corrections">
+
+      <div class="space-y-4">
+        {% for s in suggestions %}
+        <div class="suggestion-box">
+          <p><strong>Issue:</strong> <span class="text-red-600">{{ s.original }}</span></p>
+          <p><strong>Message:</strong> {{ s.message }}</p>
+          {% if s.suggestions %}
+            <label class="block mt-2">
+              <input type="checkbox" class="accept-suggestion" 
+                     data-offset="{{ s.offset }}" 
+                     data-length="{{ s.length }}" 
+                     data-replacement="{{ s.suggestions[0] }}">
+              Replace with: <span class="text-green-600 font-medium">{{ s.suggestions[0] }}</span>
+            </label>
+          {% else %}
+            <p class="text-gray-400">No replacement available</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="flex items-center space-x-4 mt-8">
+        <button type="submit"
+                onclick="prepareCorrections()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">
+          ✅ Apply Corrections
+        </button>
+
+        <form action="/skip_grammar" method="POST">
+          <input type="hidden" name="original_text" value="{{ original_text }}">
+          <button type="submit" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded">
+            🚫 Skip Grammar Check
+          </button>
+        </form>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function prepareCorrections() {
+      const accepted = [];
+      document.querySelectorAll('.accept-suggestion:checked').forEach(cb => {
+        accepted.push({
+          offset: parseInt(cb.dataset.offset),
+          length: parseInt(cb.dataset.length),
+          replacement: cb.dataset.replacement
+        });
+      });
+      document.getElementById('corrections').value = JSON.stringify(accepted);
+    }
+  </script>
+</body>
+</html>

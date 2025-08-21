@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Profile from Scratch | AI Profile Generator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .profile-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .profile-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        .profile-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+        .profile-content {
+            padding: 2rem;
+        }
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s ease;
+        }
+        .section:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+        }
+        .section-content {
+            overflow: hidden;
+        }
+        .field {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        label {
+            font-weight: 600;
+            color: #374151;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .editable {
+            width: 100%;
+            padding: 12px;
+            min-height: 40px;
+            font-size: 15px;
+            outline: none;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .editable:focus {
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+        }
+        .date-field {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .date-field:focus {
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+        }
+        .date-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .field-group {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 3px solid #10b981;
+            position: relative;
+        }
+        .subcategory {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #6ee7b7;
+        }
+        .subcategory-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #065f46;
+            margin-bottom: 0.75rem;
+        }
+        .format-button, .add-button, .remove-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            margin-right: 0.5rem;
+        }
+        .remove-button {
+            background: #ef4444;
+        }
+        .format-button:hover, .add-button:hover {
+            background: #1e40af;
+        }
+        .remove-button:hover {
+            background: #b91c1c;
+        }
+        .action-buttons {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            margin: 2rem -2rem -2rem;
+            border-radius: 0 0 20px 20px;
+        }
+        .action-buttons button, .action-buttons a {
+            background: white;
+            color: #059669;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin: 0 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .action-buttons button:hover, .action-buttons a:hover {
+            background: #f0fdf4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .format-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .format-modal-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .format-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: #f3f2f1;
+            border-radius: 4px;
+        }
+        .format-toolbar button {
+            background: none;
+            border: none;
+            padding: 6px 8px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        .format-toolbar button:hover {
+            background: #e1dfdd;
+        }
+        .format-editor {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+        }
+        .format-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        .format-actions button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .format-actions .save {
+            background: #10b981;
+            color: white;
+        }
+        .format-actions .cancel {
+            background: #ef4444;
+            color: white;
+        }
+        .loader-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #007bff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loader-text {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #333;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 1rem;
+            }
+            .profile-name {
+                font-size: 1.8rem;
+            }
+            .profile-content {
+                padding: 1rem;
+            }
+            .section {
+                padding: 1rem;
+            }
+            .action-buttons button, .action-buttons a {
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+            .date-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1 class="profile-name">Create Profile from Scratch</h1>
+        </div>
+        <div class="profile-content">
+            <form id="profile-form" method="POST" action="/submit_from_scratch">
+                <div class="section" id="personal-details-section">
+                    <h2 class="section-title">Personal Information</h2>
+                    <div class="section-content">
+                        <div class="field">
+                            <label for="full_name">Full Name:</label>
+                            <div class="editable" id="full_name" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('full_name')">Format</button>
+                            <input type="hidden" id="full_name_hidden" name="full_name">
+                        </div>
+                        <div class="field">
+                            <label for="employee_id">Employee ID:</label>
+                            <div class="editable" id="employee_id" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('employee_id')">Format</button>
+                            <input type="hidden" id="employee_id_hidden" name="personal_details[employee_id]">
+                        </div>
+                        <div class="field">
+                            <label for="contact_number">Contact Number:</label>
+                            <div class="editable" id="contact_number" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('contact_number')">Format</button>
+                            <input type="hidden" id="contact_number_hidden" name="personal_details[contact_number]">
+                        </div>
+                        <div class="field">
+                            <label for="permanent_address">Permanent Address:</label>
+                            <div class="editable" id="permanent_address" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('permanent_address')">Format</button>
+                            <input type="hidden" id="permanent_address_hidden" name="personal_details[permanent_address]">
+                        </div>
+                        <div class="field">
+                            <label for="local_address">Local Address:</label>
+                            <div class="editable" id="local_address" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('local_address')">Format</button>
+                            <input type="hidden" id="local_address_hidden" name="personal_details[local_address]">
+                        </div>
+                        <div class="field">
+                            <label for="date_of_joining">Date of Joining:</label>
+                            <input type="date" class="date-field" id="date_of_joining" name="personal_details[date_of_joining]">
+                        </div>
+                        <div class="field">
+                            <label for="designation">Designation:</label>
+                            <div class="editable" id="designation" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('designation')">Format</button>
+                            <input type="hidden" id="designation_hidden" name="personal_details[designation]">
+                        </div>
+                        <div class="field">
+                            <label for="overall_experience">Overall Experience:</label>
+                            <div class="editable" id="overall_experience" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('overall_experience')">Format</button>
+                            <input type="hidden" id="overall_experience_hidden" name="personal_details[overall_experience]">
+                        </div>
+                        <div class="field">
+                            <label for="date_of_birth">Date of Birth:</label>
+                            <input type="date" class="date-field" id="date_of_birth" name="personal_details[date_of_birth]">
+                        </div>
+                        <div class="field">
+                            <label for="passport_details">Passport Details:</label>
+                            <div class="editable" id="passport_details" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('passport_details')">Format</button>
+                            <input type="hidden" id="passport_details_hidden" name="personal_details[passport_details]">
+                        </div>
+                    </div>
+                </div>
+                <div class="section" id="education-section">
+                    <h2 class="section-title">Education, Industry Training & Certifications</h2>
+                    <div class="section-content">
+                        <div id="education_training_certifications">
+                            <div class="field field-group" id="etc_field_0">
+                                <div class="date-group">
+                                    <div class="field">
+                                        <label for="etc_start_date_0">Start Date:</label>
+                                        <input type="date" class="date-field" id="etc_start_date_0" name="education_start_date[]">
+                                    </div>
+                                    <div class="field">
+                                        <label for="etc_end_date_0">End Date:</label>
+                                        <input type="date" class="date-field" id="etc_end_date_0" name="education_end_date[]">
+                                    </div>
+                                </div>
+                                <label>Title:</label>
+                                <div class="editable" id="etc_0" contenteditable="true" spellcheck="true"></div>
+                                <button type="button" class="format-button" onclick="openFormatModal('etc_0')">Format</button>
+                                <button type="button" class="remove-button" onclick="removeField('etc_field_0', 'etc_0')">Remove</button>
+                                <input type="hidden" name="education_title[]" id="etc_0_hidden">
+                            </div>
+                        </div>
+                        <button type="button" class="add-button" onclick="addEducationField()">Add Education/Certification</button>
+                    </div>
+                </div>
+                <div class="section" id="experience-section">
+                    <h2 class="section-title">Total Experience</h2>
+                    <div class="section-content">
+                        <div class="field">
+                            <label for="total_experience">Total Experience:</label>
+                            <div class="editable" id="total_experience" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('total_experience')">Format</button>
+                            <input type="hidden" id="total_experience_hidden" name="total_experience">
+                        </div>
+                    </div>
+                </div>
+                <div class="section" id="summary-section">
+                    <h2 class="section-title">Professional Experience Summary</h2>
+                    <div class="section-content">
+                        <div class="field">
+                            <label for="professional_summary">Professional Summary:</label>
+                            <div class="editable" id="professional_summary" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('professional_summary')">Format</button>
+                            <input type="hidden" id="professional_summary_hidden" name="professional_summary">
+                        </div>
+                        <div class="subcategory">
+                            <h3 class="subcategory-title">Projects Worked at NetWeb</h3>
+                            <div id="netweb_projects">
+                                <div class="field field-group" id="netweb_project_field_0">
+                                    <label>Project Title:</label>
+                                    <div class="editable" id="netweb_project_title_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('netweb_project_title_0')">Format</button>
+                                    <input type="hidden" name="netweb_project_title[]" id="netweb_project_title_0_hidden">
+                                    <label>Brief Description:</label>
+                                    <div class="editable" id="netweb_project_description_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('netweb_project_description_0')">Format</button>
+                                    <button type="button" class="remove-button" onclick="removeField('netweb_project_field_0')">Remove</button>
+                                    <input type="hidden" name="netweb_project_description[]" id="netweb_project_description_0_hidden">
+                                </div>
+                            </div>
+                            <button type="button" class="add-button" onclick="addNetWebProjectField()">Add NetWeb Project</button>
+                        </div>
+                        <div class="subcategory">
+                            <h3 class="subcategory-title">Past Project Details</h3>
+                            <div id="past_projects">
+                                <div class="field field-group" id="past_project_field_0">
+                                    <label>Project Title:</label>
+                                    <div class="editable" id="past_project_title_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('past_project_title_0')">Format</button>
+                                    <input type="hidden" name="past_project_title[]" id="past_project_title_0_hidden">
+                                    <label>Brief Description:</label>
+                                    <div class="editable" id="past_project_description_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('past_project_description_0')">Format</button>
+                                    <button type="button" class="remove-button" onclick="removeField('past_project_field_0')">Remove</button>
+                                    <input type="hidden" name="past_project_description[]" id="past_project_description_0_hidden">
+                                </div>
+                            </div>
+                            <button type="button" class="add-button" onclick="addPastProjectField()">Add Past Project</button>
+                        </div>
+                        <div class="field">
+                            <label for="roles_responsibilities">Roles and Responsibilities:</label>
+                            <div class="editable" id="roles_responsibilities" contenteditable="true" spellcheck="true"></div>
+                            <button type="button" class="format-button" onclick="openFormatModal('roles_responsibilities')">Format</button>
+                            <input type="hidden" id="roles_responsibilities_hidden" name="roles_responsibilities">
+                        </div>
+                    </div>
+                </div>
+                <div class="section" id="work-experience-section">
+                    <h2 class="section-title">Work Experience</h2>
+                    <div class="section-content">
+                        <div id="work_experience">
+                            <div class="field field-group" id="work_0">
+                                <div class="date-group">
+                                    <div class="field">
+                                        <label for="work_start_date_0">Start Date:</label>
+                                        <input type="date" class="date-field" id="work_start_date_0" name="work_start_date[]">
+                                    </div>
+                                    <div class="field">
+                                        <label for="work_end_date_0">End Date:</label>
+                                        <input type="date" class="date-field" id="work_end_date_0" name="work_end_date[]">
+                                    </div>
+                                </div>
+                                <label>Role:</label>
+                                <div class="editable" id="work_role_0" contenteditable="true" spellcheck="true"></div>
+                                <button type="button" class="format-button" onclick="openFormatModal('work_role_0')">Format</button>
+                                <input type="hidden" name="work_role[]" id="work_role_0_hidden">
+                                <label>Responsibilities:</label>
+                                <div class="editable" id="work_responsibilities_0" contenteditable="true" spellcheck="true"></div>
+                                <button type="button" class="format-button" onclick="openFormatModal('work_responsibilities_0')">Format</button>
+                                <button type="button" class="remove-button" onclick="removeField('work_0')">Remove</button>
+                                <input type="hidden" name="work_responsibilities[]" id="work_responsibilities_0_hidden">
+                            </div>
+                        </div>
+                        <button type="button" class="add-button" onclick="addWorkField()">Add Work Experience</button>
+                    </div>
+                </div>
+                <div class="section" id="skills-section">
+                    <h2 class="section-title">Technical Skills</h2>
+                    <div class="section-content">
+                        <div class="subcategory">
+                            <h3 class="subcategory-title">Web Technologies</h3>
+                            <div id="web_technologies">
+                                <div class="field" id="web_tech_field_0">
+                                    <div class="editable" id="web_tech_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('web_tech_0')">Format</button>
+                                    <button type="button" class="remove-button" onclick="removeField('web_tech_field_0', 'web_tech_0')">Remove</button>
+                                    <input type="hidden" name="web_technologies[]" id="web_tech_0_hidden">
+                                </div>
+                            </div>
+                            <button type="button" class="add-button" onclick="addSkillField('web_technologies', 'web_tech')">Add Web Technology</button>
+                        </div>
+                        <div class="subcategory">
+                            <h3 class="subcategory-title">Scripting Languages</h3>
+                            <div id="scripting_languages">
+                                <div class="field" id="script_lang_field_0">
+                                    <div class="editable" id="script_lang_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('script_lang_0')">Format</button>
+                                    <button type="button" class="remove-button" onclick="removeField('script_lang_field_0', 'script_lang_0')">Remove</button>
+                                    <input type="hidden" name="scripting_languages[]" id="script_lang_0_hidden">
+                                </div>
+                            </div>
+                            <button type="button" class="add-button" onclick="addSkillField('scripting_languages', 'script_lang')">Add Scripting Language</button>
+                        </div>
+                        <div class="subcategory">
+                            <h3 class="subcategory-title">Frameworks</h3>
+                            <div id="frameworks">
+                                <div class="field" id="framework_field_0">
+                                    <div class="editable" id="framework_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('framework_0')">Format</button>
+                                    <button type="button" class="remove-button" onclick="removeField('framework_field_0', 'framework_0')">Remove</button>
+                                    <input type="hidden" name="frameworks[]" id="framework_0_hidden">
+                                </div>
+                            </div>
+                            <button type="button" class="add-button" onclick="addSkillField('frameworks', 'framework')">Add Framework</button>
+                        </div>
+                        <div class="subcategory">
+                            <h3 class="subcategory-title">Databases</h3>
+                            <div id="databases">
+                                <div class="field" id="database_field_0">
+                                    <div class="editable" id="database_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('database_0')">Format</button>
+                                    <button type="button" class="remove-button" onclick="removeField('database_field_0', 'database_0')">Remove</button>
+                                    <input type="hidden" name="databases[]" id="database_0_hidden">
+                                </div>
+                            </div>
+                            <button type="button" class="add-button" onclick="addSkillField('databases', 'database')">Add Database</button>
+                        </div>
+                        <div class="subcategory">
+                            <h3 class="subcategory-title">Web Servers</h3>
+                            <div id="web_servers">
+                                <div class="field" id="web_server_field_0">
+                                    <div class="editable" id="web_server_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('web_server_0')">Format</button>
+                                    <button type="button" class="remove-button" onclick="removeField('web_server_field_0', 'web_server_0')">Remove</button>
+                                    <input type="hidden" name="web_servers[]" id="web_server_0_hidden">
+                                </div>
+                            </div>
+                            <button type="button" class="add-button" onclick="addSkillField('web_servers', 'web_server')">Add Web Server</button>
+                        </div>
+                        <div class="subcategory">
+                            <h3 class="subcategory-title">Tools</h3>
+                            <div id="tools">
+                                <div class="field" id="tool_field_0">
+                                    <div class="editable" id="tool_0" contenteditable="true" spellcheck="true"></div>
+                                    <button type="button" class="format-button" onclick="openFormatModal('tool_0')">Format</button>
+                                    <button type="button" class="remove-button" onclick="removeField('tool_field_0', 'tool_0')">Remove</button>
+                                    <input type="hidden" name="tools[]" id="tool_0_hidden">
+                                </div>
+                            </div>
+                            <button type="button" class="add-button" onclick="addSkillField('tools', 'tool')">Add Tool</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" name="action" value="generate">Create Profile</button>
+                    <a href="/">Back to Upload</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="formatModal" class="format-modal">
+        <div class="format-modal-content">
+            <h3>Format Text</h3>
+            <div class="format-toolbar">
+                <button type="button" onclick="formatModalText('bold')"><b>B</b></button>
+                <button type="button" onclick="formatModalText('italic')"><i>I</i></button>
+                <button type="button" onclick="formatModalText('underline')"><u>U</u></button>
+                <button type="button" onclick="formatModalText('insertUnorderedList')">• List</button>
+                <button type="button" onclick="formatModalText('insertOrderedList')">1. List</button>
+            </div>
+            <div class="format-editor" id="formatEditor" contenteditable="true"></div>
+            <div class="format-actions">
+                <button class="save" onclick="saveFormatChanges()">Save</button>
+                <button class="cancel" onclick="closeFormatModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="loader-overlay" id="loaderOverlay">
+        <div class="loader"></div>
+        <div class="loader-text">Processing... Please wait</div>
+    </div>
+    <script>
+        let currentFieldId = '';
+        let educationIndex = 1;
+        let workIndex = 1;
+        let netwebProjectIndex = 1;
+        let pastProjectIndex = 1;
+        let webTechIndex = 1;
+        let scriptLangIndex = 1;
+        let frameworkIndex = 1;
+        let databaseIndex = 1;
+        let webServerIndex = 1;
+        let toolIndex = 1;
+
+        window.addEventListener('load', () => {
+            setupEditableFields();
+        });
+
+        document.getElementById('profile-form').addEventListener('submit', function() {
+            updateAllHiddenFields();
+            document.getElementById('loaderOverlay').style.display = 'flex';
+        });
+
+        function openFormatModal(fieldId) {
+            currentFieldId = fieldId;
+            const field = document.getElementById(fieldId);
+            const editor = document.getElementById('formatEditor');
+            editor.innerHTML = field.innerHTML;
+            document.getElementById('formatModal').style.display = 'flex';
+            editor.focus();
+        }
+
+        function closeFormatModal() {
+            document.getElementById('formatModal').style.display = 'none';
+            currentFieldId = '';
+            document.getElementById('formatEditor').innerHTML = '';
+        }
+
+        function formatModalText(command) {
+            const editor = document.getElementById('formatEditor');
+            document.getSelection().selectAllChildren(editor);
+            document.execCommand(command, false, null);
+            editor.focus();
+            if (currentFieldId) {
+                const field = document.getElementById(currentFieldId);
+                field.innerHTML = editor.innerHTML;
+                field.dispatchEvent(new Event('input'));
+                updateHiddenField(currentFieldId);
+            }
+        }
+
+        function saveFormatChanges() {
+            if (currentFieldId) {
+                const editor = document.getElementById('formatEditor');
+                const field = document.getElementById(currentFieldId);
+                field.innerHTML = editor.innerHTML;
+                field.dispatchEvent(new Event('input'));
+                updateHiddenField(currentFieldId);
+                closeFormatModal();
+            }
+        }
+
+        function updateHiddenField(elementId) {
+            const editable = document.getElementById(elementId);
+            const hiddenInput = document.getElementById(`${elementId}_hidden`);
+            if (editable && hiddenInput) {
+                hiddenInput.value = editable.innerText.trim(); // Use innerText to avoid HTML tags
+            }
+        }
+
+        function updateAllHiddenFields() {
+            const fields = [
+                'full_name', 'employee_id', 'contact_number', 'permanent_address', 'local_address',
+                'designation', 'overall_experience', 'passport_details', 'total_experience',
+                'professional_summary', 'roles_responsibilities'
+            ];
+            fields.forEach(field => updateHiddenField(field));
+            document.querySelectorAll('[id^=etc_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=web_tech_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=script_lang_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=framework_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=database_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=web_server_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=tool_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=netweb_project_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=past_project_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=work_role_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+            document.querySelectorAll('[id^=work_responsibilities_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    updateHiddenField(editable.id);
+                }
+            });
+        }
+
+        function setupEditableFields() {
+            const fields = [
+                'full_name', 'employee_id', 'contact_number', 'permanent_address', 'local_address',
+                'designation', 'overall_experience', 'passport_details', 'total_experience',
+                'professional_summary', 'roles_responsibilities'
+            ];
+            fields.forEach(field => {
+                const editable = document.getElementById(field);
+                if (editable) {
+                    editable.addEventListener('input', () => updateHiddenField(field));
+                }
+            });
+            document.querySelectorAll('[id^=etc_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=web_tech_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=script_lang_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=framework_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=database_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=web_server_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=tool_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=netweb_project_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=past_project_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=work_role_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+            document.querySelectorAll('[id^=work_responsibilities_]').forEach(editable => {
+                if (!editable.id.endsWith('_hidden')) {
+                    editable.addEventListener('input', () => updateHiddenField(editable.id));
+                }
+            });
+        }
+
+        function addEducationField() {
+            const container = document.getElementById('education_training_certifications');
+            const newField = document.createElement('div');
+            newField.className = 'field field-group';
+            newField.id = `etc_field_${educationIndex}`;
+            newField.innerHTML = `
+                <div class="date-group">
+                    <div class="field">
+                        <label for="etc_start_date_${educationIndex}">Start Date:</label>
+                        <input type="date" class="date-field" id="etc_start_date_${educationIndex}" name="education_start_date[]">
+                    </div>
+                    <div class="field">
+                        <label for="etc_end_date_${educationIndex}">End Date:</label>
+                        <input type="date" class="date-field" id="etc_end_date_${educationIndex}" name="education_end_date[]">
+                    </div>
+                </div>
+                <label>Title:</label>
+                <div class="editable" id="etc_${educationIndex}" contenteditable="true" spellcheck="true"></div>
+                <button type="button" class="format-button" onclick="openFormatModal('etc_${educationIndex}')">Format</button>
+                <button type="button" class="remove-button" onclick="removeField('etc_field_${educationIndex}', 'etc_${educationIndex}')">Remove</button>
+                <input type="hidden" name="education_title[]" id="etc_${educationIndex}_hidden">
+            `;
+            container.appendChild(newField);
+            document.getElementById(`etc_${educationIndex}`).addEventListener('input', () => updateHiddenField(`etc_${educationIndex}`));
+            educationIndex++;
+        }
+
+        function addWorkField() {
+            const container = document.getElementById('work_experience');
+            const newField = document.createElement('div');
+            newField.className = 'field field-group';
+            newField.id = `work_${workIndex}`;
+            newField.innerHTML = `
+                <div class="date-group">
+                    <div class="field">
+                        <label for="work_start_date_${workIndex}">Start Date:</label>
+                        <input type="date" class="date-field" id="work_start_date_${workIndex}" name="work_start_date[]">
+                    </div>
+                    <div class="field">
+                        <label for="work_end_date_${workIndex}">End Date:</label>
+                        <input type="date" class="date-field" id="work_end_date_${workIndex}" name="work_end_date[]">
+                    </div>
+                </div>
+                <label>Role:</label>
+                <div class="editable" id="work_role_${workIndex}" contenteditable="true" spellcheck="true"></div>
+                <button type="button" class="format-button" onclick="openFormatModal('work_role_${workIndex}')">Format</button>
+                <input type="hidden" name="work_role[]" id="work_role_${workIndex}_hidden">
+                <label>Responsibilities:</label>
+                <div class="editable" id="work_responsibilities_${workIndex}" contenteditable="true" spellcheck="true"></div>
+                <button type="button" class="format-button" onclick="openFormatModal('work_responsibilities_${workIndex}')">Format</button>
+                <button type="button" class="remove-button" onclick="removeField('work_${workIndex}')">Remove</button>
+                <input type="hidden" name="work_responsibilities[]" id="work_responsibilities_${workIndex}_hidden">
+            `;
+            container.appendChild(newField);
+            document.getElementById(`work_role_${workIndex}`).addEventListener('input', () => updateHiddenField(`work_role_${workIndex}`));
+            document.getElementById(`work_responsibilities_${workIndex}`).addEventListener('input', () => updateHiddenField(`work_responsibilities_${workIndex}`));
+            workIndex++;
+        }
+
+        function addNetWebProjectField() {
+            const container = document.getElementById('netweb_projects');
+            const newField = document.createElement('div');
+            newField.className = 'field field-group';
+            newField.id = `netweb_project_field_${netwebProjectIndex}`;
+            newField.innerHTML = `
+                <label>Project Title:</label>
+                <div class="editable" id="netweb_project_title_${netwebProjectIndex}" contenteditable="true" spellcheck="true"></div>
+                <button type="button" class="format-button" onclick="openFormatModal('netweb_project_title_${netwebProjectIndex}')">Format</button>
+                <input type="hidden" name="netweb_project_title[]" id="netweb_project_title_${netwebProjectIndex}_hidden">
+                <label>Brief Description:</label>
+                <div class="editable" id="netweb_project_description_${netwebProjectIndex}" contenteditable="true" spellcheck="true"></div>
+                <button type="button" class="format-button" onclick="openFormatModal('netweb_project_description_${netwebProjectIndex}')">Format</button>
+                <button type="button" class="remove-button" onclick="removeField('netweb_project_field_${netwebProjectIndex}')">Remove</button>
+                <input type="hidden" name="netweb_project_description[]" id="netweb_project_description_${netwebProjectIndex}_hidden">
+            `;
+            container.appendChild(newField);
+            document.getElementById(`netweb_project_title_${netwebProjectIndex}`).addEventListener('input', () => updateHiddenField(`netweb_project_title_${netwebProjectIndex}`));
+            document.getElementById(`netweb_project_description_${netwebProjectIndex}`).addEventListener('input', () => updateHiddenField(`netweb_project_description_${netwebProjectIndex}`));
+            netwebProjectIndex++;
+        }
+
+        function addPastProjectField() {
+            const container = document.getElementById('past_projects');
+            const newField = document.createElement('div');
+            newField.className = 'field field-group';
+            newField.id = `past_project_field_${pastProjectIndex}`;
+            newField.innerHTML = `
+                <label>Project Title:</label>
+                <div class="editable" id="past_project_title_${pastProjectIndex}" contenteditable="true" spellcheck="true"></div>
+                <button type="button" class="format-button" onclick="openFormatModal('past_project_title_${pastProjectIndex}')">Format</button>
+                <input type="hidden" name="past_project_title[]" id="past_project_title_${pastProjectIndex}_hidden">
+                <label>Brief Description:</label>
+                <div class="editable" id="past_project_description_${pastProjectIndex}" contenteditable="true" spellcheck="true"></div>
+                <button type="button" class="format-button" onclick="openFormatModal('past_project_description_${pastProjectIndex}')">Format</button>
+                <button type="button" class="remove-button" onclick="removeField('past_project_field_${pastProjectIndex}')">Remove</button>
+                <input type="hidden" name="past_project_description[]" id="past_project_description_${pastProjectIndex}_hidden">
+            `;
+            container.appendChild(newField);
+            document.getElementById(`past_project_title_${pastProjectIndex}`).addEventListener('input', () => updateHiddenField(`past_project_title_${pastProjectIndex}`));
+            document.getElementById(`past_project_description_${pastProjectIndex}`).addEventListener('input', () => updateHiddenField(`past_project_description_${pastProjectIndex}`));
+            pastProjectIndex++;
+        }
+
+        function addSkillField(containerId, prefix) {
+            const container = document.getElementById(containerId);
+            let index;
+            switch (containerId) {
+                case 'web_technologies':
+                    index = webTechIndex++;
+                    break;
+                case 'scripting_languages':
+                    index = scriptLangIndex++;
+                    break;
+                case 'frameworks':
+                    index = frameworkIndex++;
+                    break;
+                case 'databases':
+                    index = databaseIndex++;
+                    break;
+                case 'web_servers':
+                    index = webServerIndex++;
+                    break;
+                case 'tools':
+                    index = toolIndex++;
+                    break;
+                default:
+                    return;
+            }
+            const newField = document.createElement('div');
+            newField.className = 'field';
+            newField.id = `${prefix}_field_${index}`;
+            newField.innerHTML = `
+                <div class="editable" id="${prefix}_${index}" contenteditable="true" spellcheck="true"></div>
+                <button type="button" class="format-button" onclick="openFormatModal('${prefix}_${index}')">Format</button>
+                <button type="button" class="remove-button" onclick="removeField('${prefix}_field_${index}', '${prefix}_${index}')">Remove</button>
+                <input type="hidden" name="${containerId}[]" id="${prefix}_${index}_hidden">
+            `;
+            container.appendChild(newField);
+            document.getElementById(`${prefix}_${index}`).addEventListener('input', () => updateHiddenField(`${prefix}_${index}`));
+        }
+
+        function removeField(fieldId, editableId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.remove();
+                if (editableId) {
+                    updateHiddenField(editableId);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

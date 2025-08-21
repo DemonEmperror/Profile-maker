@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Professional Resume - Display</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+* {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  background: #fafafa;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(90deg, transparent 79px, rgba(0,0,0,0.04) 80px, rgba(0,0,0,0.04) 81px, transparent 82px),
+    linear-gradient(rgba(0,0,0,0.04) 79px, transparent 80px, transparent 81px, rgba(0,0,0,0.04) 82px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: -1;
+}
+.profile-container {
+  background: #ffffff;
+  border-radius: 0;
+  box-shadow: 0 0 0 1px #e5e7eb, 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  border-top: 4px solid #111827;
+}
+.profile-header {
+  background: #ffffff;
+  color: #111827;
+  padding: 4rem 3rem 2rem;
+  position: relative;
+  border-bottom: 2px solid #f3f4f6;
+}
+.profile-name {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #111827;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+.profile-subtitle {
+  font-size: 1.125rem;
+  color: #6b7280;
+  font-weight: 400;
+  letter-spacing: 0.025em;
+}
+.profile-content {
+  padding: 3rem;
+}
+.section {
+  margin-bottom: 3rem;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  transition: all 0.2s ease;
+  position: relative;
+  padding-left: 1.5rem;
+}
+.section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: #111827;
+}
+.section:hover::before {
+  background: #3b82f6;
+  width: 4px;
+}
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: space-between;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 1rem;
+}
+.section-title-text {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.section-title-text::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: #111827;
+  border-radius: 0;
+  display: inline-block;
+  transform: rotate(45deg);
+}
+.hide-toggle {
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.hide-toggle:hover {
+  background: #374151;
+}
+.hide-toggle.hidden-state {
+  background: #059669;
+}
+.hide-toggle.hidden-state:hover {
+  background: #047857;
+}
+.section.hidden {
+  opacity: 0.4;
+}
+.section.hidden::before {
+  background: #ef4444;
+}
+.section-content {
+  color: #374151;
+  line-height: 1.8;
+  font-weight: 400;
+  font-size: 0.95rem;
+}
+.education-item, .project-item, .skill-category, .personal-detail-item {
+  background: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 0;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+.education-item:hover, .project-item:hover, .skill-category:hover, .personal-detail-item:hover {
+  border-left-color: #3b82f6;
+  background: #f3f4f6;
+}
+.education-degree, .project-title, .skill-category-title {
+  font-weight: 600;
+  color: #111827;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.control-panel {
+  background: #111827;
+  color: white;
+  padding: 2rem 3rem;
+  margin: -3rem -3rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.control-btn {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+}
+.control-btn:hover {
+  background: white;
+  color: #111827;
+}
+.download-section {
+  background: #111827;
+  margin: 3rem -3rem -3rem;
+  padding: 3rem;
+  text-align: center;
+}
+.download-btn {
+  background: white;
+  color: #111827;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.download-btn:hover {
+  background: #f3f4f6;
+}
+
+@media (max-width: 768px) {
+  .profile-name { font-size: 2.25rem; }
+  .profile-content { padding: 2rem; }
+  .section { padding-left: 1rem; }
+  .control-panel { flex-direction: column; text-align: center; padding: 2rem; margin: -2rem -2rem 2rem; }
+  .download-section { margin: 2rem -2rem -2rem; padding: 2rem; }
+}
+
+@media print {
+  body { background: white !important; padding: 1cm; margin: 0; font-size: 12pt; line-height: 1.4; }
+  .profile-container { box-shadow: none; border-radius: 0; max-width: 100%; }
+  .section.hidden { display: none !important; }
+  .download-section, .control-panel, .hide-toggle { display: none !important; }
+}
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="profile-header">
+      <h1 class="profile-name">{{ profile.get('name', '') | safe }}</h1>
+      <!-- {% set summary = profile.get('professional_summary', '') %}
+      {% if summary %}
+        <div class="profile-subtitle">{{ summary[:1500] | safe }}{% if summary|length > 1500 %}...{% endif %}</div>
+      {% else %}
+        <p class="profile-subtitle">Professional Software Developer</p>
+      {% endif %} -->
+    </div>
+    
+    <div class="profile-content">
+      <div class="control-panel">
+        <div>
+          <h3 style="margin: 0; font-size: 1.125rem;">Resume Customization</h3>
+          <p style="margin: 0.5rem 0 0; opacity: 0.9; font-size: 0.875rem;">Hide sections you don't want to include in the final document</p>
+        </div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button class="control-btn" onclick="showAllSections()">Show All</button>
+          <button class="control-btn" onclick="hideAllSections()">Hide All</button>
+           <button class="control-btn"><a href="{{ url_for('edit_profile') }}" class="edit-profile">Edit Profile</a></button>
+        </div>
+      </div>
+
+      {% if profile.get('education_training_certifications') and 'education-section' not in hidden_sections %}
+      <div class="section education-section" data-section-id="education-section">
+        <h2 class="section-title">
+          <span class="section-title-text">Education, Training & Certifications</span>
+          <button class="hide-toggle" onclick="toggleSectionVisibility('education-section')" data-section="education-section">
+            <span class="toggle-icon">👁️</span>
+            <span class="toggle-text">Hide</span>
+          </button>
+        </h2>
+        <div class="section-content">
+          <ul>
+            {% for edu in profile.get('education_training_certifications', []) %}
+              <li>
+                <div class="education-item">
+                  <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
+                  {% if edu.get('start_date') or edu.get('end_date') %}
+                    <div>{{ edu.get('start_date', 'N/A') }} - {{ edu.get('end_date', 'N/A') }}</div>
+                  {% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if profile.get('total_experience') and 'experience-section' not in hidden_sections %}
+      <div class="section" data-section-id="experience-section">
+        <h2 class="section-title">
+          <span class="section-title-text">Total Experience</span>
+          <button class="hide-toggle" onclick="toggleSectionVisibility('experience-section')" data-section="experience-section">
+            <span class="toggle-icon">👁️</span>
+            <span class="toggle-text">Hide</span>
+          </button>
+        </h2>
+        <div class="section-content">
+          <div>{{ profile.get('total_experience', '') | safe }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if profile.get('professional_summary') and 'summary-section' not in hidden_sections %}
+      <div class="section" data-section-id="summary-section">
+        <h2 class="section-title">
+          <span class="section-title-text">Professional Summary</span>
+          <button class="hide-toggle" onclick="toggleSectionVisibility('summary-section')" data-section="summary-section">
+            <span class="toggle-icon">👁️</span>
+            <span class="toggle-text">Hide</span>
+          </button>
+        </h2>
+        <div class="section-content">
+          <ul>
+            {% for line in profile.get('professional_summary', '').split('\n') if line.strip() %}
+              <li>{{ line.lstrip('- ').strip() | safe }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if (profile.get('netweb_projects') or profile.get('past_projects')) and 'projects-section' not in hidden_sections %}
+      <div class="section" data-section-id="projects-section">
+        <h2 class="section-title">
+          <span class="section-title-text">Projects</span>
+          <button class="hide-toggle" onclick="toggleSectionVisibility('projects-section')" data-section="projects-section">
+            <span class="toggle-icon">👁️</span>
+            <span class="toggle-text">Hide</span>
+          </button>
+        </h2>
+        <div class="section-content">
+          {% if profile.get('netweb_projects') %}
+            <h3 style="font-size: 1.125rem; font-weight: 600; color: #059669; margin-bottom: 0.5rem;">NetWeb Projects</h3>
+            {% for p in profile.get('netweb_projects', []) %}
+              <div class="project-item">
+                <div class="project-title">{{ p.get('title', '') | safe }}</div>
+                <div class="project-description">
+                  <ul>
+                    {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                      <li>{{ desc.strip() + '.' | safe }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+          {% if profile.get('past_projects') %}
+            <h3 style="font-size: 1.125rem; font-weight: 600; color: #6b21a8; margin-top: 1rem; margin-bottom: 0.5rem;">Past Projects</h3>
+            {% for p in profile.get('past_projects', []) %}
+              <div class="project-item">
+                <div class="project-title">{{ p.get('title', '') | safe }}</div>
+                <div class="project-description">
+                  <ul>
+                    {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                      <li>{{ desc.strip() + '.' | safe }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if profile.get('roles_responsibilities') and 'roles-section' not in hidden_sections %}
+      <div class="section" data-section-id="roles-section">
+        <h2 class="section-title">
+          <span class="section-title-text">Roles and Responsibilities</span>
+          <button class="hide-toggle" onclick="toggleSectionVisibility('roles-section')" data-section="roles-section">
+            <span class="toggle-icon">👁️</span>
+            <span class="toggle-text">Hide</span>
+          </button>
+        </h2>
+        <div class="section-content">
+          <ul>
+            {% for line in profile.get('roles_responsibilities', '').split('\n') if line.strip() %}
+              <li>{{ line.lstrip('- ').strip() | safe }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+
+      {% set skills = profile.get('technical_skills', {}) %}
+      {% if skills and (skills.get('web_technologies') or skills.get('scripting_languages') or skills.get('frameworks') or skills.get('databases') or skills.get('web_servers') or skills.get('tools')) and 'skills-section' not in hidden_sections %}
+      <div class="section" data-section-id="skills-section">
+        <h2 class="section-title">
+          <span class="section-title-text">Technical Skill Set</span>
+          <button class="hide-toggle" onclick="toggleSectionVisibility('skills-section')" data-section="skills-section">
+            <span class="toggle-icon">👁️</span>
+            <span class="toggle-text">Hide</span>
+          </button>
+        </h2>
+        <div class="section-content">
+          <div class="skills-grid">
+            {% if skills.get('web_technologies') %}
+            <div class="skill-category">
+              <div class="skill-category-title">Web Technologies</div>
+              <div class="skill-tags">
+                {% for skill in skills.get('web_technologies', []) %}
+                  <span class="skill-tag">{{ skill | safe }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+            {% if skills.get('scripting_languages') %}
+            <div class="skill-category">
+              <div class="skill-category-title">Scripting Languages</div>
+              <div class="skill-tags">
+                {% for skill in skills.get('scripting_languages', []) %}
+                  <span class="skill-tag">{{ skill | safe }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+            {% if skills.get('frameworks') %}
+            <div class="skill-category">
+              <div class="skill-category-title">Frameworks</div>
+              <div class="skill-tags">
+                {% for skill in skills.get('frameworks', []) %}
+                  <span class="skill-tag">{{ skill | safe }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+            {% if skills.get('databases') %}
+            <div class="skill-category">
+              <div class="skill-category-title">Databases</div>
+              <div class="skill-tags">
+                {% for skill in skills.get('databases', []) %}
+                  <span class="skill-tag">{{ skill | safe }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+            {% if skills.get('web_servers') %}
+            <div class="skill-category">
+              <div class="skill-category-title">Web Servers</div>
+              <div class="skill-tags">
+                {% for skill in skills.get('web_servers', []) %}
+                  <span class="skill-tag">{{ skill | safe }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+            {% if skills.get('tools') %}
+            <div class="skill-category">
+              <div class="skill-category-title">Tools</div>
+              <div class="skill-tags">
+                {% for skill in skills.get('tools', []) %}
+                  <span class="skill-tag">{{ skill | safe }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% set personal = profile.get('personal_details', {}) %}
+      {% if personal and (personal.get('employee_id') or personal.get('designation') or personal.get('date_of_joining') or personal.get('overall_experience') or personal.get('date_of_birth') or personal.get('contact_number') or personal.get('permanent_address') or personal.get('local_address') or personal.get('passport_details')) and 'personal-details-section' not in hidden_sections %}
+      <div class="section" data-section-id="personal-details-section">
+        <h2 class="section-title">
+          <span class="section-title-text">Personal Details</span>
+          <button class="hide-toggle" onclick="toggleSectionVisibility('personal-details-section')" data-section="personal-details-section">
+            <span class="toggle-icon">👁️</span>
+            <span class="toggle-text">Hide</span>
+          </button>
+        </h2>
+        <div class="section-content">
+          <div class="personal-details-grid">
+            {% if personal.get('employee_id') %}
+            <div class="personal-detail-item">
+              <div class="personal-detail-label">Employee ID:</div>
+              <div class="personal-detail-value">{{ personal.get('employee_id', '') | safe }}</div>
+            </div>
+            {% endif %}
+            {% if personal.get('designation') %}
+            <div class="personal-detail-item">
+              <div class="personal-detail-label">Designation:</div>
+              <div class="personal-detail-value">{{ personal.get('designation', '') | safe }}</div>
+            </div>
+            {% endif %}
+            {% if personal.get('date_of_joining') %}
+            <div class="personal-detail-item">
+              <div class="personal-detail-label">Date of Joining:</div>
+              <div class="personal-detail-value">{{ personal.get('date_of_joining', '') | safe }}</div>
+            </div>
+            {% endif %}
+            {% if personal.get('overall_experience') %}
+            <div class="personal-detail-item">
+              <div class="personal-detail-label">Overall Experience:</div>
+              <div class="personal-detail-value">{{ personal.get('overall_experience', '') | safe }}</div>
+            </div>
+            {% endif %}
+            {% if personal.get('date_of_birth') %}
+            <div class="personal-detail-item">
+              <div class="personal-detail-label">Date of Birth:</div>
+              <div class="personal-detail-value">{{ personal.get('date_of_birth', '') | safe }}</div>
+            </div>
+            {% endif %}
+            {% if personal.get('contact_number') %}
+            <div class="personal-detail-item">
+              <div class="personal-detail-label">Contact Number:</div>
+              <div class="personal-detail-value">{{ personal.get('contact_number', '') | safe }}</div>
+            </div>
+            {% endif %}
+            {% if personal.get('permanent_address') %}
+            <div class="personal-detail-item">
+              <div class="personal-detail-label">Permanent Address:</div>
+              <div class="personal-detail-value">{{ personal.get('permanent_address', '') | safe }}</div>
+            </div>
+            {% endif %}
+            {% if personal.get('local_address') %}
+            <div class="personal-detail-item">
+              <div class="personal-detail-label">Local Address:</div>
+              <div class="personal-detail-value">{{ personal.get('local_address', '') | safe }}</div>
+            </div>
+            {% endif %}
+            {% if personal.get('passport_details') %}
+            <div class="personal-detail-item">
+              <div class="personal-detail-label">Passport:</div>
+              <div class="personal-detail-value">{{ personal.get('passport_details', '') | safe }}</div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    
+    <div class="download-section">
+      <h3 style="color: white; margin-bottom: 1.5rem; font-size: 1.25rem;">Download Your Resume</h3>
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem;">
+        <form method="POST" action="/download" id="download-form" style="display: inline;">
+          <input type="hidden" name="profile_data" id="profile-data" value='{{ profile | tojson | safe }}'>
+          <input type="hidden" name="hidden_sections" id="hidden-sections" value='{{ hidden_sections | tojson | safe }}'>
+          <button type="submit" class="download-btn" onclick="handleDownload()">📄 Download PDF</button>
+        </form>
+        <!-- <form method="POST" action="/download_docx" id="download-docx-form" style="display: inline;">
+          <input type="hidden" name="hidden_sections" id="hidden-sections-docx" value='{{ hidden_sections | tojson | safe }}'>
+          <button type="submit" class="download-btn" onclick="handleDownloadDocx()">📄 Download DOCX</button>
+        </form>
+        <form method="POST" action="/download_xlsx" id="download-xlsx-form" style="display: inline;">
+          <input type="hidden" name="hidden_sections" id="hidden-sections-xlsx" value='{{ hidden_sections | tojson | safe }}'>
+          <button type="submit" class="download-btn" onclick="handleDownloadXlsx()">📄 Download XLSX</button>
+        </form> -->
+      </div>
+      <p style="color: rgba(255,255,255,0.8); margin-top: 1rem; font-size: 0.875rem;"></p>
+    </div>
+  </div>
+
+  <script type="application/json" id="hidden-sections-data">
+    {{ hidden_sections | tojson | safe }}
+  </script>
+
+  <script>
+    let hiddenSections = [];
+    try {
+      const hiddenSectionsElement = document.getElementById('hidden-sections-data');
+      if (hiddenSectionsElement) {
+        const hiddenSectionsRaw = JSON.parse(hiddenSectionsElement.textContent);
+        hiddenSections = Array.isArray(hiddenSectionsRaw) ? hiddenSectionsRaw : [];
+      }
+    } catch (e) {
+      console.error('Error parsing hidden_sections from script tag:', e);
+      hiddenSections = [];
+    }
+
+    window.addEventListener('load', () => {
+      hiddenSections.forEach(sectionId => {
+        const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+        const button = document.querySelector(`[data-section="${sectionId}"]`);
+        if (section && button) {
+          section.classList.add('hidden');
+          button.classList.add('hidden-state');
+          const icon = button.querySelector('.toggle-icon');
+          const text = button.querySelector('.toggle-text');
+          icon.textContent = '🙈';
+          text.textContent = 'Show';
+        }
+      });
+      updateHiddenSectionsInputs();
+      console.log('Page loaded, hidden sections initialized:', hiddenSections);
+    });
+
+    function toggleSectionVisibility(sectionId) {
+      const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+      const button = document.querySelector(`[data-section="${sectionId}"]`);
+      const icon = button.querySelector('.toggle-icon');
+      const text = button.querySelector('.toggle-text');
+      
+      if (hiddenSections.includes(sectionId)) {
+        hiddenSections = hiddenSections.filter(id => id !== sectionId);
+        section.classList.remove('hidden');
+        button.classList.remove('hidden-state');
+        icon.textContent = '👁️';
+        text.textContent = 'Hide';
+        console.log(`Showing section: ${sectionId}`);
+      } else {
+        hiddenSections.push(sectionId);
+        section.classList.add('hidden');
+        button.classList.add('hidden-state');
+        icon.textContent = '🙈';
+        text.textContent = 'Show';
+        console.log(`Hiding section: ${sectionId}`);
+      }
+      
+      updateHiddenSectionsInputs();
+      console.log('Updated hidden sections:', hiddenSections);
+    }
+
+    function showAllSections() {
+      hiddenSections = [];
+      const sections = document.querySelectorAll('[data-section-id]');
+      const buttons = document.querySelectorAll('.hide-toggle');
+      
+      sections.forEach(section => {
+        section.classList.remove('hidden');
+      });
+      
+      buttons.forEach(button => {
+        button.classList.remove('hidden-state');
+        const icon = button.querySelector('.toggle-icon');
+        const text = button.querySelector('.toggle-text');
+        icon.textContent = '👁️';
+        text.textContent = 'Hide';
+      });
+      
+      updateHiddenSectionsInputs();
+      console.log('Showing all sections');
+    }
+
+    function hideAllSections() {
+      const sections = document.querySelectorAll('[data-section-id]');
+      const buttons = document.querySelectorAll('.hide-toggle');
+      
+      hiddenSections = [];
+      sections.forEach(section => {
+        const sectionId = section.getAttribute('data-section-id');
+        hiddenSections.push(sectionId);
+        section.classList.add('hidden');
+      });
+      
+      buttons.forEach(button => {
+        button.classList.add('hidden-state');
+        const icon = button.querySelector('.toggle-icon');
+        const text = button.querySelector('.toggle-text');
+        icon.textContent = '🙈';
+        text.textContent = 'Show';
+      });
+      
+      updateHiddenSectionsInputs();
+      console.log('Hiding all sections');
+    }
+
+    function updateHiddenSectionsInputs() {
+      const hiddenSectionsJSON = JSON.stringify(hiddenSections);
+      const inputs = [
+        document.getElementById('hidden-sections'),
+        document.getElementById('hidden-sections-docx'),
+        document.getElementById('hidden-sections-xlsx')
+      ];
+      inputs.forEach(input => {
+        if (input) {
+          input.value = hiddenSectionsJSON;
+        }
+      });
+      console.log('Updated hidden sections inputs with:', hiddenSectionsJSON);
+    }
+
+    function handleDownload() {
+      updateHiddenSectionsInputs();
+      const form = document.getElementById('download-form');
+      const profileDataInput = document.getElementById('profile-data');
+      
+      try {
+        const profileData = JSON.parse(profileDataInput.value);
+        profileDataInput.value = encodeURIComponent(JSON.stringify(profileData));
+        console.log('Submitting PDF download with profile_data:', profileData, 'hidden_sections:', hiddenSections);
+        form.submit();
+      } catch (e) {
+        console.error('Error encoding profile_data for PDF:', e);
+        alert('Error preparing resume data for PDF download. Please try again.');
+      }
+    }
+
+    function handleDownloadDocx() {
+      updateHiddenSectionsInputs();
+      const form = document.getElementById('download-docx-form');
+      console.log('Submitting DOCX download with hidden_sections:', hiddenSections);
+      form.submit();
+    }
+
+    function handleDownloadXlsx() {
+      updateHiddenSectionsInputs();
+      const form = document.getElementById('download-xlsx-form');
+      console.log('Submitting XLSX download with hidden_sections:', hiddenSections);
+      form.submit();
+    }
+
+    document.addEventListener('submit', function(event) {
+      updateHiddenSectionsInputs();
+      console.log('Form submission: hidden sections updated to', JSON.stringify(hiddenSections));
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const sections = document.querySelectorAll('.section');
+      
+      sections.forEach(section => {
+        section.addEventListener('mouseenter', function() {
+          if (!this.classList.contains('hidden')) {
+            this.style.transform = 'translateX(10px)';
+            this.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.2)';
+          }
+        });
+        
+        section.addEventListener('mouseleave', function() {
+          this.style.transform = '';
+          this.style.boxShadow = '';
+        });
+      });
+    });
+
+    document.addEventListener('keydown', function(event) {
+      if (event.ctrlKey || event.metaKey) {
+        switch(event.key) {
+          case 'h':
+            event.preventDefault();
+            hideAllSections();
+            break;
+          case 's':
+            event.preventDefault();
+            showAllSections();
+            break;
+          case 'd':
+            event.preventDefault();
+            handleDownload();
+            break;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
