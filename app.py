@@ -21,7 +21,12 @@ import bleach
 from flask_session import Session
 
 # Gemini API Key
-genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+api_key = os.getenv("GOOGLE_API_KEY")
+
+if not api_key:
+    raise RuntimeError("Missing GOOGLE_API_KEY environment variable")
+
+genai.configure(api_key=api_key)
 
 app = Flask(__name__)
 app.secret_key = 'supersecret'
