@@ -1387,5 +1387,6 @@ def switch_design():
         logging.error(f"Unexpected error in switch_design: {str(e)}\n{traceback.format_exc()}")
         return jsonify({'error': f"An unexpected error occurred: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Railway gives dynamic PORT
+    app.run(host="0.0.0.0", port=port, debug=False)
