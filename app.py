@@ -42,6 +42,16 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
+# Register custom Jinja2 filter for format_date
+@app.template_filter('format_date')
+def format_date_jinja(value):
+    """
+    Jinja2 filter to format dates, wrapping format_date_for_display.
+    """
+    if not value:
+        return value
+    return format_date_for_display(value)
+
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 VALID_SECTION_IDS = [
@@ -1344,7 +1354,7 @@ def switch_design():
     try:
         # Get the design parameter from the POST request
         design = request.form.get('design')
-        if design not in ['display_profile', 'display_profile', 'd1', 'd2', 'd3']:  # Added display_profile
+        if design not in ['display_profile', 'd1', 'd2', 'd3']:  # Removed duplicate 'display_profile'
             logging.error(f"Invalid design selected: {design}")
             return jsonify({'error': 'Invalid design selected'}), 400
 
