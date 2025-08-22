@@ -774,6 +774,10 @@
           text-align: right;
         }
       }
+      /* Debugging styles */
+      .debug-info {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -785,6 +789,12 @@
         </div>
       </div>
       
+      <!-- Debugging information -->
+      <div class="debug-info">
+        Debug: Template loaded at {{ 'now' | format_date | default('unknown') }}.
+        Filter test: {{ '2023-01' | format_date | default('filter_missing') | safe }}
+      </div>
+
       <div class="profile-content">
         <div class="control-panel">
           <div>
@@ -830,7 +840,10 @@
                       <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
                     </div>
                     {% if edu.get('start_date') or edu.get('end_date') %}
-                      <div class="education-dates">{{ edu.get('start_date', 'N/A') | format_date }} - {{ edu.get('end_date', 'N/A') | format_date }}</div>
+                      <div class="education-dates">
+                        {{ edu.get('start_date', 'N/A') | format_date | default(edu.get('start_date', 'N/A')) | safe }} - 
+                        {{ edu.get('end_date', 'N/A') | format_date | default(edu.get('end_date', 'N/A')) | safe }}
+                      </div>
                     {% endif %}
                   </div>
                 </li>
@@ -899,7 +912,10 @@
                   </div>
                 </div>
                 {% if work.get('start_date') or work.get('end_date') %}
-                  <div class="work-dates">{{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}</div>
+                  <div class="work-dates">
+                    {{ work.get('start_date', 'N/A') | format_date | default(work.get('start_date', 'N/A')) | safe }} - 
+                    {{ work.get('end_date', 'N/A') | format_date | default(work.get('end_date', 'N/A')) | safe }}
+                  </div>
                 {% endif %}
               </div>
             {% endfor %}
@@ -1082,7 +1098,7 @@
               {% if personal.get('date_of_joining') %}
               <div class="personal-detail-item">
                 <div class="personal-detail-label">Date of Joining:</div>
-                <div class="personal-detail-value">{{ personal.get('date_of_joining', '') | format_date }}</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_joining', '') | format_date | default(personal.get('date_of_joining', '')) | safe }}</div>
               </div>
               {% endif %}
               {% if personal.get('overall_experience') %}
@@ -1094,7 +1110,7 @@
               {% if personal.get('date_of_birth') %}
               <div class="personal-detail-item">
                 <div class="personal-detail-label">Date of Birth:</div>
-                <div class="personal-detail-value">{{ personal.get('date_of_birth', '') | format_date }}</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_birth', '') | format_date | default(personal.get('date_of_birth', '')) | safe }}</div>
               </div>
               {% endif %}
               {% if personal.get('contact_number') %}
@@ -1135,6 +1151,16 @@
             <input type="hidden" name="hidden_sections" id="hidden-sections" value='{{ hidden_sections | tojson | safe }}'>
             <input type="hidden" name="design" id="design" value='{{ session.get("design", "display_profile") }}'>
             <button type="submit" class="download-btn" onclick="handleDownload()">📄 Download PDF</button>
+          </form>
+          <form method="POST" action="/download_docx" id="download-docx-form" style="display: inline;">
+            <input type="hidden" name="hidden_sections" id="hidden-sections-docx" value='{{ hidden_sections | tojson | safe }}'>
+            <input type="hidden" name="design" id="design-docx" value='{{ session.get("design", "display_profile") }}'>
+            <button type="submit" class="download-btn">📝 Download DOCX</button>
+          </form>
+          <form method="POST" action="/download_xlsx" id="download-xlsx-form" style="display: inline;">
+            <input type="hidden" name="hidden_sections" id="hidden-sections-xlsx" value='{{ hidden_sections | tojson | safe }}'>
+            <input type="hidden" name="design" id="design-xlsx" value='{{ session.get("design", "display_profile") }}'>
+            <button type="submit" class="download-btn">📊 Download XLSX</button>
           </form>
         </div>
         <p style="color: rgba(255,255,255,0.8); margin-top: 1rem; font-size: 0.875rem;"></p>
@@ -1255,7 +1281,9 @@
         const hiddenSectionsJSON = JSON.stringify(hiddenSections);
         const inputs = [
           document.getElementById('hidden-sections'),
-          document.getElementById('hidden-sections-skills-xlsx')
+          document.getElementById('hidden-sections-skills-xlsx'),
+          document.getElementById('hidden-sections-docx'),
+          document.getElementById('hidden-sections-xlsx')
         ];
         inputs.forEach(input => {
           if (input) {
@@ -1289,7 +1317,9 @@
               attachEventListeners();
               const designInputs = [
                 document.getElementById('design'),
-                document.getElementById('design-skills-xlsx')
+                document.getElementById('design-skills-xlsx'),
+                document.getElementById('design-docx'),
+                document.getElementById('design-xlsx')
               ];
               designInputs.forEach(input => {
                 if (input) {
