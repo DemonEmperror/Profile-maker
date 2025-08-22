@@ -5,4 +5,11 @@ spacy
 language-tool-python
 Werkzeug
 pdfkit
+openpyxl
+google-generativeai
+playwright
+pdfplumber
+lxml
+bleach
+Flask-Session
 gunicorn
