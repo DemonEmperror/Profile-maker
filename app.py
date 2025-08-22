@@ -21,7 +21,7 @@ import bleach
 from flask_session import Session
 
 # Gemini API Key
-genai.configure(api_key=os.getenv('GEMINI_API_KEY', "AIzaSyDzzIncgM-mfsad8QYWyYG5PvQtXYdlpbs"))
+genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
 app = Flask(__name__)
 app.secret_key = 'supersecret'
