@@ -5,3 +5,4 @@ spacy
 language-tool-python
 Werkzeug
 pdfkit
+gunicorn
