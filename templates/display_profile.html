@@ -30,13 +30,14 @@
       .profile-header {
         background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
         color: white;
-        padding: 1rem;
+        padding: 1rem 1.5rem;
         position: relative;
         overflow: hidden;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
+        min-height: 120px;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
@@ -49,6 +50,7 @@
         height: 50%;
         background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
         animation: float 6s ease-in-out infinite;
+        z-index: 1;
       }
       @keyframes float {
         0%, 100% { transform: translateY(0px) rotate(0deg); }
@@ -60,15 +62,28 @@
         margin-bottom: 0.3rem;
         text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         position: relative;
-        z-index: 1;
+        z-index: 2;
         line-height: 1.1;
-        text-align: center;
+        text-align: left;
+        margin-right: auto;
+      }
+      .profile-logo {
+        position: relative;
+        z-index: 2;
+        max-width: 150px;
+        height: auto;
+        margin-left: auto;
+      }
+      .profile-logo img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
       }
       .profile-subtitle {
         font-size: 1rem;
         opacity: 0.9;
         position: relative;
-        z-index: 1;
+        z-index: 2;
         line-height: 1.3;
         text-align: center;
       }
@@ -198,6 +213,9 @@
         position: relative;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
       }
       .education-degree {
         font-weight: 600;
@@ -205,6 +223,11 @@
         margin-bottom: 0.4rem;
         font-size: 1rem;
         line-height: 1.3;
+      }
+      .education-dates {
+        text-align: right;
+        color: #6b7280;
+        font-size: 0.9rem;
       }
       .project-item {
         background: white;
@@ -247,6 +270,9 @@
         position: relative;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
       }
       .work-role {
         font-weight: 600;
@@ -254,6 +280,11 @@
         margin-bottom: 0.4rem;
         font-size: 1rem;
         line-height: 1.3;
+      }
+      .work-dates {
+        text-align: right;
+        color: #6b7280;
+        font-size: 0.9rem;
       }
       .work-responsibilities {
         color: #6b7280;
@@ -517,8 +548,19 @@
         text-align: right;
       }
       @media (max-width: 768px) {
+        .profile-header {
+          flex-direction: row;
+          padding: 0.75rem 1rem;
+          min-height: 100px;
+        }
         .profile-name {
           font-size: 1.8rem;
+          text-align: left;
+          margin-right: auto;
+        }
+        .profile-logo {
+          max-width: 120px;
+          margin-left: auto;
         }
         .profile-content {
           padding: 1rem;
@@ -526,6 +568,14 @@
         .section {
           padding: 0.75rem;
           margin-bottom: 0.6rem;
+        }
+        .education-item, .work-item {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .education-dates, .work-dates {
+          text-align: left;
+          margin-top: 0.5rem;
         }
         .skills-grid {
           grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -603,20 +653,29 @@
           background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
-          padding: 1cm;
+          padding: 0.75cm 1cm;
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
+          justify-content: space-between;
           align-items: center;
-          justify-content: center;
+          min-height: 100px;
         }
         .profile-name {
           font-size: 16pt;
+          text-align: left;
+          margin-right: auto;
           page-break-after: avoid;
-          text-align: center;
+        }
+        .profile-logo {
+          max-width: 120px;
+          margin-left: auto;
+        }
+        .profile-logo img {
+          width: 100%;
+          height: auto;
         }
         .profile-subtitle {
-          font-size: 9pt;
-          text-align: center;
+          display: none;
         }
         .profile-content {
           padding: 0.75cm;
@@ -666,6 +725,14 @@
         .project-description, .work-responsibilities, .personal-detail-value {
           font-size: 8pt;
         }
+        .education-item, .work-item {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: flex-start;
+        }
+        .education-dates, .work-dates {
+          text-align: right;
+        }
         .skill-tags {
           gap: 2pt;
         }
@@ -713,6 +780,9 @@
     <div class="profile-container">
       <div class="profile-header">
         <h1 class="profile-name">{{ profile.get('name', '') | safe }}</h1>
+        <div class="profile-logo">
+          <img src="https://netweb.biz/wp-content/uploads/2025/04/NetWeb-Logo-Updated-Websize.png" alt="Company Logo" />
+        </div>
       </div>
       
       <div class="profile-content">
@@ -756,9 +826,11 @@
               {% for edu in profile.get('education_training_certifications', []) %}
                 <li>
                   <div class="education-item">
-                    <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
+                    <div>
+                      <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
+                    </div>
                     {% if edu.get('start_date') or edu.get('end_date') %}
-                      <div>{{ edu.get('start_date', 'N/A') | format_date }} - {{ edu.get('end_date', 'N/A') | format_date }}</div>
+                      <div class="education-dates">{{ edu.get('start_date', 'N/A') | format_date }} - {{ edu.get('end_date', 'N/A') | format_date }}</div>
                     {% endif %}
                   </div>
                 </li>
@@ -814,19 +886,21 @@
           <div class="section-content">
             {% for work in profile.get('work_experience', []) %}
               <div class="work-item">
-                <div class="work-role">{{ work.get('role', '') | safe }}</div>
-                {% if work.get('start_date') or work.get('end_date') %}
-                  <div>{{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}</div>
-                {% endif %}
-                <div class="work-responsibilities">
-                  {% if work.get('responsibilities') %}
-                    <ul>
-                      {% for line in work.get('responsibilities', '').split('\n') if line.strip() %}
-                        <li>{{ line.lstrip('- ').strip() | safe }}</li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
+                <div>
+                  <div class="work-role">{{ work.get('role', '') | safe }}</div>
+                  <div class="work-responsibilities">
+                    {% if work.get('responsibilities') %}
+                      <ul>
+                        {% for line in work.get('responsibilities', '').split('\n') if line.strip() %}
+                          <li>{{ line.lstrip('- ').strip() | safe }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  </div>
                 </div>
+                {% if work.get('start_date') or work.get('end_date') %}
+                  <div class="work-dates">{{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}</div>
+                {% endif %}
               </div>
             {% endfor %}
           </div>
