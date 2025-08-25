@@ -375,15 +375,24 @@ def sanitize_profile_data(profile):
         return profile
 
 def render_html_to_pdf(html_string, output_path):
+    """
+    Generate a PDF from HTML using Playwright (Chromium).
+    Falls back to WeasyPrint if Playwright/Chromium is not available.
+    """
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True, timeout=120000)
+            browser = p.chromium.launch(
+                headless=True,
+                args=["--no-sandbox", "--disable-setuid-sandbox"],  # required in Railway
+                timeout=120000
+            )
             try:
                 page = browser.new_page()
-                page.set_viewport_size({"width": 794, "height": 1123})
-                page.set_content(html_string, timeout=120000, wait_until='domcontentloaded')
-                page.wait_for_load_state('networkidle', timeout=120000)
+                page.set_viewport_size({"width": 794, "height": 1123})  # A4 approx in px
+                page.set_content(html_string, timeout=120000, wait_until="domcontentloaded")
+                page.wait_for_load_state("networkidle", timeout=120000)
                 page.emulate_media(media="print")
+
                 logging.info(f"Generating PDF at {output_path}")
                 page.pdf(
                     path=output_path,
@@ -401,9 +410,18 @@ def render_html_to_pdf(html_string, output_path):
                 logging.info(f"Successfully generated PDF at {output_path}")
             finally:
                 browser.close()
+
     except Exception as e:
-        logging.error(f"Failed to generate PDF: {str(e)}\n{traceback.format_exc()}")
-        raise Exception(f"PDF generation failed: {str(e)}. Ensure Playwright is installed and Chromium is available.")
+        logging.error(f"Playwright PDF generation failed: {str(e)}\n{traceback.format_exc()}")
+        logging.info("Falling back to WeasyPrint for PDF generation...")
+        try:
+            HTML(string=html_string).write_pdf(output_path)
+            logging.info(f"WeasyPrint successfully generated PDF at {output_path}")
+        except Exception as we:
+            logging.error(f"WeasyPrint also failed: {str(we)}\n{traceback.format_exc()}")
+            raise Exception(
+                f"PDF generation failed completely. Playwright error: {e}, WeasyPrint error: {we}"
+            )
 
 def cleanup_file(filepath):
     try:
