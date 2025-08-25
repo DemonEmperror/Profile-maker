@@ -19,7 +19,6 @@ import traceback
 import urllib.parse
 import bleach
 from flask_session import Session
-from weasyprint import HTML
 # Gemini API Key
 api_key = os.getenv("GEMINI_API_KEY")
 
