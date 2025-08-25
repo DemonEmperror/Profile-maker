@@ -13,3 +13,4 @@ lxml
 bleach
 Flask-Session
 gunicorn
+weasyprint
