@@ -4,7 +4,7 @@
   <title>Professional Resume - Display</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <style>
+<style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 * {
   font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -103,7 +103,7 @@ body::before {
 .profile-logo {
   position: relative;
   z-index: 2;
-  max-width: 150px;
+  max-width: 220px;
   height: auto;
   margin-left: auto;
 }
@@ -468,11 +468,12 @@ body::before {
 }
 .download-section {
   background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-  margin: 1.5rem -1.5rem -1.5rem;
+  margin: 1.5rem -1.5rem 0; /* Removed negative bottom margin */
   padding: 1.5rem 1.5rem;
   text-align: center;
   position: relative;
   overflow: hidden;
+  z-index: 1; /* Lower than footer */
 }
 .download-section::before {
   content: '';
@@ -555,7 +556,9 @@ body::before {
   border-top: 1px solid #e5e7eb;
   width: 100%;
   max-width: 850px;
-  margin: 0 auto;
+  margin: 1rem auto 0; /* Added margin-top to separate from download-section */
+  position: relative;
+  z-index: 10; /* Ensure footer is above download-section */
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
@@ -583,7 +586,7 @@ body::before {
     margin-right: auto;
   }
   .profile-logo {
-    max-width: 120px;
+    max-width: 180px;
     margin-left: auto;
   }
   .profile-content {
@@ -651,12 +654,17 @@ body::before {
     gap: 0.25rem;
     text-align: center;
     padding: 0.75rem;
+    margin: 0.75rem auto 0; /* Adjusted for mobile */
+    z-index: 10;
   }
   .footer-left, .footer-center, .footer-right {
     text-align: center;
   }
 }
 @media print {
+  @page {
+    margin: 0.5cm 0.5cm 1cm 0.5cm; /* Reserve space for footer */
+  }
   body {
     background: white !important;
     padding: 0.5cm;
@@ -669,6 +677,7 @@ body::before {
     border-radius: 0;
     max-width: 100%;
     background: white !important;
+    margin-bottom: 1cm; /* Ensure space for footer */
   }
   .profile-header {
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
@@ -689,7 +698,7 @@ body::before {
     margin-right: auto;
   }
   .profile-logo {
-    max-width: 120px;
+    max-width: 180px;
     margin-left: auto;
   }
   .profile-logo img {
@@ -757,17 +766,19 @@ body::before {
   .footer {
     position: fixed;
     bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
+    left: 0.5cm;
+    right: 0.5cm;
+    width: calc(100% - 1cm);
     background: #f1f5f9 !important;
     border-top: 1pt solid #e5e7eb;
     padding: 4pt 0.5cm;
     font-size: 8pt;
+    min-height: 20pt; /* Ensure visibility */
     display: flex;
     justify-content: space-between;
     align-items: center;
     page-break-inside: avoid;
+    z-index: 10;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -784,7 +795,7 @@ body::before {
     text-align: right;
   }
 }
-  </style>
+</style>
 </head>
 <body>
   <div class="profile-container">
@@ -893,29 +904,33 @@ body::before {
         </h2>
         <div class="section-content">
           {% for work in profile.get('work_experience', []) %}
-            <div class="work-item">
-              <div>
-                <div class="work-role">{{ work.get('role', '') | safe }}</div>
-                <div class="work-responsibilities">
-                  {% if work.get('responsibilities') %}
-                    <ul>
-                      {% for line in work.get('responsibilities', '').split('\n') if line.strip() %}
-                        <li>{{ line.lstrip('- ').strip() | safe }}</li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
+            {% if work.get('company_name') or work.get('role') %}
+              <div class="work-item">
+                <div>
+                  <div class="work-role">
+                    {{ work.get('company_name', '') | safe }} {% if work.get('company_name') and work.get('role') %} - {% endif %} {{ work.get('role', '') | safe }}
+                  </div>
+                  <div class="work-responsibilities">
+                    {% if work.get('responsibilities') %}
+                      <ul>
+                        {% for line in work.get('responsibilities', '').split('\n') if line.strip() %}
+                          <li>{{ line.lstrip('- ').strip() | safe }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  </div>
                 </div>
+                {% if work.get('start_date') or work.get('end_date') %}
+                  <div class="work-dates">{{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}</div>
+                {% endif %}
               </div>
-              {% if work.get('start_date') or work.get('end_date') %}
-                <div class="work-dates">{{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}</div>
-              {% endif %}
-            </div>
+            {% endif %}
           {% endfor %}
         </div>
       </div>
       {% endif %}
 
-      {% if (profile.get('netweb_projects') or profile.get('past_projects')) and 'projects-section' not in hidden_sections %}
+      {% if 'projects-section' not in hidden_sections %}
       <div class="section" data-section-id="projects-section">
         <h2 class="section-title">
           <span class="section-title-text">Projects</span>
@@ -925,35 +940,51 @@ body::before {
           </button>
         </h2>
         <div class="section-content">
-          {% if profile.get('netweb_projects') %}
-            <h3 style="font-size: 1.125rem; font-weight: 600; color: #059669; margin-bottom: 0.5rem;">NetWeb Projects</h3>
-            {% for p in profile.get('netweb_projects', []) %}
-              <div class="project-item">
-                <div class="project-title">{{ p.get('title', '') | safe }}</div>
-                <div class="project-description">
-                  <ul>
-                    {% for desc in p.get('description', '').split('. ') if desc.strip() %}
-                      <li>{{ desc.strip() + '.' | safe }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              </div>
-            {% endfor %}
-          {% endif %}
-          {% if profile.get('past_projects') %}
-            <h3 style="font-size: 1.125rem; font-weight: 600; color: #6b21a8; margin-top: 1rem; margin-bottom: 0.5rem;">Past Projects</h3>
-            {% for p in profile.get('past_projects', []) %}
-              <div class="project-item">
-                <div class="project-title">{{ p.get('title', '') | safe }}</div>
-                <div class="project-description">
-                  <ul>
-                    {% for desc in p.get('description', '').split('. ') if desc.strip() %}
-                      <li>{{ desc.strip() + '.' | safe }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              </div>
-            {% endfor %}
+          {% if profile.get('netweb_projects') or profile.get('past_projects') %}
+            {% if profile.get('netweb_projects') %}
+              <h3 style="font-size: 1.125rem; font-weight: 600; color: #059669; margin-bottom: 0.5rem;">NetWeb Projects</h3>
+              {% for p in profile.get('netweb_projects', []) %}
+                {% if p.get('title') or p.get('description') %}
+                  <div class="project-item">
+                    <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
+                    <div class="project-description">
+                      <ul>
+                        {% if p.get('description') %}
+                          {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                            <li>{{ desc.strip() + '.' | safe }}</li>
+                          {% endfor %}
+                        {% else %}
+                          <li>No description provided.</li>
+                        {% endif %}
+                      </ul>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+            {% if profile.get('past_projects') %}
+              <h3 style="font-size: 1.125rem; font-weight: 600; color: #6b21a8; margin-top: 1rem; margin-bottom: 0.5rem;">Past Projects</h3>
+              {% for p in profile.get('past_projects', []) %}
+                {% if p.get('title') or p.get('description') %}
+                  <div class="project-item">
+                    <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
+                    <div class="project-description">
+                      <ul>
+                        {% if p.get('description') %}
+                          {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                            <li>{{ desc.strip() + '.' | safe }}</li>
+                          {% endfor %}
+                        {% else %}
+                          <li>No description provided.</li>
+                        {% endif %}
+                      </ul>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          {% else %}
+            <p style="color: #6b7280; font-style: italic;">No projects available. Add projects in the edit profile page.</p>
           {% endif %}
         </div>
       </div>
