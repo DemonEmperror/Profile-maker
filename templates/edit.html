@@ -627,6 +627,8 @@
             <div id="work-experience-items">
               {% for exp in profile.get('work_experience', []) %}
               <div class="section-item">
+                <label for="work_company_{{ loop.index }}">Company Name</label>
+                <input type="text" id="work_company_{{ loop.index }}" name="work_experience[company_name][]" value="{{ exp.get('company_name', '') | safe }}" required />
                 <label for="work_start_{{ loop.index }}">Start Date</label>
                 <input type="date" id="work_start_{{ loop.index }}" name="work_experience[start_date][]" value="{{ exp.get('start_date', '') | safe }}" />
                 <label for="work_end_{{ loop.index }}">End Date</label>
@@ -1062,6 +1064,8 @@
         } else if (section === 'work_experience') {
           itemHtml = `
             <div class="section-item">
+              <label for="work_company_${index}">Company Name</label>
+              <input type="text" id="work_company_${index}" name="work_experience[company_name][]" required />
               <label for="work_start_${index}">Start Date</label>
               <input type="date" id="work_start_${index}" name="work_experience[start_date][]" />
               <label for="work_end_${index}">End Date</label>
