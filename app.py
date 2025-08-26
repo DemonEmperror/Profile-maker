@@ -19,6 +19,7 @@ import traceback
 import urllib.parse
 import bleach
 from flask_session import Session
+
 # Gemini API Key
 api_key = os.getenv("GEMINI_API_KEY")
 
@@ -41,17 +42,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-# Register custom Jinja2 filter for format_date
-@app.template_filter('format_date')
-def format_date_jinja(value):
-    """
-    Jinja2 filter to format dates, wrapping format_date_for_display.
-    """
-    if not value:
-        return value
-    return format_date_for_display(value)
+# Register Jinja2 filter for date formatting
+def jinja_format_date(date_str):
+    return format_date_for_display(date_str)
 
-model = genai.GenerativeModel("gemini-1.5-flash")
+app.jinja_env.filters['format_date'] = jinja_format_date
+
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 VALID_SECTION_IDS = [
     'education-section', 'experience-section', 'summary-section', 'projects-section',
@@ -246,7 +243,7 @@ def generate_structured_data(text):
         "date_of_birth": "",
         "passport_details": ""
       }},
-      "work_experience": [{{"start_date": "", "end_date": "", "role": "", "responsibilities": ""}}]
+      "work_experience": [{{"company_name": "", "start_date": "", "end_date": "", "role": "", "responsibilities": ""}}]
     }}
     Instructions:
     - Extract 'name' from the first line, prominent header, or personal details section (e.g., 'Vraj Shah').
@@ -258,7 +255,7 @@ def generate_structured_data(text):
     - Extract 'roles_responsibilities' from headers like 'Roles and Responsibilities', 'Key Responsibilities', or similar. If no explicit section exists, intelligently infer responsibilities from job descriptions, bullet points, or achievements under 'Work Experience', 'Professional Experience', or similar sections. Ensure responsibilities are specific, actionable tasks or outcomes (e.g., 'Developed a web application', 'Led a team of 5 engineers') and formatted as concise bullet points.
     - Extract 'technical_skills' from lists under headers like 'Technical Skill Set', 'Skills', or similar, categorizing into web_technologies, scripting_languages, frameworks, databases, web_servers, and tools.
     - For 'personal_details', extract fields like 'employee_id', 'permanent_address', etc., from sections like 'Personal Details' or similar. Standardize 'date_of_joining' and 'date_of_birth' to 'YYYY-MM'.
-    - Extract 'work_experience' from sections like 'Work Experience' or 'Professional Experience', including role, dates (standardized to 'YYYY-MM'), and responsibilities. If responsibilities are missing, infer them from job descriptions or achievements in the same section.
+    - Extract 'work_experience' from sections like 'Work Experience' or 'Professional Experience', including company name, role, dates (standardized to 'YYYY-MM'), and responsibilities. Extract 'company_name' from the organization or employer name associated with each role (e.g., 'Google', 'NetWeb'). If responsibilities are missing, infer them from job descriptions or achievements in the same section.
     - Leave fields empty if data is missing, but maintain the JSON structure. Ensure all text fields are clean and concise.
     Resume:
     {text}
@@ -358,6 +355,7 @@ def sanitize_profile_data(profile):
             elif k == 'work_experience':
                 sanitized[k] = [
                     {
+                        'company_name': sanitize_text(item.get('company_name', ''), allow_html=False),
                         'start_date': sanitize_text(item.get('start_date', ''), allow_html=False),
                         'end_date': sanitize_text(item.get('end_date', ''), allow_html=False),
                         'role': sanitize_text(item.get('role', ''), allow_html=False),
@@ -374,24 +372,15 @@ def sanitize_profile_data(profile):
         return profile
 
 def render_html_to_pdf(html_string, output_path):
-    """
-    Generate a PDF from HTML using Playwright (Chromium).
-    Falls back to WeasyPrint if Playwright/Chromium is not available.
-    """
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=True,
-                args=["--no-sandbox", "--disable-setuid-sandbox"],  # required in Railway
-                timeout=120000
-            )
+            browser = p.chromium.launch(headless=True, timeout=120000)
             try:
                 page = browser.new_page()
-                page.set_viewport_size({"width": 794, "height": 1123})  # A4 approx in px
-                page.set_content(html_string, timeout=120000, wait_until="domcontentloaded")
-                page.wait_for_load_state("networkidle", timeout=120000)
+                page.set_viewport_size({"width": 794, "height": 1123})
+                page.set_content(html_string, timeout=120000, wait_until='domcontentloaded')
+                page.wait_for_load_state('networkidle', timeout=120000)
                 page.emulate_media(media="print")
-
                 logging.info(f"Generating PDF at {output_path}")
                 page.pdf(
                     path=output_path,
@@ -409,18 +398,9 @@ def render_html_to_pdf(html_string, output_path):
                 logging.info(f"Successfully generated PDF at {output_path}")
             finally:
                 browser.close()
-
     except Exception as e:
-        logging.error(f"Playwright PDF generation failed: {str(e)}\n{traceback.format_exc()}")
-        logging.info("Falling back to WeasyPrint for PDF generation...")
-        try:
-            HTML(string=html_string).write_pdf(output_path)
-            logging.info(f"WeasyPrint successfully generated PDF at {output_path}")
-        except Exception as we:
-            logging.error(f"WeasyPrint also failed: {str(we)}\n{traceback.format_exc()}")
-            raise Exception(
-                f"PDF generation failed completely. Playwright error: {e}, WeasyPrint error: {we}"
-            )
+        logging.error(f"Failed to generate PDF: {str(e)}\n{traceback.format_exc()}")
+        raise Exception(f"PDF generation failed: {str(e)}. Ensure Playwright is installed and Chromium is available.")
 
 def cleanup_file(filepath):
     try:
@@ -487,10 +467,11 @@ def render_html_to_docx(profile, output_path, hidden_sections=None):
         if not should_skip_section('work-experience-section', hidden_sections) and profile.get('work_experience'):
             doc.add_heading('Work Experience', level=1)
             for exp in profile['work_experience']:
+                company_name = exp.get('company_name', 'Unknown Company')
                 role = exp.get('role', 'Unknown Role')
                 start_date = format_date_for_display(exp.get('start_date', 'N/A'))
                 end_date = format_date_for_display(exp.get('end_date', 'N/A'))
-                doc.add_heading(f"{role} ({start_date} - {end_date})", level=2)
+                doc.add_heading(f"{company_name} - {role} ({start_date} - {end_date})", level=2)
                 if exp.get('responsibilities'):
                     para = doc.add_paragraph()
                     html_to_docx(para, exp['responsibilities'])
@@ -655,9 +636,10 @@ def render_html_to_xlsx(profile, output_path, hidden_sections=None):
             apply_cell_style(ws.cell(row=row, column=1), is_header=True)
             row += 1
             for exp in profile['work_experience']:
+                company_name = exp.get('company_name', 'Unknown Company')
                 start_date = format_date_for_display(exp.get('start_date', 'N/A'))
                 end_date = format_date_for_display(exp.get('end_date', 'N/A'))
-                ws.cell(row=row, column=2).value = f"{exp.get('role', 'Unknown Role')} ({start_date} - {end_date})"
+                ws.cell(row=row, column=2).value = f"{company_name} - {exp.get('role', 'Unknown Role')} ({start_date} - {end_date})"
                 apply_cell_style(ws.cell(row=row, column=2), is_header=True)
                 row += 1
                 if exp.get('responsibilities'):
@@ -833,18 +815,20 @@ def submit_from_scratch():
         },
         "work_experience": [
             {
+                "company_name": company.strip(),
                 "start_date": start.strip(),
                 "end_date": end.strip(),
                 "role": role.strip(),
                 "responsibilities": resp.strip()
             }
-            for start, end, role, resp in zip(
-                request.form.getlist('work_start_date[]'),
-                request.form.getlist('work_end_date[]'),
-                request.form.getlist('work_role[]'),
-                request.form.getlist('work_responsibilities[]')
+            for company, start, end, role, resp in zip(
+                request.form.getlist('work_experience[company_name][]'),
+                request.form.getlist('work_experience[start_date_converted][]'),
+                request.form.getlist('work_experience[end_date_converted][]'),
+                request.form.getlist('work_experience[role][]'),
+                request.form.getlist('work_experience[responsibilities][]')
             )
-            if role.strip() or resp.strip()
+            if role.strip() or company.strip()
         ]
     }
 
@@ -914,6 +898,8 @@ def check_grammar_route():
     
     for i, exp in enumerate(data.get('work_experience[]', [])):
         if isinstance(exp, dict):
+            if exp.get('company_name', '').strip():
+                text_fields[f"work_experience[company_name][{i}]"] = {"id": f"work_company_{i}", "text": exp['company_name']}
             if exp.get('role', '').strip():
                 text_fields[f"work_experience[role][{i}]"] = {"id": f"work_role_{i}", "text": exp['role']}
             if exp.get('responsibilities', '').strip():
@@ -1033,18 +1019,20 @@ def update_profile():
         },
         "work_experience": [
             {
+                "company_name": company.strip(),
                 "start_date": start.strip(),
                 "end_date": end.strip(),
                 "role": role.strip(),
                 "responsibilities": resp.strip()
             }
-            for start, end, role, resp in zip(
-                request.form.getlist('work_experience[start_date][]'),
-                request.form.getlist('work_experience[end_date][]'),
+            for company, start, end, role, resp in zip(
+                request.form.getlist('work_experience[company_name][]'),
+                request.form.getlist('work_experience[start_date_converted][]'),
+                request.form.getlist('work_experience[end_date_converted][]'),
                 request.form.getlist('work_experience[role][]'),
                 request.form.getlist('work_experience[responsibilities][]')
             )
-            if role.strip()
+            if role.strip() or company.strip()
         ]
     }
 
@@ -1063,6 +1051,8 @@ def update_profile():
     for exp in profile_data['work_experience']:
         if not exp['role']:
             errors.append("All work experience roles must be provided.")
+        if not exp['company_name']:
+            errors.append("All work experience company names must be provided.")
             break
     for skill_type, skills in profile_data['technical_skills'].items():
         for skill in skills:
@@ -1371,7 +1361,7 @@ def switch_design():
     try:
         # Get the design parameter from the POST request
         design = request.form.get('design')
-        if design not in ['display_profile', 'd1', 'd2', 'd3']:  # Removed duplicate 'display_profile'
+        if design not in ['display_profile', 'display_profile', 'd1', 'd2', 'd3']:  # Added display_profile
             logging.error(f"Invalid design selected: {design}")
             return jsonify({'error': 'Invalid design selected'}), 400
 
@@ -1404,6 +1394,5 @@ def switch_design():
         logging.error(f"Unexpected error in switch_design: {str(e)}\n{traceback.format_exc()}")
         return jsonify({'error': f"An unexpected error occurred: {str(e)}"}), 500
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Railway gives dynamic PORT
-    app.run(host="0.0.0.0", port=port, debug=False)
+if __name__ == '__main__':
+    app.run(debug=True)
