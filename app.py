@@ -48,7 +48,7 @@ def jinja_format_date(date_str):
 
 app.jinja_env.filters['format_date'] = jinja_format_date
 
-model = genai.GenerativeModel("gemini-2.5-flash")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 VALID_SECTION_IDS = [
     'education-section', 'experience-section', 'summary-section', 'projects-section',
