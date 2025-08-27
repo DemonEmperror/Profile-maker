@@ -1228,50 +1228,44 @@ def display_profile():
             hidden_dates=hidden_dates
         )
 
+
 @app.route('/switch_design', methods=['POST'])
 def switch_design():
     try:
+        # Get the design parameter from the POST request
         design = request.form.get('design')
-        valid_designs = ['display_profile', 'd1', 'd2', 'd3']
-        if not design or design not in valid_designs:
-            logging.error(f"Invalid design requested: {design}")
-            return jsonify({"error": f"Invalid design: {design}. Must be one of {valid_designs}."}), 400
+        if design not in ['display_profile', 'display_profile', 'd1', 'd2', 'd3']:  # Added display_profile
+            logging.error(f"Invalid design selected: {design}")
+            return jsonify({'error': 'Invalid design selected'}), 400
 
-        profile = session.get('profile', {})
-        hidden_sections = session.get('hidden_sections', [])
-        hidden_dates = session.get('hidden_dates', [])
-        if not profile:
-            logging.warning("No profile data in session for /switch_design")
-            return jsonify({"error": "No profile data available. Please create or upload a profile."}), 400
-
+        # Update the session with the selected design
         session.permanent = True
         session['design'] = design
-        logging.info(f"Switching to design: {design}, hidden_sections: {hidden_sections}, hidden_dates: {hidden_dates}")
-        logging.info(f"Session after update: design={session.get('design')}, hidden_sections={session.get('hidden_sections')}, hidden_dates={session.get('hidden_dates')}")
+        logging.info(f"Switched design to: {design}")
 
+        # Load profile data and hidden sections from session
+        profile = session.get('profile', {})
+        hidden_sections = session.get('hidden_sections', [])
+
+        if not profile:
+            logging.warning("No profile data in session for /switch_design")
+            return jsonify({'error': 'No profile data available'}), 400
+
+        # Sanitize profile data
+        safe_profile = sanitize_profile_data(profile)
+
+        # Render the corresponding design template
         try:
-            html_content = render_template(
-                f"{design}.html",
-                profile=sanitize_profile_data(profile),
-                hidden_sections=hidden_sections,
-                hidden_dates=hidden_dates
-            )
-            return jsonify({"html": html_content})
+            html = render_template(f'{design}.html', profile=safe_profile, hidden_sections=hidden_sections)
+            logging.info(f"Successfully rendered {design}.html")
+            return jsonify({'html': html})
         except Exception as e:
             logging.error(f"Template rendering failed for {design}.html: {str(e)}\n{traceback.format_exc()}")
-            session['design'] = 'display_profile'
-            html_content = render_template(
-                "display_profile.html",
-                profile=sanitize_profile_data(profile),
-                hidden_sections=hidden_sections,
-                hidden_dates=hidden_dates
-            )
-            logging.info("Falling back to display_profile.html")
-            return jsonify({"html": html_content})
+            return jsonify({'error': f"Failed to render template: {str(e)}"}), 500
 
     except Exception as e:
         logging.error(f"Unexpected error in switch_design: {str(e)}\n{traceback.format_exc()}")
-        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+        return jsonify({'error': f"An unexpected error occurred: {str(e)}"}), 500
 
 @app.route('/download', methods=['POST'])
 def download():
