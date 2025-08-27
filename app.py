@@ -205,7 +205,7 @@ def generate_bullet_points(text, field_name):
 def extract_json(text):
     try:
         if "```json" in text:
-            match = re.findall(r"```json(.*?)```", text, re.DOTALL)
+            match = re.findall(r"```json
             if match:
                 return json.loads(match[0].strip())
         return json.loads(text)
@@ -724,7 +724,7 @@ def index():
         session['profile'] = profile
         session['hidden_sections'] = []
         session['creation_method'] = 'upload'
-        session['design'] = 'display_profile'  # Use display_profile for uploads
+        session['design'] = 'display_profile'
         logging.info(f"Initialized session: profile keys={list(profile.keys())}, hidden_sections=[], creation_method=upload, design=display_profile")
         try:
             return render_template("display_profile.html", profile=profile, hidden_sections=[])
@@ -732,10 +732,12 @@ def index():
             flash(f"Template error: {str(e)}. Please ensure display_profile.html exists.")
             logging.error(f"Template rendering error for display_profile.html: {str(e)}")
             return redirect('/')
-    session.pop('profile', None)
-    session.pop('hidden_sections', None)
-    session.pop('creation_method', None)
-    session.pop('design', None)
+    # Only clear session if no profile exists to prevent accidental data loss
+    if not session.get('profile'):
+        session.pop('profile', None)
+        session.pop('hidden_sections', None)
+        session.pop('creation_method', None)
+        session.pop('design', None)
     return render_template("index.html")
 
 @app.route('/create-from-scratch', methods=['GET'])
@@ -853,7 +855,7 @@ def submit_from_scratch():
     session['profile'] = profile_data
     session['hidden_sections'] = []
     session['creation_method'] = 'scratch'
-    session['design'] = 'display_profile'  # Use display_profile for create from scratch
+    session['design'] = 'display_profile'
     logging.info(f"Stored profile in session: {json.dumps(profile_data, indent=2)}")
 
     try:
@@ -934,7 +936,7 @@ def edit_profile():
     profile = session.get('profile', {})
     hidden_sections = session.get('hidden_sections', [])
     if not profile:
-        flash("No profile data available.")
+        flash("No profile data available. Please upload or create a profile.")
         logging.warning("No profile data in session for /edit_profile")
         return redirect('/')
     logging.info(f"Edit profile: profile keys={list(profile.keys())}, hidden_sections={hidden_sections}")
@@ -1150,7 +1152,7 @@ def download():
 
         safe_profile = sanitize_profile_data(profile)
 
-        design = session.get('design', 'display_profile')  # Use session design
+        design = session.get('design', 'display_profile')
         template = f"{design}.html"
 
         try:
@@ -1229,7 +1231,7 @@ def download_docx():
     logging.info(f"Download DOCX request - hidden_sections: {hidden_sections}")
 
     if not profile:
-        flash("No profile data available.")
+        flash("No profile data available. Please create or upload a profile.")
         logging.warning("No profile data in session for /download_docx")
         return redirect('/')
 
@@ -1276,7 +1278,7 @@ def download_xlsx():
     logging.info(f"Download XLSX request - hidden_sections: {hidden_sections}")
 
     if not profile:
-        flash("No profile data available.")
+        flash("No profile data available. Please create or upload a profile.")
         logging.warning("No profile data in session for /download_xlsx")
         return redirect('/')
 
@@ -1343,9 +1345,9 @@ def download_xlsx():
 def display_profile():
     profile = session.get('profile', {})
     hidden_sections = session.get('hidden_sections', [])
-    design = session.get('design', 'display_profile')  # Use session design
+    design = session.get('design', 'display_profile')
     if not profile:
-        flash("No profile data available.")
+        flash("No profile data available. Please upload or create a profile.")
         logging.warning("No profile data in session for /display_profile")
         return redirect('/')
     logging.info(f"Rendering {design}.html with profile keys={list(profile.keys())}, hidden_sections={hidden_sections}")
@@ -1361,7 +1363,8 @@ def switch_design():
     try:
         # Get the design parameter from the POST request
         design = request.form.get('design')
-        if design not in ['display_profile', 'display_profile', 'd1', 'd2', 'd3']:  # Added display_profile
+        # Fixed duplicate 'display_profile' in valid designs list
+        if design not in ['display_profile', 'd1', 'd2', 'd3']:
             logging.error(f"Invalid design selected: {design}")
             return jsonify({'error': 'Invalid design selected'}), 400
 
@@ -1395,5 +1398,5 @@ def switch_design():
         return jsonify({'error': f"An unexpected error occurred: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))  # Railway gives dynamic PORT
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
