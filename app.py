@@ -20,6 +20,9 @@ import urllib.parse
 import bleach
 from flask_session import Session
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Gemini API Key
 api_key = os.getenv("GEMINI_API_KEY")
 
@@ -140,25 +143,20 @@ def clean_formatting(text):
         'oct': '10', 'october': '10', 'nov': '11', 'november': '11', 'dec': '12', 'december': '12'
     }
     
-    # Convert MM-YYYY, YYYY-MM, or Month YYYY to YYYY-MM for internal processing
     def standardize_date(match):
         date_str = match.group(0)
-        # MM-YYYY or MM/YYYY
         if re.match(r'(\d{1,2})[/-](\d{4})', date_str):
             month, year = re.match(r'(\d{1,2})[/-](\d{4})', date_str).groups()
             month = month.zfill(2)
             return f"{year}-{month}"
-        # YYYY-MM
         elif re.match(r'(\d{4})[/-](\d{1,2})', date_str):
             year, month = re.match(r'(\d{4})[/-](\d{1,2})', date_str).groups()
             month = month.zfill(2)
             return f"{year}-{month}"
-        # Month YYYY (e.g., "January 2020" or "Jan 2020")
         elif re.match(r'(\w+)\s+(\d{4})', date_str, re.IGNORECASE):
             month_name, year = re.match(r'(\w+)\s+(\d{4})', date_str, re.IGNORECASE).groups()
             month = month_map.get(month_name.lower(), '01')
             return f"{year}-{month}"
-        # YYYY
         elif re.match(r'(\d{4})', date_str):
             year = date_str
             return f"{year}-01"
@@ -168,7 +166,9 @@ def clean_formatting(text):
     return text.strip()
 
 def format_date_for_display(date_str):
-    """Convert YYYY-MM to YYYY-MonthName (short format, e.g., 2020-01 to 2020-Jan) or return original if not in expected format."""
+    """Convert YYYY-MM to YYYY-MonthName (short format, e.g., 2020-01 to 2020-Jan) or return 'N/A' if not valid."""
+    if not date_str or not isinstance(date_str, str):
+        return 'N/A'
     month_map = {
         '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr', '05': 'May',
         '06': 'Jun', '07': 'Jul', '08': 'Aug', '09': 'Sep', '10': 'Oct',
@@ -186,7 +186,7 @@ def has_html_formatting(text):
 
 def generate_bullet_points(text, field_name):
     if not text or has_html_formatting(text):
-        logging.info(f"Skipping bullet point generation for {field_name} due to existing HTML")
+        logging.info(f"Skipping bullet point generation for {field_name} due to existing HTML or empty text")
         return text
     prompt = f"""
     Convert the following text from the '{field_name}' field into concise bullet points. Each bullet should be a complete sentence or idea ending in a period, keeping the content professional and concise. Return only the bullet-pointed text, one bullet per line, starting with '- '.
@@ -205,7 +205,7 @@ def generate_bullet_points(text, field_name):
 def extract_json(text):
     try:
         if "```json" in text:
-            match = re.findall(r"```json(.*?)```", text, re.DOTALL)
+            match = re.findall(r"```json
             if match:
                 return json.loads(match[0].strip())
         return json.loads(text)
@@ -264,30 +264,46 @@ def generate_structured_data(text):
         response = model.generate_content(prompt)
         logging.info(f"Raw AI response: {response.text}")
         data = extract_json(response.text)
-        data.setdefault('name', '')
-        data.setdefault('education_training_certifications', [])
-        data.setdefault('total_experience', '')
-        data.setdefault('professional_summary', '')
-        data.setdefault('netweb_projects', [])
-        data.setdefault('past_projects', [])
-        data.setdefault('roles_responsibilities', '')
-        data.setdefault('technical_skills', {
-            'web_technologies': [], 'scripting_languages': [], 'frameworks': [],
-            'databases': [], 'web_servers': [], 'tools': []
-        })
-        data.setdefault('personal_details', {
-            'employee_id': '', 'permanent_address': '', 'local_address': '',
-            'contact_number': '', 'date_of_joining': '', 'designation': '',
-            'overall_experience': '', 'date_of_birth': '', 'passport_details': ''
-        })
-        data.setdefault('work_experience', [])
-        if data.get('professional_summary') and not has_html_formatting(data['professional_summary']):
+        # Ensure all expected fields are present with defaults
+        data = {
+            'name': data.get('name', '') or '',
+            'education_training_certifications': data.get('education_training_certifications', []) or [],
+            'total_experience': data.get('total_experience', '') or '',
+            'professional_summary': data.get('professional_summary', '') or '',
+            'netweb_projects': data.get('netweb_projects', []) or [],
+            'past_projects': data.get('past_projects', []) or [],
+            'roles_responsibilities': data.get('roles_responsibilities', '') or '',
+            'technical_skills': data.get('technical_skills', {
+                'web_technologies': [], 'scripting_languages': [], 'frameworks': [],
+                'databases': [], 'web_servers': [], 'tools': []
+            }) or {
+                'web_technologies': [], 'scripting_languages': [], 'frameworks': [],
+                'databases': [], 'web_servers': [], 'tools': []
+            },
+            'personal_details': data.get('personal_details', {
+                'employee_id': '', 'permanent_address': '', 'local_address': '',
+                'contact_number': '', 'date_of_joining': '', 'designation': '',
+                'overall_experience': '', 'date_of_birth': '', 'passport_details': ''
+            }) or {
+                'employee_id': '', 'permanent_address': '', 'local_address': '',
+                'contact_number': '', 'date_of_joining': '', 'designation': '',
+                'overall_experience': '', 'date_of_birth': '', 'passport_details': ''
+            },
+            'work_experience': data.get('work_experience', []) or []
+        }
+        if data['professional_summary'] and not has_html_formatting(data['professional_summary']):
             data['professional_summary'] = generate_bullet_points(data['professional_summary'], 'professional_summary')
-        if data.get('roles_responsibilities') and not has_html_formatting(data['roles_responsibilities']):
+        if data['roles_responsibilities'] and not has_html_formatting(data['roles_responsibilities']):
             data['roles_responsibilities'] = generate_bullet_points(data['roles_responsibilities'], 'roles_responsibilities')
-        for exp in data.get('work_experience', []):
+        for exp in data['work_experience']:
             if exp.get('responsibilities') and not has_html_formatting(exp['responsibilities']):
                 exp['responsibilities'] = generate_bullet_points(exp['responsibilities'], f"work_experience_responsibilities_{exp.get('role', '')}")
+            # Ensure work_experience fields are not None
+            exp['company_name'] = exp.get('company_name', '') or ''
+            exp['start_date'] = exp.get('start_date', '') or ''
+            exp['end_date'] = exp.get('end_date', '') or ''
+            exp['role'] = exp.get('role', '') or ''
+            exp['responsibilities'] = exp.get('responsibilities', '') or ''
         logging.info(f"Generated structured resume data: {json.dumps(data, indent=2)}")
         return data
     except Exception as e:
@@ -326,7 +342,7 @@ def check_grammar(text_fields):
 
 def sanitize_text(text, allow_html=False):
     if not isinstance(text, str):
-        return text
+        text = '' if text is None else str(text)
     if allow_html:
         return bleach.clean(text, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES)
     return (text.replace('&', '&amp;')
@@ -336,40 +352,95 @@ def sanitize_text(text, allow_html=False):
                .replace("'", '&#x27;'))
 
 def sanitize_profile_data(profile):
+    if not isinstance(profile, dict):
+        logging.warning(f"Profile is not a dict, returning default structure: {profile}")
+        return {
+            'name': '',
+            'education_training_certifications': [],
+            'total_experience': '',
+            'professional_summary': '',
+            'netweb_projects': [],
+            'past_projects': [],
+            'roles_responsibilities': '',
+            'technical_skills': {
+                'web_technologies': [], 'scripting_languages': [], 'frameworks': [],
+                'databases': [], 'web_servers': [], 'tools': []
+            },
+            'personal_details': {
+                'employee_id': '', 'permanent_address': '', 'local_address': '',
+                'contact_number': '', 'date_of_joining': '', 'designation': '',
+                'overall_experience': '', 'date_of_birth': '', 'passport_details': ''
+            },
+            'work_experience': []
+        }
+
     html_fields = ['professional_summary', 'roles_responsibilities']
-    if isinstance(profile, str):
-        return sanitize_text(profile, allow_html=False)
-    elif isinstance(profile, dict):
-        sanitized = {}
-        for k, v in profile.items():
-            if k in html_fields:
-                sanitized[k] = sanitize_text(v, allow_html=True)
-            elif k == 'netweb_projects' or k == 'past_projects':
-                sanitized[k] = [
-                    {
-                        'title': sanitize_text(item.get('title', ''), allow_html=False),
-                        'description': sanitize_text(item.get('description', ''), allow_html=True)
-                    }
-                    for item in v
-                ]
-            elif k == 'work_experience':
-                sanitized[k] = [
-                    {
-                        'company_name': sanitize_text(item.get('company_name', ''), allow_html=False),
-                        'start_date': sanitize_text(item.get('start_date', ''), allow_html=False),
-                        'end_date': sanitize_text(item.get('end_date', ''), allow_html=False),
-                        'role': sanitize_text(item.get('role', ''), allow_html=False),
-                        'responsibilities': sanitize_text(item.get('responsibilities', ''), allow_html=True)
-                    }
-                    for item in v
-                ]
-            else:
-                sanitized[k] = sanitize_profile_data(v)
-        return sanitized
-    elif isinstance(profile, list):
-        return [sanitize_profile_data(item) for item in profile]
-    else:
-        return profile
+    sanitized = {}
+    for k, v in profile.items():
+        logging.debug(f"Sanitizing field {k}: {v}")
+        if v is None:
+            logging.warning(f"Field {k} is None, setting to default value")
+            if k in ['name', 'total_experience', 'professional_summary', 'roles_responsibilities']:
+                v = ''
+            elif k in ['education_training_certifications', 'netweb_projects', 'past_projects', 'work_experience']:
+                v = []
+            elif k == 'technical_skills':
+                v = {
+                    'web_technologies': [], 'scripting_languages': [], 'frameworks': [],
+                    'databases': [], 'web_servers': [], 'tools': []
+                }
+            elif k == 'personal_details':
+                v = {
+                    'employee_id': '', 'permanent_address': '', 'local_address': '',
+                    'contact_number': '', 'date_of_joining': '', 'designation': '',
+                    'overall_experience': '', 'date_of_birth': '', 'passport_details': ''
+                }
+
+        if k in html_fields:
+            sanitized[k] = sanitize_text(v, allow_html=True)
+        elif k == 'netweb_projects' or k == 'past_projects':
+            sanitized[k] = [
+                {
+                    'title': sanitize_text(item.get('title', ''), allow_html=False),
+                    'description': sanitize_text(item.get('description', ''), allow_html=True)
+                }
+                for item in v or []
+            ]
+        elif k == 'work_experience':
+            sanitized[k] = [
+                {
+                    'company_name': sanitize_text(item.get('company_name', ''), allow_html=False),
+                    'start_date': sanitize_text(item.get('start_date', ''), allow_html=False),
+                    'end_date': sanitize_text(item.get('end_date', ''), allow_html=False),
+                    'role': sanitize_text(item.get('role', ''), allow_html=False),
+                    'responsibilities': sanitize_text(item.get('responsibilities', ''), allow_html=True)
+                }
+                for item in v or []
+            ]
+        elif k == 'technical_skills':
+            sanitized[k] = {
+                skill_type: [sanitize_text(skill, allow_html=False) for skill in (v.get(skill_type, []) or [])]
+                for skill_type in ['web_technologies', 'scripting_languages', 'frameworks', 'databases', 'web_servers', 'tools']
+            }
+        elif k == 'personal_details':
+            sanitized[k] = {
+                detail_key: sanitize_text(v.get(detail_key, ''), allow_html=False)
+                for detail_key in ['employee_id', 'permanent_address', 'local_address', 'contact_number',
+                                  'date_of_joining', 'designation', 'overall_experience', 'date_of_birth', 'passport_details']
+            }
+        elif k == 'education_training_certifications':
+            sanitized[k] = [
+                {
+                    'title': sanitize_text(item.get('title', ''), allow_html=False),
+                    'start_date': sanitize_text(item.get('start_date', ''), allow_html=False),
+                    'end_date': sanitize_text(item.get('end_date', ''), allow_html=False)
+                }
+                for item in v or []
+            ]
+        else:
+            sanitized[k] = sanitize_text(v, allow_html=False)
+    logging.debug(f"Sanitized profile: {json.dumps(sanitized, indent=2)}")
+    return sanitized
 
 def render_html_to_pdf(html_string, output_path):
     try:
@@ -411,7 +482,7 @@ def cleanup_file(filepath):
         logging.error(f"Error cleaning up file {filepath}: {str(e)}")
 
 def should_skip_section(section_id, hidden_sections):
-    return section_id in hidden_sections
+    return section_id in (hidden_sections or [])
 
 def render_html_to_docx(profile, output_path, hidden_sections=None):
     if hidden_sections is None:
@@ -505,7 +576,7 @@ def render_html_to_docx(profile, output_path, hidden_sections=None):
 def html_to_docx(paragraph, html_text):
     from lxml import html
     try:
-        tree = html.fromstring(f"<div>{html_text}</div>")
+        tree = html.fromstring(f"<div>{html_text or ''}</div>")
         current_run = paragraph.add_run()
         
         def process_element(element, run):
@@ -537,7 +608,7 @@ def html_to_docx(paragraph, html_text):
             process_element(child, current_run)
     except Exception as e:
         logging.error(f"Error converting HTML to DOCX: {e}")
-        paragraph.add_run(html_text)
+        paragraph.add_run(html_text or '')
 
 def render_html_to_xlsx(profile, output_path, hidden_sections=None):
     if hidden_sections is None:
@@ -555,7 +626,6 @@ def render_html_to_xlsx(profile, output_path, hidden_sections=None):
             cell.value = plain_text
             apply_cell_style(cell)
         
-        # Adjust column widths
         ws.column_dimensions['A'].width = 30
         ws.column_dimensions['B'].width = 50
         ws.column_dimensions['C'].width = 50
@@ -565,7 +635,7 @@ def render_html_to_xlsx(profile, output_path, hidden_sections=None):
             apply_cell_style(ws.cell(row=row, column=1), is_header=True)
             ws.cell(row=row, column=2).value = profile['name']
             apply_cell_style(ws.cell(row=row, column=2))
-            row += 2  # Add spacing
+            row += 2
         
         if not should_skip_section('education-section', hidden_sections) and profile.get('education_training_certifications'):
             ws.cell(row=row, column=1).value = "Education, Training, and Certifications"
@@ -721,7 +791,7 @@ def index():
             logging.error("Profile generation failed")
             return redirect('/')
         session.permanent = True
-        session['profile'] = profile
+        session['profile'] = sanitize_profile_data(profile)
         session['hidden_sections'] = []
         session['creation_method'] = 'upload'
         session['design'] = 'display_profile'
@@ -729,10 +799,9 @@ def index():
         try:
             return render_template("display_profile.html", profile=profile, hidden_sections=[])
         except Exception as e:
+            logging.error(f"Template rendering error for display_profile.html: {str(e)}\n{traceback.format_exc()}")
             flash(f"Template error: {str(e)}. Please ensure display_profile.html exists.")
-            logging.error(f"Template rendering error for display_profile.html: {str(e)}")
             return redirect('/')
-    # Only clear session if no profile exists to prevent accidental data loss
     if not session.get('profile'):
         session.pop('profile', None)
         session.pop('hidden_sections', None)
@@ -766,9 +835,9 @@ def submit_from_scratch():
         "name": request.form.get('full_name', '').strip(),
         "education_training_certifications": [
             {
-                "title": item.strip(),
-                "start_date": start.strip(),
-                "end_date": end.strip()
+                "title": item.strip() or '',
+                "start_date": start.strip() or '',
+                "end_date": end.strip() or ''
             }
             for item, start, end in zip(
                 request.form.getlist('education_title[]'),
@@ -780,7 +849,7 @@ def submit_from_scratch():
         "total_experience": request.form.get('total_experience', '').strip(),
         "professional_summary": request.form.get('professional_summary', '').strip(),
         "netweb_projects": [
-            {"title": title.strip(), "description": desc.strip()}
+            {"title": title.strip() or '', "description": desc.strip() or ''}
             for title, desc in zip(
                 request.form.getlist('netweb_project_title[]'),
                 request.form.getlist('netweb_project_description[]')
@@ -788,7 +857,7 @@ def submit_from_scratch():
             if title.strip() or desc.strip()
         ],
         "past_projects": [
-            {"title": title.strip(), "description": desc.strip()}
+            {"title": title.strip() or '', "description": desc.strip() or ''}
             for title, desc in zip(
                 request.form.getlist('past_project_title[]'),
                 request.form.getlist('past_project_description[]')
@@ -797,31 +866,31 @@ def submit_from_scratch():
         ],
         "roles_responsibilities": request.form.get('roles_responsibilities', '').strip(),
         "technical_skills": {
-            "web_technologies": [item.strip() for item in request.form.getlist('web_technologies[]') if item.strip()],
-            "scripting_languages": [item.strip() for item in request.form.getlist('scripting_languages[]') if item.strip()],
-            "frameworks": [item.strip() for item in request.form.getlist('frameworks[]') if item.strip()],
-            "databases": [item.strip() for item in request.form.getlist('databases[]') if item.strip()],
-            "web_servers": [item.strip() for item in request.form.getlist('web_servers[]') if item.strip()],
-            "tools": [item.strip() for item in request.form.getlist('tools[]') if item.strip()]
+            "web_technologies": [item.strip() for item in request.form.getlist('web_technologies[]') if item.strip()] or [],
+            "scripting_languages": [item.strip() for item in request.form.getlist('scripting_languages[]') if item.strip()] or [],
+            "frameworks": [item.strip() for item in request.form.getlist('frameworks[]') if item.strip()] or [],
+            "databases": [item.strip() for item in request.form.getlist('databases[]') if item.strip()] or [],
+            "web_servers": [item.strip() for item in request.form.getlist('web_servers[]') if item.strip()] or [],
+            "tools": [item.strip() for item in request.form.getlist('tools[]') if item.strip()] or []
         },
         "personal_details": {
-            "employee_id": request.form.get('personal_details[employee_id]', '').strip(),
-            "permanent_address": request.form.get('personal_details[permanent_address]', '').strip(),
-            "local_address": request.form.get('personal_details[local_address]', '').strip(),
-            "contact_number": request.form.get('personal_details[contact_number]', '').strip(),
-            "date_of_joining": request.form.get('personal_details[date_of_joining]', '').strip(),
-            "designation": request.form.get('personal_details[designation]', '').strip(),
-            "overall_experience": request.form.get('personal_details[overall_experience]', '').strip(),
-            "date_of_birth": request.form.get('personal_details[date_of_birth]', '').strip(),
-            "passport_details": request.form.get('personal_details[passport_details]', '').strip()
+            "employee_id": request.form.get('personal_details[employee_id]', '').strip() or '',
+            "permanent_address": request.form.get('personal_details[permanent_address]', '').strip() or '',
+            "local_address": request.form.get('personal_details[local_address]', '').strip() or '',
+            "contact_number": request.form.get('personal_details[contact_number]', '').strip() or '',
+            "date_of_joining": request.form.get('personal_details[date_of_joining]', '').strip() or '',
+            "designation": request.form.get('personal_details[designation]', '').strip() or '',
+            "overall_experience": request.form.get('personal_details[overall_experience]', '').strip() or '',
+            "date_of_birth": request.form.get('personal_details[date_of_birth]', '').strip() or '',
+            "passport_details": request.form.get('personal_details[passport_details]', '').strip() or ''
         },
         "work_experience": [
             {
-                "company_name": company.strip(),
-                "start_date": start.strip(),
-                "end_date": end.strip(),
-                "role": role.strip(),
-                "responsibilities": resp.strip()
+                "company_name": company.strip() or '',
+                "start_date": start.strip() or '',
+                "end_date": end.strip() or '',
+                "role": role.strip() or '',
+                "responsibilities": resp.strip() or ''
             }
             for company, start, end, role, resp in zip(
                 request.form.getlist('work_experience[company_name][]'),
@@ -852,7 +921,7 @@ def submit_from_scratch():
         return redirect('/create_from_scratch')
 
     session.permanent = True
-    session['profile'] = profile_data
+    session['profile'] = sanitize_profile_data(profile_data)
     session['hidden_sections'] = []
     session['creation_method'] = 'scratch'
     session['design'] = 'display_profile'
@@ -874,31 +943,31 @@ def check_grammar_route():
     
     text_fields = {}
     fields_to_check = [
-        ("name", "name", data.get('name', '')),
-        ("total_experience", "total_experience", data.get('total_experience', '')),
-        ("professional_summary", "professional_summary", bleach.clean(data.get('professional_summary', ''), tags=[])),
-        ("roles_responsibilities", "roles_responsibilities", bleach.clean(data.get('roles_responsibilities', ''), tags=[]))
+        ("name", "name", data.get('name', '') or ''),
+        ("total_experience", "total_experience", data.get('total_experience', '') or ''),
+        ("professional_summary", "professional_summary", bleach.clean(data.get('professional_summary', '') or '', tags=[])),
+        ("roles_responsibilities", "roles_responsibilities", bleach.clean(data.get('roles_responsibilities', '') or '', tags=[]))
     ]
     
-    for i, item in enumerate(data.get('education_training_certifications[]', [])):
+    for i, item in enumerate(data.get('education_training_certifications[]', []) or []):
         if isinstance(item, dict) and item.get('title', '').strip():
             text_fields[f"education_training_certifications[{i}]"] = {"id": f"etc_{i}", "text": item['title']}
         elif isinstance(item, str) and item.strip():
             text_fields[f"education_training_certifications[{i}]"] = {"id": f"etc_{i}", "text": item}
     
-    for i, (title, desc) in enumerate(zip(data.get('netweb_projects[title][]', []), data.get('netweb_projects[description][]', []))):
+    for i, (title, desc) in enumerate(zip(data.get('netweb_projects[title][]', []) or [], data.get('netweb_projects[description][]', []) or [])):
         if title.strip():
             text_fields[f"netweb_projects[title][{i}]"] = {"id": f"netweb_title_{i}", "text": title}
         if desc.strip():
             text_fields[f"netweb_projects[description][{i}]"] = {"id": f"netweb_desc_{i}", "text": bleach.clean(desc, tags=[])}
     
-    for i, (title, desc) in enumerate(zip(data.get('past_projects[title][]', []), data.get('past_projects[description][]', []))):
+    for i, (title, desc) in enumerate(zip(data.get('past_projects[title][]', []) or [], data.get('past_projects[description][]', []) or [])):
         if title.strip():
             text_fields[f"past_projects[title][{i}]"] = {"id": f"past_title_{i}", "text": title}
         if desc.strip():
             text_fields[f"past_projects[description][{i}]"] = {"id": f"past_desc_{i}", "text": bleach.clean(desc, tags=[])}
     
-    for i, exp in enumerate(data.get('work_experience[]', [])):
+    for i, exp in enumerate(data.get('work_experience[]', []) or []):
         if isinstance(exp, dict):
             if exp.get('company_name', '').strip():
                 text_fields[f"work_experience[company_name][{i}]"] = {"id": f"work_company_{i}", "text": exp['company_name']}
@@ -908,11 +977,11 @@ def check_grammar_route():
                 text_fields[f"work_experience[responsibilities][{i}]"] = {"id": f"work_resp_{i}", "text": bleach.clean(exp['responsibilities'], tags=[])}
     
     for skill_type in ['web_technologies', 'scripting_languages', 'frameworks', 'databases', 'web_servers', 'tools']:
-        for i, skill in enumerate(data.get(f'technical_skills[{skill_type}][]', [])):
+        for i, skill in enumerate(data.get(f'technical_skills[{skill_type}][]', []) or []):
             if skill.strip():
                 text_fields[f"technical_skills[{skill_type}][{i}]"] = {"id": f"{skill_type.split('_')[0]}_{i}", "text": skill}
     
-    for key, value in data.get('personal_details', {}).items():
+    for key, value in (data.get('personal_details', {}) or {}).items():
         if value.strip():
             text_fields[f"personal_details[{key}]"] = {"id": key, "text": value}
     
@@ -967,12 +1036,12 @@ def update_profile():
         hidden_sections = []
 
     profile_data = {
-        "name": request.form.get('name', '').strip(),
+        "name": request.form.get('name', '').strip() or '',
         "education_training_certifications": [
             {
-                "title": item.strip(),
-                "start_date": start.strip(),
-                "end_date": end.strip()
+                "title": item.strip() or '',
+                "start_date": start.strip() or '',
+                "end_date": end.strip() or ''
             }
             for item, start, end in zip(
                 request.form.getlist('education_training_certifications[]'),
@@ -981,10 +1050,10 @@ def update_profile():
             )
             if item.strip()
         ],
-        "total_experience": request.form.get('total_experience', '').strip(),
-        "professional_summary": request.form.get('professional_summary', '').strip(),
+        "total_experience": request.form.get('total_experience', '').strip() or '',
+        "professional_summary": request.form.get('professional_summary', '').strip() or '',
         "netweb_projects": [
-            {"title": title.strip(), "description": desc.strip()}
+            {"title": title.strip() or '', "description": desc.strip() or ''}
             for title, desc in zip(
                 request.form.getlist('netweb_projects[title][]'),
                 request.form.getlist('netweb_projects[description][]')
@@ -992,40 +1061,40 @@ def update_profile():
             if title.strip()
         ],
         "past_projects": [
-            {"title": title.strip(), "description": desc.strip()}
+            {"title": title.strip() or '', "description": desc.strip() or ''}
             for title, desc in zip(
                 request.form.getlist('past_projects[title][]'),
                 request.form.getlist('past_projects[description][]')
             )
             if title.strip()
         ],
-        "roles_responsibilities": request.form.get('roles_responsibilities', '').strip(),
+        "roles_responsibilities": request.form.get('roles_responsibilities', '').strip() or '',
         "technical_skills": {
-            "web_technologies": [item.strip() for item in request.form.getlist('technical_skills[web_technologies][]') if item.strip()],
-            "scripting_languages": [item.strip() for item in request.form.getlist('technical_skills[scripting_languages][]') if item.strip()],
-            "frameworks": [item.strip() for item in request.form.getlist('technical_skills[frameworks][]') if item.strip()],
-            "databases": [item.strip() for item in request.form.getlist('technical_skills[databases][]') if item.strip()],
-            "web_servers": [item.strip() for item in request.form.getlist('technical_skills[web_servers][]') if item.strip()],
-            "tools": [item.strip() for item in request.form.getlist('technical_skills[tools][]') if item.strip()]
+            "web_technologies": [item.strip() for item in request.form.getlist('technical_skills[web_technologies][]') if item.strip()] or [],
+            "scripting_languages": [item.strip() for item in request.form.getlist('technical_skills[scripting_languages][]') if item.strip()] or [],
+            "frameworks": [item.strip() for item in request.form.getlist('technical_skills[frameworks][]') if item.strip()] or [],
+            "databases": [item.strip() for item in request.form.getlist('technical_skills[databases][]') if item.strip()] or [],
+            "web_servers": [item.strip() for item in request.form.getlist('technical_skills[web_servers][]') if item.strip()] or [],
+            "tools": [item.strip() for item in request.form.getlist('technical_skills[tools][]') if item.strip()] or []
         },
         "personal_details": {
-            "employee_id": request.form.get('personal_details[employee_id]', '').strip(),
-            "permanent_address": request.form.get('personal_details[permanent_address]', '').strip(),
-            "local_address": request.form.get('personal_details[local_address]', '').strip(),
-            "contact_number": request.form.get('personal_details[contact_number]', '').strip(),
-            "date_of_joining": request.form.get('personal_details[date_of_joining]', '').strip(),
-            "designation": request.form.get('personal_details[designation]', '').strip(),
-            "overall_experience": request.form.get('personal_details[overall_experience]', '').strip(),
-            "date_of_birth": request.form.get('personal_details[date_of_birth]', '').strip(),
-            "passport_details": request.form.get('personal_details[passport_details]', '').strip()
+            "employee_id": request.form.get('personal_details[employee_id]', '').strip() or '',
+            "permanent_address": request.form.get('personal_details[permanent_address]', '').strip() or '',
+            "local_address": request.form.get('personal_details[local_address]', '').strip() or '',
+            "contact_number": request.form.get('personal_details[contact_number]', '').strip() or '',
+            "date_of_joining": request.form.get('personal_details[date_of_joining]', '').strip() or '',
+            "designation": request.form.get('personal_details[designation]', '').strip() or '',
+            "overall_experience": request.form.get('personal_details[overall_experience]', '').strip() or '',
+            "date_of_birth": request.form.get('personal_details[date_of_birth]', '').strip() or '',
+            "passport_details": request.form.get('personal_details[passport_details]', '').strip() or ''
         },
         "work_experience": [
             {
-                "company_name": company.strip(),
-                "start_date": start.strip(),
-                "end_date": end.strip(),
-                "role": role.strip(),
-                "responsibilities": resp.strip()
+                "company_name": company.strip() or '',
+                "start_date": start.strip() or '',
+                "end_date": end.strip() or '',
+                "role": role.strip() or '',
+                "responsibilities": resp.strip() or ''
             }
             for company, start, end, role, resp in zip(
                 request.form.getlist('work_experience[company_name][]'),
@@ -1038,7 +1107,6 @@ def update_profile():
         ]
     }
 
-    # Server-side validation
     errors = []
     if not profile_data['name']:
         errors.append("Full Name is required.")
@@ -1096,7 +1164,7 @@ def update_profile():
             return render_template(f"{session.get('design', 'display_profile')}.html", profile=profile_data, hidden_sections=hidden_sections)
         except Exception as e:
             flash(f"Template error: {str(e)}. Please ensure {session.get('design', 'display_profile')}.html exists.")
-            logging.error(f"Template rendering error for {session.get('design', 'display_profile')}.html: {str(e)}")
+            logging.error(f"Template rendering error for {session.get('design', 'display_profile')}.html: {str(e)}\n{traceback.format_exc()}")
             return redirect('/')
     else:
         flash("Invalid action requested. Please save or update the profile.")
@@ -1289,13 +1357,11 @@ def download_xlsx():
         output_path = os.path.join(GENERATED_FOLDER, f"profile_{uuid.uuid4().hex}.xlsx")
         
         if skills_only:
-            # Generate XLSX with only skills data
             wb = Workbook()
             ws = wb.active
             ws.title = "Technical Skills"
             row = 1
             
-            # Adjust column widths
             ws.column_dimensions['A'].width = 30
             ws.column_dimensions['B'].width = 50
             
@@ -1318,7 +1384,6 @@ def download_xlsx():
             wb.save(output_path)
             logging.info(f"Generated skills-only XLSX at {output_path}")
         else:
-            # Existing logic for full profile XLSX
             render_html_to_xlsx(profile, output_path, hidden_sections)
 
         if not os.path.exists(output_path):
@@ -1346,34 +1411,38 @@ def display_profile():
     profile = session.get('profile', {})
     hidden_sections = session.get('hidden_sections', [])
     design = session.get('design', 'display_profile')
+    
     if not profile:
         flash("No profile data available. Please upload or create a profile.")
         logging.warning("No profile data in session for /display_profile")
         return redirect('/')
-    logging.info(f"Rendering {design}.html with profile keys={list(profile.keys())}, hidden_sections={hidden_sections}")
+    
+    # Log the entire profile to check for None values
+    logging.debug(f"Rendering {design}.html with profile: {json.dumps(profile, indent=2)}")
+    logging.debug(f"Hidden sections: {hidden_sections}")
+    
+    # Sanitize profile to ensure no None values
+    safe_profile = sanitize_profile_data(profile)
+    
     try:
-        return render_template(f"{design}.html", profile=profile, hidden_sections=hidden_sections)
+        return render_template(f"{design}.html", profile=safe_profile, hidden_sections=hidden_sections)
     except Exception as e:
+        logging.error(f"Template rendering error for {design}.html: {str(e)}\n{traceback.format_exc()}")
         flash(f"Template error: {str(e)}. Please ensure {design}.html exists.")
-        logging.error(f"Template rendering error for {design}.html: {str(e)}")
         return redirect('/')
 
 @app.route('/switch_design', methods=['POST'])
 def switch_design():
     try:
-        # Get the design parameter from the POST request
         design = request.form.get('design')
-        # Fixed duplicate 'display_profile' in valid designs list
         if design not in ['display_profile', 'd1', 'd2', 'd3']:
             logging.error(f"Invalid design selected: {design}")
             return jsonify({'error': 'Invalid design selected'}), 400
 
-        # Update the session with the selected design
         session.permanent = True
         session['design'] = design
         logging.info(f"Switched design to: {design}")
 
-        # Load profile data and hidden sections from session
         profile = session.get('profile', {})
         hidden_sections = session.get('hidden_sections', [])
 
@@ -1381,10 +1450,10 @@ def switch_design():
             logging.warning("No profile data in session for /switch_design")
             return jsonify({'error': 'No profile data available'}), 400
 
-        # Sanitize profile data
         safe_profile = sanitize_profile_data(profile)
+        logging.debug(f"Switch design - profile: {json.dumps(safe_profile, indent=2)}")
+        logging.debug(f"Switch design - hidden_sections: {hidden_sections}")
 
-        # Render the corresponding design template
         try:
             html = render_template(f'{design}.html', profile=safe_profile, hidden_sections=hidden_sections)
             logging.info(f"Successfully rendered {design}.html")
