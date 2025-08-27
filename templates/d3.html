@@ -797,620 +797,755 @@ body::before {
 }
 </style>
 </head>
-<body>
-  <div class="profile-container">
-    <div class="profile-header">
-      <h1 class="profile-name">{{ profile.get('name', '') | safe }}</h1>
-      <div class="profile-logo">
-        <img src="https://netweb.biz/wp-content/uploads/2025/04/NetWeb-Logo-Updated-Websize.png" alt="Company Logo" />
-      </div>
-    </div>
-    
-    <div class="profile-content">
-      <div class="control-panel">
-        <div>
-          <h3 style="margin: 0; font-size: 1.125rem;">Resume Customization</h3>
-          <p style="margin: 0.5rem 0 0; opacity: 0.9; font-size: 0.875rem;">Hide sections you don't want to include in the final document</p>
-        </div>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-          <button class="control-btn" onclick="showAllSections()">Show All</button>
-          <button class="control-btn" onclick="hideAllSections()">Hide All</button>
-          <a href="{{ url_for('edit_profile') }}" class="control-btn">Edit Profile</a>
-        </div>
-        <div class="design-switcher">
-          <button class="design-btn active" data-design="display_profile" onclick="switchDesign('display_profile')" title="Default Design: Professional Gradient Theme">
-            <span class="design-icon"></span> Default Design
-          </button>
-          <button class="design-btn" data-design="d1" onclick="switchDesign('d1')" title="Design 1: Modern Gradient Theme">
-            <span class="design-icon"></span> Design 1
-          </button>
-          <button class="design-btn" data-design="d2" onclick="switchDesign('d2')" title="Design 2: Clean Minimalist Theme">
-            <span class="design-icon"></span> Design 2
-          </button>
-          <button class="design-btn" data-design="d3" onclick="switchDesign('d3')" title="Design 3: Professional Corporate Theme">
-            <span class="design-icon"></span> Design 3
-          </button>
+  <body>
+    <div class="profile-container">
+      <div class="profile-header">
+        <h1 class="profile-name">{{ profile.get('name', '') | safe }}</h1>
+        <div class="profile-logo">
+          <img src="https://netweb.biz/wp-content/uploads/2025/04/NetWeb-Logo-Updated-Websize.png" alt="Company Logo" />
         </div>
       </div>
+      
+      <div class="profile-content">
+        <div class="control-panel">
+          <div>
+            <h3 style="margin: 0; font-size: 1.125rem;">Resume Customization</h3>
+            <p style="margin: 0.5rem 0 0; opacity: 0.9; font-size: 0.875rem;">Hide sections or dates to exclude them from display and print</p>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="control-btn" onclick="showAllSections()">Show All</button>
+            <button class="control-btn" onclick="hideAllSections()">Hide All</button>
+            <a href="{{ url_for('edit_profile') }}" class="control-btn">Edit Profile</a>
+          </div>
+          <div class="design-switcher">
+            <button class="design-btn active" data-design="display_profile" onclick="switchDesign('display_profile')" title="Default Design: Professional Gradient Theme">
+              <span class="design-icon"></span> Default Design
+            </button>
+            <button class="design-btn" data-design="d1" onclick="switchDesign('d1')" title="Design 1: Modern Gradient Theme">
+              <span class="design-icon"></span> Design 1
+            </button>
+            <button class="design-btn" data-design="d2" onclick="switchDesign('d2')" title="Design 2: Clean Minimalist Theme">
+              <span class="design-icon"></span> Design 2
+            </button>
+            <button class="design-btn" data-design="d3" onclick="switchDesign('d3')" title="Design 3: Professional Corporate Theme">
+              <span class="design-icon"></span> Design 3
+            </button>
+          </div>
+        </div>
 
-      {% if profile.get('education_training_certifications') and 'education-section' not in hidden_sections %}
-      <div class="section education-section" data-section-id="education-section">
-        <h2 class="section-title">
-          <span class="section-title-text">Education, Training & Certifications</span>
-          <button class="hide-toggle" onclick="toggleSectionVisibility('education-section')" data-section="education-section">
-            <span class="toggle-icon">👁️</span>
-            <span class="toggle-text">Hide</span>
-          </button>
-        </h2>
-        <div class="section-content">
-          <ul>
-            {% for edu in profile.get('education_training_certifications', []) %}
-              <li>
-                <div class="education-item">
-                  <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
-                  {% if edu.get('start_date') or edu.get('end_date') %}
-                    <div>{{ edu.get('start_date', 'N/A') | format_date }} - {{ edu.get('end_date', 'N/A') | format_date }}</div>
-                  {% endif %}
-                </div>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-      {% endif %}
-
-      {% if profile.get('total_experience') and 'experience-section' not in hidden_sections %}
-      <div class="section" data-section-id="experience-section">
-        <h2 class="section-title">
-          <span class="section-title-text">Total Experience</span>
-          <button class="hide-toggle" onclick="toggleSectionVisibility('experience-section')" data-section="experience-section">
-            <span class="toggle-icon">👁️</span>
-            <span class="toggle-text">Hide</span>
-          </button>
-        </h2>
-        <div class="section-content">
-          <div>{{ profile.get('total_experience', '') | safe }}</div>
-        </div>
-      </div>
-      {% endif %}
-
-      {% if profile.get('professional_summary') and 'summary-section' not in hidden_sections %}
-      <div class="section" data-section-id="summary-section">
-        <h2 class="section-title">
-          <span class="section-title-text">Professional Summary</span>
-          <button class="hide-toggle" onclick="toggleSectionVisibility('summary-section')" data-section="summary-section">
-            <span class="toggle-icon">👁️</span>
-            <span class="toggle-text">Hide</span>
-          </button>
-        </h2>
-        <div class="section-content">
-          <ul>
-            {% for line in profile.get('professional_summary', '').split('\n') if line.strip() %}
-              <li>{{ line.lstrip('- ').strip() | safe }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-      {% endif %}
-
-      {% if profile.get('work_experience') and 'work-experience-section' not in hidden_sections %}
-      <div class="section" data-section-id="work-experience-section">
-        <h2 class="section-title">
-          <span class="section-title-text">Work Experience</span>
-          <button class="hide-toggle" onclick="toggleSectionVisibility('work-experience-section')" data-section="work-experience-section">
-            <span class="toggle-icon">👁️</span>
-            <span class="toggle-text">Hide</span>
-          </button>
-        </h2>
-        <div class="section-content">
-          {% for work in profile.get('work_experience', []) %}
-            {% if work.get('company_name') or work.get('role') %}
-              <div class="work-item">
-                <div>
-                  <div class="work-role">
-                    {{ work.get('company_name', '') | safe }} {% if work.get('company_name') and work.get('role') %} - {% endif %} {{ work.get('role', '') | safe }}
-                  </div>
-                  <div class="work-responsibilities">
-                    {% if work.get('responsibilities') %}
-                      <ul>
-                        {% for line in work.get('responsibilities', '').split('\n') if line.strip() %}
-                          <li>{{ line.lstrip('- ').strip() | safe }}</li>
-                        {% endfor %}
-                      </ul>
+        {% if profile.get('education_training_certifications') and 'education-section' not in hidden_sections %}
+        <div class="section education-section" data-section-id="education-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Education, Training & Certifications</span>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="hide-toggle" onclick="toggleSectionVisibility('education-section')" data-section="education-section">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide Section</span>
+              </button>
+              <button class="dates-toggle" onclick="toggleDatesVisibility('education-dates')" data-dates-id="education-dates">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide Dates</span>
+              </button>
+            </div>
+          </h2>
+          <div class="section-content">
+            <ul>
+              {% for edu in profile.get('education_training_certifications', []) %}
+                <li>
+                  <div class="education-item">
+                    <div>
+                      <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
+                    </div>
+                    {% if (edu.get('start_date') or edu.get('end_date')) and 'education-dates' not in hidden_dates %}
+                      <div class="education-dates dates-content" data-dates-id="education-dates">
+                        {{ edu.get('start_date', 'N/A') | format_date }} - {{ edu.get('end_date', 'N/A') | format_date }}
+                      </div>
                     {% endif %}
                   </div>
-                </div>
-                {% if work.get('start_date') or work.get('end_date') %}
-                  <div class="work-dates">{{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}</div>
-                {% endif %}
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      {% if 'projects-section' not in hidden_sections %}
-      <div class="section" data-section-id="projects-section">
-        <h2 class="section-title">
-          <span class="section-title-text">Projects</span>
-          <button class="hide-toggle" onclick="toggleSectionVisibility('projects-section')" data-section="projects-section">
-            <span class="toggle-icon">👁️</span>
-            <span class="toggle-text">Hide</span>
-          </button>
-        </h2>
-        <div class="section-content">
-          {% if profile.get('netweb_projects') or profile.get('past_projects') %}
-            {% if profile.get('netweb_projects') %}
-              <h3 style="font-size: 1.125rem; font-weight: 600; color: #059669; margin-bottom: 0.5rem;">NetWeb Projects</h3>
-              {% for p in profile.get('netweb_projects', []) %}
-                {% if p.get('title') or p.get('description') %}
-                  <div class="project-item">
-                    <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
-                    <div class="project-description">
-                      <ul>
-                        {% if p.get('description') %}
-                          {% for desc in p.get('description', '').split('. ') if desc.strip() %}
-                            <li>{{ desc.strip() + '.' | safe }}</li>
-                          {% endfor %}
-                        {% else %}
-                          <li>No description provided.</li>
-                        {% endif %}
-                      </ul>
-                    </div>
-                  </div>
-                {% endif %}
+                </li>
               {% endfor %}
-            {% endif %}
-            {% if profile.get('past_projects') %}
-              <h3 style="font-size: 1.125rem; font-weight: 600; color: #6b21a8; margin-top: 1rem; margin-bottom: 0.5rem;">Past Projects</h3>
-              {% for p in profile.get('past_projects', []) %}
-                {% if p.get('title') or p.get('description') %}
-                  <div class="project-item">
-                    <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
-                    <div class="project-description">
-                      <ul>
-                        {% if p.get('description') %}
-                          {% for desc in p.get('description', '').split('. ') if desc.strip() %}
-                            <li>{{ desc.strip() + '.' | safe }}</li>
-                          {% endfor %}
-                        {% else %}
-                          <li>No description provided.</li>
-                        {% endif %}
-                      </ul>
-                    </div>
-                  </div>
-                {% endif %}
-              {% endfor %}
-            {% endif %}
-          {% else %}
-            <p style="color: #6b7280; font-style: italic;">No projects available. Add projects in the edit profile page.</p>
-          {% endif %}
+            </ul>
+          </div>
         </div>
-      </div>
-      {% endif %}
+        {% endif %}
 
-      {% if profile.get('roles_responsibilities') and 'roles-section' not in hidden_sections %}
-      <div class="section" data-section-id="roles-section">
-        <h2 class="section-title">
-          <span class="section-title-text">Roles and Responsibilities</span>
-          <button class="hide-toggle" onclick="toggleSectionVisibility('roles-section')" data-section="roles-section">
-            <span class="toggle-icon">👁️</span>
-            <span class="toggle-text">Hide</span>
-          </button>
-        </h2>
-        <div class="section-content">
-          <ul>
-            {% for line in profile.get('roles_responsibilities', '').split('\n') if line.strip() %}
-              <li>{{ line.lstrip('- ').strip() | safe }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-      {% endif %}
-
-      {% set skills = profile.get('technical_skills', {}) %}
-      {% if skills and (skills.get('web_technologies') or skills.get('scripting_languages') or skills.get('frameworks') or skills.get('databases') or skills.get('web_servers') or skills.get('tools')) and 'skills-section' not in hidden_sections %}
-      <div class="section" data-section-id="skills-section">
-        <h2 class="section-title">
-          <span class="section-title-text">Technical Skill Set</span>
-          <div style="display: flex; gap: 0.5rem;">
-            <button class="hide-toggle" onclick="toggleSectionVisibility('skills-section')" data-section="skills-section">
+        {% if profile.get('total_experience') and 'experience-section' not in hidden_sections %}
+        <div class="section" data-section-id="experience-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Total Experience</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('experience-section')" data-section="experience-section">
               <span class="toggle-icon">👁️</span>
               <span class="toggle-text">Hide</span>
             </button>
-            <form method="POST" action="/download_xlsx" id="download-skills-xlsx-form" style="display: inline;">
-              <input type="hidden" name="skills_only" value="true">
-              <input type="hidden" name="hidden_sections" id="hidden-sections-skills-xlsx" value='{{ hidden_sections | tojson | safe }}'>
-              <input type="hidden" name="design" id="design-skills-xlsx" value='{{ session.get("design", "display_profile") }}'>
-              <button type="submit" class="download-btn skills-download-btn" onclick="handleDownloadSkillsXlsx()">📊 Download Skills XLSX</button>
-            </form>
+          </h2>
+          <div class="section-content">
+            <div>{{ profile.get('total_experience', '') | safe }}</div>
           </div>
-        </h2>
-        <div class="section-content">
-          <div class="skills-grid">
-            {% if skills.get('web_technologies') %}
-            <div class="skill-category">
-              <div class="skill-category-title">Web Technologies</div>
-              <div class="skill-tags">
-                {% for skill in skills.get('web_technologies', []) %}
-                  <span class="skill-tag">{{ skill | safe }}</span>
-                {% endfor %}
-              </div>
+        </div>
+        {% endif %}
+
+        {% if profile.get('professional_summary') and 'summary-section' not in hidden_sections %}
+        <div class="section" data-section-id="summary-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Professional Summary</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('summary-section')" data-section="summary-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <ul>
+              {% for line in profile.get('professional_summary', '').split('\n') if line.strip() %}
+                <li>{{ line.lstrip('- ').strip() | safe }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if profile.get('work_experience') and 'work-experience-section' not in hidden_sections %}
+        <div class="section" data-section-id="work-experience-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Work Experience</span>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="hide-toggle" onclick="toggleSectionVisibility('work-experience-section')" data-section="work-experience-section">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide Section</span>
+              </button>
+              <button class="dates-toggle" onclick="toggleDatesVisibility('work-experience-dates')" data-dates-id="work-experience-dates">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide Dates</span>
+              </button>
             </div>
-            {% endif %}
-            {% if skills.get('scripting_languages') %}
-            <div class="skill-category">
-              <div class="skill-category-title">Scripting Languages</div>
-              <div class="skill-tags">
-                {% for skill in skills.get('scripting_languages', []) %}
-                  <span class="skill-tag">{{ skill | safe }}</span>
+          </h2>
+          <div class="section-content">
+            {% for work in profile.get('work_experience', []) %}
+              {% if work.get('company_name') or work.get('role') %}
+                <div class="work-item">
+                  <div>
+                    <div class="work-role">
+                      {{ work.get('company_name', '') | safe }} {% if work.get('company_name') and work.get('role') %} - {% endif %} {{ work.get('role', '') | safe }}
+                    </div>
+                    <div class="work-responsibilities">
+                      {% if work.get('responsibilities') %}
+                        <ul>
+                          {% for line in work.get('responsibilities', '').split('\n') if line.strip() %}
+                            <li>{{ line.lstrip('- ').strip() | safe }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% if (work.get('start_date') or work.get('end_date')) and 'work-experience-dates' not in hidden_dates %}
+                    <div class="work-dates dates-content" data-dates-id="work-experience-dates">
+                      {{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if 'projects-section' not in hidden_sections %}
+        <div class="section" data-section-id="projects-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Projects</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('projects-section')" data-section="projects-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            {% if profile.get('netweb_projects') or profile.get('past_projects') %}
+              {% if profile.get('netweb_projects') %}
+                <h3 style="font-size: 1.125rem; font-weight: 600; color: #059669; margin-bottom: 0.5rem;">NetWeb Projects</h3>
+                {% for p in profile.get('netweb_projects', []) %}
+                  {% if p.get('title') or p.get('description') %}
+                    <div class="project-item">
+                      <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
+                      <div class="project-description">
+                        <ul>
+                          {% if p.get('description') %}
+                            {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                              <li>{{ desc.strip() + '.' | safe }}</li>
+                            {% endfor %}
+                          {% else %}
+                            <li>No description provided.</li>
+                          {% endif %}
+                        </ul>
+                      </div>
+                    </div>
+                  {% endif %}
                 {% endfor %}
-              </div>
-            </div>
-            {% endif %}
-            {% if skills.get('frameworks') %}
-            <div class="skill-category">
-              <div class="skill-category-title">Frameworks</div>
-              <div class="skill-tags">
-                {% for skill in skills.get('frameworks', []) %}
-                  <span class="skill-tag">{{ skill | safe }}</span>
+              {% endif %}
+              {% if profile.get('past_projects') %}
+                <h3 style="font-size: 1.125rem; font-weight: 600; color: #6b21a8; margin-top: 1rem; margin-bottom: 0.5rem;">Past Projects</h3>
+                {% for p in profile.get('past_projects', []) %}
+                  {% if p.get('title') or p.get('description') %}
+                    <div class="project-item">
+                      <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
+                      <div class="project-description">
+                        <ul>
+                          {% if p.get('description') %}
+                            {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                              <li>{{ desc.strip() + '.' | safe }}</li>
+                            {% endfor %}
+                          {% else %}
+                            <li>No description provided.</li>
+                          {% endif %}
+                        </ul>
+                      </div>
+                    </div>
+                  {% endif %}
                 {% endfor %}
-              </div>
-            </div>
-            {% endif %}
-            {% if skills.get('databases') %}
-            <div class="skill-category">
-              <div class="skill-category-title">Databases</div>
-              <div class="skill-tags">
-                {% for skill in skills.get('databases', []) %}
-                  <span class="skill-tag">{{ skill | safe }}</span>
-                {% endfor %}
-              </div>
-            </div>
-            {% endif %}
-            {% if skills.get('web_servers') %}
-            <div class="skill-category">
-              <div class="skill-category-title">Web Servers</div>
-              <div class="skill-tags">
-                {% for skill in skills.get('web_servers', []) %}
-                  <span class="skill-tag">{{ skill | safe }}</span>
-                {% endfor %}
-              </div>
-            </div>
-            {% endif %}
-            {% if skills.get('tools') %}
-            <div class="skill-category">
-              <div class="skill-category-title">Tools</div>
-              <div class="skill-tags">
-                {% for skill in skills.get('tools', []) %}
-                  <span class="skill-tag">{{ skill | safe }}</span>
-                {% endfor %}
-              </div>
-            </div>
+              {% endif %}
+            {% else %}
+              <p style="color: #6b7280; font-style: italic;">No projects available. Add projects in the edit profile page.</p>
             {% endif %}
           </div>
         </div>
-      </div>
-      {% endif %}
+        {% endif %}
 
-      {% set personal = profile.get('personal_details', {}) %}
-      {% if personal and (personal.get('employee_id') or personal.get('designation') or personal.get('date_of_joining') or personal.get('overall_experience') or personal.get('date_of_birth') or personal.get('contact_number') or personal.get('permanent_address') or personal.get('local_address') or personal.get('passport_details')) and 'personal-details-section' not in hidden_sections %}
-      <div class="section" data-section-id="personal-details-section">
-        <h2 class="section-title">
-          <span class="section-title-text">Personal Details</span>
-          <button class="hide-toggle" onclick="toggleSectionVisibility('personal-details-section')" data-section="personal-details-section">
-            <span class="toggle-icon">👁️</span>
-            <span class="toggle-text">Hide</span>
-          </button>
-        </h2>
-        <div class="section-content">
-          <div class="personal-details-grid">
-            {% if personal.get('employee_id') %}
-            <div class="personal-detail-item">
-              <div class="personal-detail-label">Employee ID:</div>
-              <div class="personal-detail-value">{{ personal.get('employee_id', '') | safe }}</div>
-            </div>
-            {% endif %}
-            {% if personal.get('designation') %}
-            <div class="personal-detail-item">
-              <div class="personal-detail-label">Designation:</div>
-              <div class="personal-detail-value">{{ personal.get('designation', '') | safe }}</div>
-            </div>
-            {% endif %}
-            {% if personal.get('date_of_joining') %}
-            <div class="personal-detail-item">
-              <div class="personal-detail-label">Date of Joining:</div>
-              <div class="personal-detail-value">{{ personal.get('date_of_joining', '') | format_date }}</div>
-            </div>
-            {% endif %}
-            {% if personal.get('overall_experience') %}
-            <div class="personal-detail-item">
-              <div class="personal-detail-label">Overall Experience:</div>
-              <div class="personal-detail-value">{{ personal.get('overall_experience', '') | safe }}</div>
-            </div>
-            {% endif %}
-            {% if personal.get('date_of_birth') %}
-            <div class="personal-detail-item">
-              <div class="personal-detail-label">Date of Birth:</div>
-              <div class="personal-detail-value">{{ personal.get('date_of_birth', '') | format_date }}</div>
-            </div>
-            {% endif %}
-            {% if personal.get('contact_number') %}
-            <div class="personal-detail-item">
-              <div class="personal-detail-label">Contact Number:</div>
-              <div class="personal-detail-value">{{ personal.get('contact_number', '') | safe }}</div>
-            </div>
-            {% endif %}
-            {% if personal.get('permanent_address') %}
-            <div class="personal-detail-item">
-              <div class="personal-detail-label">Permanent Address:</div>
-              <div class="personal-detail-value">{{ personal.get('permanent_address', '') | safe }}</div>
-            </div>
-            {% endif %}
-            {% if personal.get('local_address') %}
-            <div class="personal-detail-item">
-              <div class="personal-detail-label">Local Address:</div>
-              <div class="personal-detail-value">{{ personal.get('local_address', '') | safe }}</div>
-            </div>
-            {% endif %}
-            {% if personal.get('passport_details') %}
-            <div class="personal-detail-item">
-              <div class="personal-detail-label">Passport:</div>
-              <div class="personal-detail-value">{{ personal.get('passport_details', '') | safe }}</div>
-            </div>
-            {% endif %}
+        {% if profile.get('roles_responsibilities') and 'roles-section' not in hidden_sections %}
+        <div class="section" data-section-id="roles-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Roles and Responsibilities</span>
+            <button class="hide-toggle" onclick="toggleSectionVisibility('roles-section')" data-section="roles-section">
+              <span class="toggle-icon">👁️</span>
+              <span class="toggle-text">Hide</span>
+            </button>
+          </h2>
+          <div class="section-content">
+            <ul>
+              {% for line in profile.get('roles_responsibilities', '').split('\n') if line.strip() %}
+                <li>{{ line.lstrip('- ').strip() | safe }}</li>
+              {% endfor %}
+            </ul>
           </div>
         </div>
+        {% endif %}
+
+        {% set skills = profile.get('technical_skills', {}) %}
+        {% if skills and (skills.get('web_technologies') or skills.get('scripting_languages') or skills.get('frameworks') or skills.get('databases') or skills.get('web_servers') or skills.get('tools')) and 'skills-section' not in hidden_sections %}
+        <div class="section" data-section-id="skills-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Technical Skill Set</span>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="hide-toggle" onclick="toggleSectionVisibility('skills-section')" data-section="skills-section">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide</span>
+              </button>
+              <form method="POST" action="/download_xlsx" id="download-skills-xlsx-form" style="display: inline;">
+                <input type="hidden" name="skills_only" value="true">
+                <input type="hidden" name="hidden_sections" id="hidden-sections-skills-xlsx" value='{{ hidden_sections | tojson | safe }}'>
+                <input type="hidden" name="hidden_dates" id="hidden-dates-skills-xlsx" value='{{ hidden_dates | default([]) | tojson | safe }}'>
+                <input type="hidden" name="design" id="design-skills-xlsx" value='{{ session.get("design", "display_profile") }}'>
+                <button type="submit" class="download-btn skills-download-btn" onclick="handleDownloadSkillsXlsx()">📊 Download Skills XLSX</button>
+              </form>
+            </div>
+          </h2>
+          <div class="section-content">
+            <div class="skills-grid">
+              {% if skills.get('web_technologies') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Web Technologies</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('web_technologies', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('scripting_languages') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Scripting Languages</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('scripting_languages', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('frameworks') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Frameworks</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('frameworks', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('databases') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Databases</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('databases', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('web_servers') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Web Servers</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('web_servers', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('tools') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Tools</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('tools', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% set personal = profile.get('personal_details', {}) %}
+        {% if personal and (personal.get('employee_id') or personal.get('designation') or personal.get('date_of_joining') or personal.get('overall_experience') or personal.get('date_of_birth') or personal.get('contact_number') or personal.get('permanent_address') or personal.get('local_address') or personal.get('passport_details')) and 'personal-details-section' not in hidden_sections %}
+        <div class="section" data-section-id="personal-details-section">
+          <h2 class="section-title">
+            <span class="section-title-text">Personal Details</span>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="hide-toggle" onclick="toggleSectionVisibility('personal-details-section')" data-section="personal-details-section">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide Section</span>
+              </button>
+              <button class="dates-toggle" onclick="toggleDatesVisibility('personal-dates')" data-dates-id="personal-dates">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide Dates</span>
+              </button>
+            </div>
+          </h2>
+          <div class="section-content">
+            <div class="personal-details-grid">
+              {% if personal.get('employee_id') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Employee ID:</div>
+                <div class="personal-detail-value">{{ personal.get('employee_id', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('designation') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Designation:</div>
+                <div class="personal-detail-value">{{ personal.get('designation', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('date_of_joining') and 'personal-dates' not in hidden_dates %}
+              <div class="personal-detail-item dates-content" data-dates-id="personal-dates">
+                <div class="personal-detail-label">Date of Joining:</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_joining', '') | format_date }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('overall_experience') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Overall Experience:</div>
+                <div class="personal-detail-value">{{ personal.get('overall_experience', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('date_of_birth') and 'personal-dates' not in hidden_dates %}
+              <div class="personal-detail-item dates-content" data-dates-id="personal-dates">
+                <div class="personal-detail-label">Date of Birth:</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_birth', '') | format_date }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('contact_number') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Contact Number:</div>
+                <div class="personal-detail-value">{{ personal.get('contact_number', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('permanent_address') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Permanent Address:</div>
+                <div class="personal-detail-value">{{ personal.get('permanent_address', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('local_address') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Local Address:</div>
+                <div class="personal-detail-value">{{ personal.get('local_address', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('passport_details') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Passport:</div>
+                <div class="personal-detail-value">{{ personal.get('passport_details', '') | safe }}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
-    </div>
-    
-    <div class="download-section">
-      <h3 style="color: white; margin-bottom: 1.5rem; font-size: 1.25rem;">Download Your Resume</h3>
-      <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem;">
-        <form method="POST" action="/download" id="download-form" style="display: inline;">
-          <input type="hidden" name="profile_data" id="profile-data" value='{{ profile | tojson | safe }}'>
-          <input type="hidden" name="hidden_sections" id="hidden-sections" value='{{ hidden_sections | tojson | safe }}'>
-          <input type="hidden" name="design" id="design" value='{{ session.get("design", "display_profile") }}'>
-          <button type="submit" class="download-btn" onclick="handleDownload()">📄 Download PDF</button>
-        </form>
+      
+      <div class="download-section">
+        <h3 style="color: white; margin-bottom: 1.5rem; font-size: 1.25rem;">Download Your Resume</h3>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem;">
+          <form method="POST" action="/download" id="download-form" style="display: inline;">
+            <input type="hidden" name="profile_data" id="profile-data" value='{{ profile | tojson | safe }}'>
+            <input type="hidden" name="hidden_sections" id="hidden-sections" value='{{ hidden_sections | tojson | safe }}'>
+            <input type="hidden" name="hidden_dates" id="hidden-dates" value='{{ hidden_dates | default([]) | tojson | safe }}'>
+            <input type="hidden" name="design" id="design" value='{{ session.get("design", "display_profile") }}'>
+            <button type="submit" class="download-btn" onclick="handleDownload()">📄 Download PDF</button>
+          </form>
+        </div>
+        <p style="color: rgba(255,255,255,0.8); margin-top: 1rem; font-size: 0.875rem;"></p>
       </div>
-      <p style="color: rgba(255,255,255,0.8); margin-top: 1rem; font-size: 0.875rem;"></p>
+
+      <div class="footer">
+        <div class="footer-left">NetWeb Software</div>
+        <div class="footer-center">Confidential</div>
+      </div>
     </div>
 
-    <div class="footer">
-      <div class="footer-left">NetWeb Software</div>
-      <div class="footer-center">Confidential</div>
-    </div>
-  </div>
+    <script type="application/json" id="hidden-sections-data">
+      {{ hidden_sections | tojson | safe }}
+    </script>
+    <script type="application/json" id="hidden-dates-data">
+      {{ hidden_dates | default([]) | tojson | safe }}
+    </script>
 
-  <script type="application/json" id="hidden-sections-data">
-    {{ hidden_sections | tojson | safe }}
-  </script>
-
-  <script>
-    let hiddenSections = [];
-    try {
-      const hiddenSectionsElement = document.getElementById('hidden-sections-data');
-      if (hiddenSectionsElement) {
-        const hiddenSectionsRaw = JSON.parse(hiddenSectionsElement.textContent);
-        hiddenSections = Array.isArray(hiddenSectionsRaw) ? hiddenSectionsRaw : [];
+    <script>
+      let hiddenSections = [];
+      let hiddenDates = [];
+      try {
+        const hiddenSectionsElement = document.getElementById('hidden-sections-data');
+        if (hiddenSectionsElement) {
+          const hiddenSectionsRaw = JSON.parse(hiddenSectionsElement.textContent);
+          hiddenSections = Array.isArray(hiddenSectionsRaw) ? hiddenSectionsRaw : [];
+        }
+        const hiddenDatesElement = document.getElementById('hidden-dates-data');
+        if (hiddenDatesElement) {
+          const hiddenDatesRaw = JSON.parse(hiddenDatesElement.textContent);
+          hiddenDates = Array.isArray(hiddenDatesRaw) ? hiddenDatesRaw : [];
+        }
+      } catch (e) {
+        console.error('Error parsing hidden_sections or hidden_dates from script tag:', e);
+        hiddenSections = [];
+        hiddenDates = [];
       }
-    } catch (e) {
-      console.error('Error parsing hidden_sections from script tag:', e);
-      hiddenSections = [];
-    }
 
-    window.addEventListener('load', () => {
-      hiddenSections.forEach(sectionId => {
+      window.addEventListener('load', () => {
+        hiddenSections.forEach(sectionId => {
+          const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+          const button = document.querySelector(`[data-section="${sectionId}"]`);
+          if (section && button) {
+            section.classList.add('hidden');
+            button.classList.add('hidden-state');
+            const icon = button.querySelector('.toggle-icon');
+            const text = button.querySelector('.toggle-text');
+            icon.textContent = '🙈';
+            text.textContent = sectionId.includes('dates') ? 'Show Dates' : 'Show Section';
+          }
+        });
+        hiddenDates.forEach(datesId => {
+          const dates = document.querySelectorAll(`[data-dates-id="${datesId}"]`);
+          const button = document.querySelector(`[data-dates-id="${datesId}"]`);
+          if (dates.length && button) {
+            dates.forEach(date => date.classList.add('hidden'));
+            button.classList.add('hidden-state');
+            const icon = button.querySelector('.toggle-icon');
+            const text = button.querySelector('.toggle-text');
+            icon.textContent = '🙈';
+            text.textContent = 'Show Dates';
+          }
+        });
+        updateHiddenSectionsInputs();
+        updateHiddenDatesInputs();
+        console.log('Page loaded, hidden sections:', hiddenSections, 'hidden dates:', hiddenDates);
+      });
+
+      function toggleSectionVisibility(sectionId) {
         const section = document.querySelector(`[data-section-id="${sectionId}"]`);
         const button = document.querySelector(`[data-section="${sectionId}"]`);
-        if (section && button) {
+        const icon = button.querySelector('.toggle-icon');
+        const text = button.querySelector('.toggle-text');
+        
+        if (hiddenSections.includes(sectionId)) {
+          hiddenSections = hiddenSections.filter(id => id !== sectionId);
+          section.classList.remove('hidden');
+          button.classList.remove('hidden-state');
+          icon.textContent = '👁️';
+          text.textContent = 'Hide Section';
+          console.log(`Showing section: ${sectionId}`);
+        } else {
+          hiddenSections.push(sectionId);
           section.classList.add('hidden');
+          button.classList.add('hidden-state');
+          icon.textContent = '🙈';
+          text.textContent = 'Show Section';
+          console.log(`Hiding section: ${sectionId}`);
+        }
+        
+        updateHiddenSectionsInputs();
+        console.log('Updated hidden sections:', hiddenSections);
+      }
+
+      function toggleDatesVisibility(datesId) {
+        const dates = document.querySelectorAll(`[data-dates-id="${datesId}"]`);
+        const button = document.querySelector(`[data-dates-id="${datesId}"]`);
+        const icon = button.querySelector('.toggle-icon');
+        const text = button.querySelector('.toggle-text');
+        
+        if (hiddenDates.includes(datesId)) {
+          hiddenDates = hiddenDates.filter(id => id !== datesId);
+          dates.forEach(date => date.classList.remove('hidden'));
+          button.classList.remove('hidden-state');
+          icon.textContent = '👁️';
+          text.textContent = 'Hide Dates';
+          console.log(`Showing dates: ${datesId}`);
+        } else {
+          hiddenDates.push(datesId);
+          dates.forEach(date => date.classList.add('hidden'));
+          button.classList.add('hidden-state');
+          icon.textContent = '🙈';
+          text.textContent = 'Show Dates';
+          console.log(`Hiding dates: ${datesId}`);
+        }
+        
+        updateHiddenDatesInputs();
+        console.log('Updated hidden dates:', hiddenDates);
+      }
+
+      function showAllSections() {
+        hiddenSections = [];
+        hiddenDates = [];
+        const sections = document.querySelectorAll('[data-section-id]');
+        const buttons = document.querySelectorAll('.hide-toggle');
+        const dates = document.querySelectorAll('.dates-content');
+        const datesButtons = document.querySelectorAll('.dates-toggle');
+        
+        sections.forEach(section => {
+          section.classList.remove('hidden');
+        });
+        buttons.forEach(button => {
+          button.classList.remove('hidden-state');
+          const icon = button.querySelector('.toggle-icon');
+          const text = button.querySelector('.toggle-text');
+          icon.textContent = '👁️';
+          text.textContent = 'Hide Section';
+        });
+        dates.forEach(date => {
+          date.classList.remove('hidden');
+        });
+        datesButtons.forEach(button => {
+          button.classList.remove('hidden-state');
+          const icon = button.querySelector('.toggle-icon');
+          const text = button.querySelector('.toggle-text');
+          icon.textContent = '👁️';
+          text.textContent = 'Hide Dates';
+        });
+        
+        updateHiddenSectionsInputs();
+        updateHiddenDatesInputs();
+        console.log('Showing all sections and dates');
+      }
+
+      function hideAllSections() {
+        const sections = document.querySelectorAll('[data-section-id]');
+        const buttons = document.querySelectorAll('.hide-toggle');
+        const dates = document.querySelectorAll('.dates-content');
+        const datesButtons = document.querySelectorAll('.dates-toggle');
+        
+        hiddenSections = [];
+        hiddenDates = ['education-dates', 'work-experience-dates', 'personal-dates'];
+        sections.forEach(section => {
+          const sectionId = section.getAttribute('data-section-id');
+          hiddenSections.push(sectionId);
+          section.classList.add('hidden');
+        });
+        buttons.forEach(button => {
           button.classList.add('hidden-state');
           const icon = button.querySelector('.toggle-icon');
           const text = button.querySelector('.toggle-text');
           icon.textContent = '🙈';
-          text.textContent = 'Show';
-        }
-      });
-      updateHiddenSectionsInputs();
-      console.log('Page loaded, hidden sections initialized:', hiddenSections);
-    });
-
-    function toggleSectionVisibility(sectionId) {
-      const section = document.querySelector(`[data-section-id="${sectionId}"]`);
-      const button = document.querySelector(`[data-section="${sectionId}"]`);
-      const icon = button.querySelector('.toggle-icon');
-      const text = button.querySelector('.toggle-text');
-      
-      if (hiddenSections.includes(sectionId)) {
-        hiddenSections = hiddenSections.filter(id => id !== sectionId);
-        section.classList.remove('hidden');
-        button.classList.remove('hidden-state');
-        icon.textContent = '👁️';
-        text.textContent = 'Hide';
-        console.log(`Showing section: ${sectionId}`);
-      } else {
-        hiddenSections.push(sectionId);
-        section.classList.add('hidden');
-        button.classList.add('hidden-state');
-        icon.textContent = '🙈';
-        text.textContent = 'Show';
-        console.log(`Hiding section: ${sectionId}`);
-      }
-      
-      updateHiddenSectionsInputs();
-      console.log('Updated hidden sections:', hiddenSections);
-    }
-
-    function showAllSections() {
-      hiddenSections = [];
-      const sections = document.querySelectorAll('[data-section-id]');
-      const buttons = document.querySelectorAll('.hide-toggle');
-      
-      sections.forEach(section => {
-        section.classList.remove('hidden');
-      });
-      
-      buttons.forEach(button => {
-        button.classList.remove('hidden-state');
-        const icon = button.querySelector('.toggle-icon');
-        const text = button.querySelector('.toggle-text');
-        icon.textContent = '👁️';
-        text.textContent = 'Hide';
-      });
-      
-      updateHiddenSectionsInputs();
-      console.log('Showing all sections');
-    }
-
-    function hideAllSections() {
-      const sections = document.querySelectorAll('[data-section-id]');
-      const buttons = document.querySelectorAll('.hide-toggle');
-      
-      hiddenSections = [];
-      sections.forEach(section => {
-        const sectionId = section.getAttribute('data-section-id');
-        hiddenSections.push(sectionId);
-        section.classList.add('hidden');
-      });
-      
-      buttons.forEach(button => {
-        button.classList.add('hidden-state');
-        const icon = button.querySelector('.toggle-icon');
-        const text = button.querySelector('.toggle-text');
-        icon.textContent = '🙈';
-        text.textContent = 'Show';
-      });
-      
-      updateHiddenSectionsInputs();
-      console.log('Hiding all sections');
-    }
-
-    function updateHiddenSectionsInputs() {
-      const hiddenSectionsJSON = JSON.stringify(hiddenSections);
-      const inputs = [
-        document.getElementById('hidden-sections'),
-        document.getElementById('hidden-sections-skills-xlsx')
-      ];
-      inputs.forEach(input => {
-        if (input) {
-          input.value = hiddenSectionsJSON;
-        }
-      });
-      console.log('Updated hidden sections inputs with:', hiddenSectionsJSON);
-    }
-
-    function switchDesign(design) {
-      $.ajax({
-        url: '/switch_design',
-        type: 'POST',
-        data: { design: design },
-        success: function(data) {
-          if (data.html) {
-            $('body').html(data.html);
-            hiddenSections.forEach(sectionId => {
-              const section = document.querySelector(`[data-section-id="${sectionId}"]`);
-              const button = document.querySelector(`[data-section="${sectionId}"]`);
-              if (section && button) {
-                section.classList.add('hidden');
-                button.classList.add('hidden-state');
-                const icon = button.querySelector('.toggle-icon');
-                const text = button.querySelector('.toggle-text');
-                icon.textContent = '🙈';
-                text.textContent = 'Show';
-              }
-            });
-            updateHiddenSectionsInputs();
-            attachEventListeners();
-            const designInputs = [
-              document.getElementById('design'),
-              document.getElementById('design-skills-xlsx')
-            ];
-            designInputs.forEach(input => {
-              if (input) {
-                input.value = design;
-              }
-            });
-            console.log(`Switched to design: ${design}`);
-          } else if (data.error) {
-            console.error('Design switch failed:', data.error);
-            alert('Failed to switch design: ' + data.error);
-          }
-        },
-        error: function(xhr, status, error) {
-          console.error('AJAX request for design switch failed:', error);
-          alert('Failed to switch design. Please try again.');
-        }
-      });
-    }
-
-    function handleDownload() {
-      updateHiddenSectionsInputs();
-      const form = document.getElementById('download-form');
-      const profileDataInput = document.getElementById('profile-data');
-      
-      try {
-        const profileData = JSON.parse(profileDataInput.value);
-        profileDataInput.value = encodeURIComponent(JSON.stringify(profileData));
-        console.log('Submitting PDF download with profile_data:', profileData, 'hidden_sections:', hiddenSections, 'design:', document.getElementById("design").value);
-        form.submit();
-      } catch (e) {
-        console.error('Error encoding profile_data for PDF:', e);
-        alert('Error preparing resume data for PDF download. Please try again.');
-      }
-    }
-
-    function handleDownloadSkillsXlsx() {
-      updateHiddenSectionsInputs();
-      const form = document.getElementById('download-skills-xlsx-form');
-      console.log('Submitting Skills XLSX download with hidden_sections:', hiddenSections, 'design:', document.getElementById('design-skills-xlsx').value);
-      form.submit();
-    }
-
-    function attachEventListeners() {
-      const sections = document.querySelectorAll('.section');
-      sections.forEach(section => {
-        section.addEventListener('mouseenter', function() {
-          if (!this.classList.contains('hidden')) {
-            this.style.transform = 'translateX(10px)';
-            this.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.2)';
-          }
+          text.textContent = 'Show Section';
         });
-        section.addEventListener('mouseleave', function() {
-          this.style.transform = '';
-          this.style.boxShadow = '';
+        dates.forEach(date => {
+          date.classList.add('hidden');
         });
-      });
-
-      document.addEventListener('submit', function(event) {
+        datesButtons.forEach(button => {
+          button.classList.add('hidden-state');
+          const icon = button.querySelector('.toggle-icon');
+          const text = button.querySelector('.toggle-text');
+          icon.textContent = '🙈';
+          text.textContent = 'Show Dates';
+        });
+        
         updateHiddenSectionsInputs();
-        console.log('Form submission: hidden sections updated to', JSON.stringify(hiddenSections));
-      });
+        updateHiddenDatesInputs();
+        console.log('Hiding all sections and dates');
+      }
 
-      document.addEventListener('keydown', function(event) {
-        if (event.ctrlKey || event.metaKey) {
-          switch(event.key) {
-            case 'h':
-              event.preventDefault();
-              hideAllSections();
-              break;
-            case 's':
-              event.preventDefault();
-              showAllSections();
-              break;
-            case 'd':
-              event.preventDefault();
-              handleDownload();
-              break;
+      function updateHiddenSectionsInputs() {
+        const hiddenSectionsJSON = JSON.stringify(hiddenSections);
+        const inputs = [
+          document.getElementById('hidden-sections'),
+          document.getElementById('hidden-sections-skills-xlsx')
+        ];
+        inputs.forEach(input => {
+          if (input) {
+            input.value = hiddenSectionsJSON;
           }
-        }
-      });
-    }
+        });
+        console.log('Updated hidden sections inputs with:', hiddenSectionsJSON);
+      }
 
-    document.addEventListener('DOMContentLoaded', attachEventListeners);
-  </script>
-</body>
+      function updateHiddenDatesInputs() {
+        const hiddenDatesJSON = JSON.stringify(hiddenDates);
+        const inputs = [
+          document.getElementById('hidden-dates'),
+          document.getElementById('hidden-dates-skills-xlsx')
+        ];
+        inputs.forEach(input => {
+          if (input) {
+            input.value = hiddenDatesJSON;
+          }
+        });
+        console.log('Updated hidden dates inputs with:', hiddenDatesJSON);
+      }
+
+      function switchDesign(design) {
+        $.ajax({
+          url: '/switch_design',
+          type: 'POST',
+          data: { design: design },
+          success: function(data) {
+            if (data.html) {
+              $('body').html(data.html);
+              hiddenSections.forEach(sectionId => {
+                const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+                const button = document.querySelector(`[data-section="${sectionId}"]`);
+                if (section && button) {
+                  section.classList.add('hidden');
+                  button.classList.add('hidden-state');
+                  const icon = button.querySelector('.toggle-icon');
+                  const text = button.querySelector('.toggle-text');
+                  icon.textContent = '🙈';
+                  text.textContent = 'Show Section';
+                }
+              });
+              hiddenDates.forEach(datesId => {
+                const dates = document.querySelectorAll(`[data-dates-id="${datesId}"]`);
+                const button = document.querySelector(`[data-dates-id="${datesId}"]`);
+                if (dates.length && button) {
+                  dates.forEach(date => date.classList.add('hidden'));
+                  button.classList.add('hidden-state');
+                  const icon = button.querySelector('.toggle-icon');
+                  const text = button.querySelector('.toggle-text');
+                  icon.textContent = '🙈';
+                  text.textContent = 'Show Dates';
+                }
+              });
+              updateHiddenSectionsInputs();
+              updateHiddenDatesInputs();
+              attachEventListeners();
+              const designInputs = [
+                document.getElementById('design'),
+                document.getElementById('design-skills-xlsx')
+              ];
+              designInputs.forEach(input => {
+                if (input) {
+                  input.value = design;
+                }
+              });
+              console.log(`Switched to design: ${design}`);
+            } else if (data.error) {
+              console.error('Design switch failed:', data.error);
+              alert('Failed to switch design: ' + data.error);
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error('AJAX request for design switch failed:', error);
+            alert('Failed to switch design. Please try again.');
+          }
+        });
+      }
+
+      function handleDownload() {
+        updateHiddenSectionsInputs();
+        updateHiddenDatesInputs();
+        const form = document.getElementById('download-form');
+        const profileDataInput = document.getElementById('profile-data');
+        
+        try {
+          const profileData = JSON.parse(profileDataInput.value);
+          profileDataInput.value = encodeURIComponent(JSON.stringify(profileData));
+          console.log('Preparing PDF download with profile_data:', profileData, 'hidden_sections:', hiddenSections, 'hidden_dates:', hiddenDates, 'design:', document.getElementById('design').value);
+          form.submit();
+        } catch (e) {
+          console.error('Error encoding profile_data for PDF:', e);
+          alert('Error preparing resume data for PDF download. Please try again.');
+        }
+      }
+
+      function handleDownloadSkillsXlsx() {
+        updateHiddenSectionsInputs();
+        updateHiddenDatesInputs();
+        const form = document.getElementById('download-skills-xlsx-form');
+        console.log('Preparing Skills XLSX download with hidden_sections:', hiddenSections, 'hidden_dates:', hiddenDates, 'design:', document.getElementById('design-skills-xlsx').value);
+        form.submit();
+      }
+
+      function attachEventListeners() {
+        const sections = document.querySelectorAll('.section');
+        sections.forEach(section => {
+          section.addEventListener('mouseenter', function() {
+            if (!this.classList.contains('hidden')) {
+              this.style.transform = 'translateX(10px)';
+              this.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.2)';
+            }
+          });
+          section.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+            this.style.boxShadow = '';
+          });
+        });
+
+        document.addEventListener('submit', function(event) {
+          updateHiddenSectionsInputs();
+          updateHiddenDatesInputs();
+          console.log('Form submission: hidden sections updated to', JSON.stringify(hiddenSections), 'hidden dates updated to', JSON.stringify(hiddenDates));
+        });
+
+        document.addEventListener('keydown', function(event) {
+          if (event.ctrlKey || event.metaKey) {
+            switch(event.key) {
+              case 'h':
+                event.preventDefault();
+                hideAllSections();
+                break;
+              case 's':
+                event.preventDefault();
+                showAllSections();
+                break;
+              case 'd':
+                event.preventDefault();
+                handleDownload();
+                break;
+            }
+          }
+        });
+
+        window.addEventListener('beforeprint', () => {
+          console.log('Preparing for print: hidden sections:', hiddenSections, 'hidden dates:', hiddenDates);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', attachEventListeners);
+    </script>
+  </body>
 </html>
