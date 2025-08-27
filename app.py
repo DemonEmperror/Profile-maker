@@ -206,13 +206,14 @@ def generate_bullet_points(text, field_name):
 def extract_json(text):
     try:
         if "```json" in text:
-            match = re.findall(r"```json
+            match = re.findall(r"```json(.*?)```", text, re.DOTALL)
             if match:
                 return json.loads(match[0].strip())
         return json.loads(text)
     except Exception as e:
         logging.error(f"Error parsing JSON: {e}")
         return {}
+
 
 def generate_structured_data(text):
     prompt = f"""
