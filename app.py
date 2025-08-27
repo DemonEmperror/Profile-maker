@@ -58,6 +58,10 @@ VALID_SECTION_IDS = [
     'roles-section', 'skills-section', 'personal-details-section', 'work-experience-section'
 ]
 
+VALID_DATES_IDS = [
+    'education-dates', 'work-experience-dates', 'personal-dates'
+]
+
 # Allowed HTML tags and attributes for rich text fields
 ALLOWED_TAGS = ['b', 'i', 'ul', 'ol', 'li']
 ALLOWED_ATTRIBUTES = {}
@@ -484,9 +488,11 @@ def cleanup_file(filepath):
 def should_skip_section(section_id, hidden_sections):
     return section_id in (hidden_sections or [])
 
-def render_html_to_docx(profile, output_path, hidden_sections=None):
+def render_html_to_docx(profile, output_path, hidden_sections=None, hidden_dates=None):
     if hidden_sections is None:
         hidden_sections = []
+    if hidden_dates is None:
+        hidden_dates = []
     try:
         doc = Document()
         doc.add_heading('Professional Resume', 0)
@@ -498,9 +504,12 @@ def render_html_to_docx(profile, output_path, hidden_sections=None):
             doc.add_heading('Education, Training, and Certifications', level=1)
             for item in profile['education_training_certifications']:
                 title = item.get('title', '')
-                start_date = format_date_for_display(item.get('start_date', 'N/A'))
-                end_date = format_date_for_display(item.get('end_date', 'N/A'))
-                doc.add_paragraph(f"{title} ({start_date} - {end_date})", style='ListBullet')
+                if 'education-dates' not in hidden_dates:
+                    start_date = format_date_for_display(item.get('start_date', 'N/A'))
+                    end_date = format_date_for_display(item.get('end_date', 'N/A'))
+                    doc.add_paragraph(f"{title} ({start_date} - {end_date})", style='ListBullet')
+                else:
+                    doc.add_paragraph(f"{title}", style='ListBullet')
         
         if not should_skip_section('experience-section', hidden_sections) and profile.get('total_experience'):
             doc.add_heading('Total Experience', level=1)
@@ -540,9 +549,12 @@ def render_html_to_docx(profile, output_path, hidden_sections=None):
             for exp in profile['work_experience']:
                 company_name = exp.get('company_name', 'Unknown Company')
                 role = exp.get('role', 'Unknown Role')
-                start_date = format_date_for_display(exp.get('start_date', 'N/A'))
-                end_date = format_date_for_display(exp.get('end_date', 'N/A'))
-                doc.add_heading(f"{company_name} - {role} ({start_date} - {end_date})", level=2)
+                if 'work-experience-dates' not in hidden_dates:
+                    start_date = format_date_for_display(exp.get('start_date', 'N/A'))
+                    end_date = format_date_for_display(exp.get('end_date', 'N/A'))
+                    doc.add_heading(f"{company_name} - {role} ({start_date} - {end_date})", level=2)
+                else:
+                    doc.add_heading(f"{company_name} - {role}", level=2)
                 if exp.get('responsibilities'):
                     para = doc.add_paragraph()
                     html_to_docx(para, exp['responsibilities'])
@@ -562,7 +574,7 @@ def render_html_to_docx(profile, output_path, hidden_sections=None):
             if any(personal.values()):
                 doc.add_heading('Personal Details', level=1)
                 for key, value in personal.items():
-                    if value:
+                    if value and (key not in ['date_of_joining', 'date_of_birth'] or 'personal-dates' not in hidden_dates):
                         if key in ['date_of_joining', 'date_of_birth']:
                             value = format_date_for_display(value)
                         doc.add_paragraph(f"{key.replace('_', ' ').title()}: {value}")
@@ -610,9 +622,11 @@ def html_to_docx(paragraph, html_text):
         logging.error(f"Error converting HTML to DOCX: {e}")
         paragraph.add_run(html_text or '')
 
-def render_html_to_xlsx(profile, output_path, hidden_sections=None):
+def render_html_to_xlsx(profile, output_path, hidden_sections=None, hidden_dates=None):
     if hidden_sections is None:
         hidden_sections = []
+    if hidden_dates is None:
+        hidden_dates = []
     try:
         wb = Workbook()
         ws = wb.active
@@ -642,9 +656,13 @@ def render_html_to_xlsx(profile, output_path, hidden_sections=None):
             apply_cell_style(ws.cell(row=row, column=1), is_header=True)
             row += 1
             for item in profile['education_training_certifications']:
-                start_date = format_date_for_display(item.get('start_date', 'N/A'))
-                end_date = format_date_for_display(item.get('end_date', 'N/A'))
-                ws.cell(row=row, column=2).value = f"{item.get('title', '')} ({start_date} - {end_date})"
+                title = item.get('title', '')
+                if 'education-dates' not in hidden_dates:
+                    start_date = format_date_for_display(item.get('start_date', 'N/A'))
+                    end_date = format_date_for_display(item.get('end_date', 'N/A'))
+                    ws.cell(row=row, column=2).value = f"{title} ({start_date} - {end_date})"
+                else:
+                    ws.cell(row=row, column=2).value = f"{title}"
                 apply_cell_style(ws.cell(row=row, column=2))
                 row += 1
             row += 1
@@ -707,9 +725,13 @@ def render_html_to_xlsx(profile, output_path, hidden_sections=None):
             row += 1
             for exp in profile['work_experience']:
                 company_name = exp.get('company_name', 'Unknown Company')
-                start_date = format_date_for_display(exp.get('start_date', 'N/A'))
-                end_date = format_date_for_display(exp.get('end_date', 'N/A'))
-                ws.cell(row=row, column=2).value = f"{company_name} - {exp.get('role', 'Unknown Role')} ({start_date} - {end_date})"
+                role = exp.get('role', 'Unknown Role')
+                if 'work-experience-dates' not in hidden_dates:
+                    start_date = format_date_for_display(exp.get('start_date', 'N/A'))
+                    end_date = format_date_for_display(exp.get('end_date', 'N/A'))
+                    ws.cell(row=row, column=2).value = f"{company_name} - {role} ({start_date} - {end_date})"
+                else:
+                    ws.cell(row=row, column=2).value = f"{company_name} - {role}"
                 apply_cell_style(ws.cell(row=row, column=2), is_header=True)
                 row += 1
                 if exp.get('responsibilities'):
@@ -743,7 +765,7 @@ def render_html_to_xlsx(profile, output_path, hidden_sections=None):
                 apply_cell_style(ws.cell(row=row, column=1), is_header=True)
                 row += 1
                 for key, value in personal.items():
-                    if value:
+                    if value and (key not in ['date_of_joining', 'date_of_birth'] or 'personal-dates' not in hidden_dates):
                         if key in ['date_of_joining', 'date_of_birth']:
                             value = format_date_for_display(value)
                         ws.cell(row=row, column=2).value = key.replace('_', ' ').title()
@@ -793,11 +815,12 @@ def index():
         session.permanent = True
         session['profile'] = sanitize_profile_data(profile)
         session['hidden_sections'] = []
+        session['hidden_dates'] = []
         session['creation_method'] = 'upload'
         session['design'] = 'display_profile'
-        logging.info(f"Initialized session: profile keys={list(profile.keys())}, hidden_sections=[], creation_method=upload, design=display_profile")
+        logging.info(f"Initialized session: profile keys={list(profile.keys())}, hidden_sections=[], hidden_dates=[], creation_method=upload, design=display_profile")
         try:
-            return render_template("display_profile.html", profile=profile, hidden_sections=[])
+            return render_template("display_profile.html", profile=profile, hidden_sections=[], hidden_dates=[])
         except Exception as e:
             logging.error(f"Template rendering error for display_profile.html: {str(e)}\n{traceback.format_exc()}")
             flash(f"Template error: {str(e)}. Please ensure display_profile.html exists.")
@@ -805,6 +828,7 @@ def index():
     if not session.get('profile'):
         session.pop('profile', None)
         session.pop('hidden_sections', None)
+        session.pop('hidden_dates', None)
         session.pop('creation_method', None)
         session.pop('design', None)
     return render_template("index.html")
@@ -923,6 +947,7 @@ def submit_from_scratch():
     session.permanent = True
     session['profile'] = sanitize_profile_data(profile_data)
     session['hidden_sections'] = []
+    session['hidden_dates'] = []
     session['creation_method'] = 'scratch'
     session['design'] = 'display_profile'
     logging.info(f"Stored profile in session: {json.dumps(profile_data, indent=2)}")
@@ -1004,13 +1029,14 @@ def check_grammar_route():
 def edit_profile():
     profile = session.get('profile', {})
     hidden_sections = session.get('hidden_sections', [])
+    hidden_dates = session.get('hidden_dates', [])
     if not profile:
         flash("No profile data available. Please upload or create a profile.")
         logging.warning("No profile data in session for /edit_profile")
         return redirect('/')
-    logging.info(f"Edit profile: profile keys={list(profile.keys())}, hidden_sections={hidden_sections}")
+    logging.info(f"Edit profile: profile keys={list(profile.keys())}, hidden_sections={hidden_sections}, hidden_dates={hidden_dates}")
     try:
-        return render_template("edit.html", profile=profile, hidden_sections=hidden_sections)
+        return render_template("edit.html", profile=profile, hidden_sections=hidden_sections, hidden_dates=hidden_dates)
     except Exception as e:
         flash(f"Template error: {str(e)}. Please ensure edit.html exists.")
         logging.error(f"Template rendering error for edit.html: {str(e)}")
@@ -1025,6 +1051,7 @@ def update_profile():
         logging.debug(f"{key}: {value}")
     
     hidden_sections = []
+    hidden_dates = []
     try:
         hidden_sections = json.loads(request.form.get('hidden_sections', '[]'))
         if not isinstance(hidden_sections, list):
@@ -1034,6 +1061,16 @@ def update_profile():
     except json.JSONDecodeError as e:
         logging.error(f"Error decoding hidden_sections: {e}")
         hidden_sections = []
+    
+    try:
+        hidden_dates = json.loads(request.form.get('hidden_dates', '[]'))
+        if not isinstance(hidden_dates, list):
+            logging.warning(f"hidden_dates is not a valid list, defaulting to empty list: {hidden_dates}")
+            hidden_dates = []
+        hidden_dates = [dates for dates in hidden_dates if dates in VALID_DATES_IDS]
+    except json.JSONDecodeError as e:
+        logging.error(f"Error decoding hidden_dates: {e}")
+        hidden_dates = []
 
     profile_data = {
         "name": request.form.get('name', '').strip() or '',
@@ -1149,19 +1186,20 @@ def update_profile():
         for error in errors:
             flash(error)
         logging.warning(f"Validation failed: {errors}")
-        return render_template("edit.html", profile=profile_data, hidden_sections=hidden_sections)
+        return render_template("edit.html", profile=profile_data, hidden_sections=hidden_sections, hidden_dates=hidden_dates)
 
     profile_data = sanitize_profile_data(profile_data)
     session.permanent = True
     session['profile'] = profile_data
     session['hidden_sections'] = hidden_sections
+    session['hidden_dates'] = hidden_dates
     logging.info(f"Updated session profile: {json.dumps(profile_data, indent=2)}")
-    logging.info(f"Updated session hidden_sections: {hidden_sections}")
+    logging.info(f"Updated session hidden_sections: {hidden_sections}, hidden_dates: {hidden_dates}")
 
     if action == 'save':
-        logging.info(f"Rendering {session.get('design', 'display_profile')}.html with hidden_sections: {hidden_sections}")
+        logging.info(f"Rendering {session.get('design', 'display_profile')}.html with hidden_sections: {hidden_sections}, hidden_dates: {hidden_dates}")
         try:
-            return render_template(f"{session.get('design', 'display_profile')}.html", profile=profile_data, hidden_sections=hidden_sections)
+            return render_template(f"{session.get('design', 'display_profile')}.html", profile=profile_data, hidden_sections=hidden_sections, hidden_dates=hidden_dates)
         except Exception as e:
             flash(f"Template error: {str(e)}. Please ensure {session.get('design', 'display_profile')}.html exists.")
             logging.error(f"Template rendering error for {session.get('design', 'display_profile')}.html: {str(e)}\n{traceback.format_exc()}")
@@ -1169,7 +1207,7 @@ def update_profile():
     else:
         flash("Invalid action requested. Please save or update the profile.")
         logging.warning("Invalid action received")
-        return render_template("edit.html", profile=profile_data, hidden_sections=hidden_sections)
+        return render_template("edit.html", profile=profile_data, hidden_sections=hidden_sections, hidden_dates=hidden_dates)
 
 @app.route('/download', methods=['POST'])
 def download():
@@ -1201,22 +1239,32 @@ def download():
             return redirect('/')
 
         hidden_sections = []
+        hidden_dates = []
         try:
             hidden_sections_str = request.form.get('hidden_sections', '[]')
+            hidden_dates_str = request.form.get('hidden_dates', '[]')
             logging.debug(f"Raw hidden_sections from form: {hidden_sections_str}")
+            logging.debug(f"Raw hidden_dates from form: {hidden_dates_str}")
             hidden_sections = json.loads(hidden_sections_str)
+            hidden_dates = json.loads(hidden_dates_str)
             if not isinstance(hidden_sections, list):
                 logging.warning(f"hidden_sections is not a list, defaulting to empty: {hidden_sections}")
                 hidden_sections = []
+            if not isinstance(hidden_dates, list):
+                logging.warning(f"hidden_dates is not a list, defaulting to empty: {hidden_dates}")
+                hidden_dates = []
             hidden_sections = [section for section in hidden_sections if section in VALID_SECTION_IDS]
+            hidden_dates = [dates for dates in hidden_dates if dates in VALID_DATES_IDS]
         except json.JSONDecodeError as e:
-            logging.error(f"Error decoding hidden_sections: {e}")
+            logging.error(f"Error decoding hidden_sections or hidden_dates: {e}")
             hidden_sections = []
+            hidden_dates = []
 
-        logging.info(f"Download PDF - hidden_sections: {hidden_sections}")
+        logging.info(f"Download PDF - hidden_sections: {hidden_sections}, hidden_dates: {hidden_dates}")
 
         session.permanent = True
         session['hidden_sections'] = hidden_sections
+        session['hidden_dates'] = hidden_dates
 
         safe_profile = sanitize_profile_data(profile)
 
@@ -1227,7 +1275,8 @@ def download():
             html_content = render_template(
                 template,
                 profile=safe_profile,
-                hidden_sections=hidden_sections
+                hidden_sections=hidden_sections,
+                hidden_dates=hidden_dates
             )
         except Exception as e:
             logging.error(f"Template rendering failed for {template}: {str(e)}\n{traceback.format_exc()}")
@@ -1285,18 +1334,26 @@ def download_docx():
     logging.info(f"Download DOCX - Form data: {request.form.to_dict()}")
 
     hidden_sections = []
+    hidden_dates = []
     try:
         hidden_sections_str = request.form.get('hidden_sections', '[]')
+        hidden_dates_str = request.form.get('hidden_dates', '[]')
         hidden_sections = json.loads(hidden_sections_str)
+        hidden_dates = json.loads(hidden_dates_str)
         if not isinstance(hidden_sections, list):
             logging.warning(f"hidden_sections is not a valid list, defaulting to empty list: {hidden_sections}")
             hidden_sections = []
+        if not isinstance(hidden_dates, list):
+            logging.warning(f"hidden_dates is not a valid list, defaulting to empty list: {hidden_dates}")
+            hidden_dates = []
         hidden_sections = [section for section in hidden_sections if section in VALID_SECTION_IDS]
+        hidden_dates = [dates for dates in hidden_dates if dates in VALID_DATES_IDS]
     except json.JSONDecodeError as e:
-        logging.error(f"Error decoding hidden_sections: {e}\n{traceback.format_exc()}")
+        logging.error(f"Error decoding hidden_sections or hidden_dates: {e}\n{traceback.format_exc()}")
         hidden_sections = []
+        hidden_dates = []
 
-    logging.info(f"Download DOCX request - hidden_sections: {hidden_sections}")
+    logging.info(f"Download DOCX request - hidden_sections: {hidden_sections}, hidden_dates: {hidden_dates}")
 
     if not profile:
         flash("No profile data available. Please create or upload a profile.")
@@ -1307,7 +1364,7 @@ def download_docx():
     try:
         session.permanent = True
         output_path = os.path.join(GENERATED_FOLDER, f"profile_{uuid.uuid4().hex}.docx")
-        render_html_to_docx(profile, output_path, hidden_sections)
+        render_html_to_docx(profile, output_path, hidden_sections, hidden_dates)
         if not os.path.exists(output_path):
             logging.error(f"DOCX file not found at {output_path}")
             flash("DOCX file could not be generated. Please try again.")
@@ -1332,18 +1389,26 @@ def download_xlsx():
     logging.info(f"Download XLSX - Form data: {request.form.to_dict()}")
 
     hidden_sections = []
+    hidden_dates = []
     try:
         hidden_sections_str = request.form.get('hidden_sections', '[]')
+        hidden_dates_str = request.form.get('hidden_dates', '[]')
         hidden_sections = json.loads(hidden_sections_str)
+        hidden_dates = json.loads(hidden_dates_str)
         if not isinstance(hidden_sections, list):
             logging.warning(f"hidden_sections is not a valid list, defaulting to empty list: {hidden_sections}")
             hidden_sections = []
+        if not isinstance(hidden_dates, list):
+            logging.warning(f"hidden_dates is not a valid list, defaulting to empty list: {hidden_dates}")
+            hidden_dates = []
         hidden_sections = [section for section in hidden_sections if section in VALID_SECTION_IDS]
+        hidden_dates = [dates for dates in hidden_dates if dates in VALID_DATES_IDS]
     except json.JSONDecodeError as e:
-        logging.error(f"Error decoding hidden_sections: {e}\n{traceback.format_exc()}")
+        logging.error(f"Error decoding hidden_sections or hidden_dates: {e}\n{traceback.format_exc()}")
         hidden_sections = []
+        hidden_dates = []
 
-    logging.info(f"Download XLSX request - hidden_sections: {hidden_sections}")
+    logging.info(f"Download XLSX request - hidden_sections: {hidden_sections}, hidden_dates: {hidden_dates}")
 
     if not profile:
         flash("No profile data available. Please create or upload a profile.")
@@ -1384,19 +1449,17 @@ def download_xlsx():
             wb.save(output_path)
             logging.info(f"Generated skills-only XLSX at {output_path}")
         else:
-            render_html_to_xlsx(profile, output_path, hidden_sections)
+            render_html_to_xlsx(profile, output_path, hidden_sections, hidden_dates)
 
         if not os.path.exists(output_path):
             logging.error(f"XLSX file not found at {output_path}")
             flash("XLSX file could not be generated. Please try again.")
             return redirect('/')
         
-        download_name = f"{profile.get('name', 'Employee').replace(' ', '_')}_Skills.xlsx" if skills_only else f"{profile.get('name', 'Employee').replace(' ', '_')}_Profile.xlsx"
-        
         return send_file(
             output_path,
             as_attachment=True,
-            download_name=download_name
+            download_name=f"{profile.get('name', 'Employee').replace(' ', '_')}_Profile.xlsx"
         )
     except Exception as e:
         flash(f"Failed to generate XLSX: {str(e)}. Please try again or contact support.")
@@ -1405,67 +1468,6 @@ def download_xlsx():
     finally:
         if output_path:
             cleanup_file(output_path)
-
-@app.route('/display_profile')
-def display_profile():
-    profile = session.get('profile', {})
-    hidden_sections = session.get('hidden_sections', [])
-    design = session.get('design', 'display_profile')
-    
-    if not profile:
-        flash("No profile data available. Please upload or create a profile.")
-        logging.warning("No profile data in session for /display_profile")
-        return redirect('/')
-    
-    # Log the entire profile to check for None values
-    logging.debug(f"Rendering {design}.html with profile: {json.dumps(profile, indent=2)}")
-    logging.debug(f"Hidden sections: {hidden_sections}")
-    
-    # Sanitize profile to ensure no None values
-    safe_profile = sanitize_profile_data(profile)
-    
-    try:
-        return render_template(f"{design}.html", profile=safe_profile, hidden_sections=hidden_sections)
-    except Exception as e:
-        logging.error(f"Template rendering error for {design}.html: {str(e)}\n{traceback.format_exc()}")
-        flash(f"Template error: {str(e)}. Please ensure {design}.html exists.")
-        return redirect('/')
-
-@app.route('/switch_design', methods=['POST'])
-def switch_design():
-    try:
-        design = request.form.get('design')
-        if design not in ['display_profile', 'd1', 'd2', 'd3']:
-            logging.error(f"Invalid design selected: {design}")
-            return jsonify({'error': 'Invalid design selected'}), 400
-
-        session.permanent = True
-        session['design'] = design
-        logging.info(f"Switched design to: {design}")
-
-        profile = session.get('profile', {})
-        hidden_sections = session.get('hidden_sections', [])
-
-        if not profile:
-            logging.warning("No profile data in session for /switch_design")
-            return jsonify({'error': 'No profile data available'}), 400
-
-        safe_profile = sanitize_profile_data(profile)
-        logging.debug(f"Switch design - profile: {json.dumps(safe_profile, indent=2)}")
-        logging.debug(f"Switch design - hidden_sections: {hidden_sections}")
-
-        try:
-            html = render_template(f'{design}.html', profile=safe_profile, hidden_sections=hidden_sections)
-            logging.info(f"Successfully rendered {design}.html")
-            return jsonify({'html': html})
-        except Exception as e:
-            logging.error(f"Template rendering failed for {design}.html: {str(e)}\n{traceback.format_exc()}")
-            return jsonify({'error': f"Failed to render template: {str(e)}"}), 500
-
-    except Exception as e:
-        logging.error(f"Unexpected error in switch_design: {str(e)}\n{traceback.format_exc()}")
-        return jsonify({'error': f"An unexpected error occurred: {str(e)}"}), 500
-
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
