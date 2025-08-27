@@ -25,7 +25,6 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 # Gemini API Key
 api_key = os.getenv("GEMINI_API_KEY")
-
 if not api_key:
     raise RuntimeError("Missing GEMINI_API_KEY environment variable")
 
@@ -139,7 +138,6 @@ def clean_formatting(text):
     text = re.sub(r'\n\s*-\s*', '\n- ', text)
     text = re.sub(r'^#+\s*(.*?)\s*$', r'# \1', text, flags=re.MULTILINE)
     
-    # Date standardization
     month_map = {
         'jan': '01', 'january': '01', 'feb': '02', 'february': '02', 'mar': '03', 'march': '03',
         'apr': '04', 'april': '04', 'may': '05', 'jun': '06', 'june': '06', 'jul': '07', 'july': '07',
@@ -170,7 +168,6 @@ def clean_formatting(text):
     return text.strip()
 
 def format_date_for_display(date_str):
-    """Convert YYYY-MM to YYYY-MonthName (short format, e.g., 2020-01 to 2020-Jan) or return 'N/A' if not valid."""
     if not date_str or not isinstance(date_str, str):
         return 'N/A'
     month_map = {
@@ -209,7 +206,7 @@ def generate_bullet_points(text, field_name):
 def extract_json(text):
     try:
         if "```json" in text:
-            match = re.findall(r"```json(.*?)```", text, re.DOTALL)
+            match = re.findall(r"```json
             if match:
                 return json.loads(match[0].strip())
         return json.loads(text)
@@ -268,7 +265,6 @@ def generate_structured_data(text):
         response = model.generate_content(prompt)
         logging.info(f"Raw AI response: {response.text}")
         data = extract_json(response.text)
-        # Ensure all expected fields are present with defaults
         data = {
             'name': data.get('name', '') or '',
             'education_training_certifications': data.get('education_training_certifications', []) or [],
@@ -302,7 +298,6 @@ def generate_structured_data(text):
         for exp in data['work_experience']:
             if exp.get('responsibilities') and not has_html_formatting(exp['responsibilities']):
                 exp['responsibilities'] = generate_bullet_points(exp['responsibilities'], f"work_experience_responsibilities_{exp.get('role', '')}")
-            # Ensure work_experience fields are not None
             exp['company_name'] = exp.get('company_name', '') or ''
             exp['start_date'] = exp.get('start_date', '') or ''
             exp['end_date'] = exp.get('end_date', '') or ''
@@ -1209,6 +1204,75 @@ def update_profile():
         logging.warning("Invalid action received")
         return render_template("edit.html", profile=profile_data, hidden_sections=hidden_sections, hidden_dates=hidden_dates)
 
+@app.route('/display_profile')
+def display_profile():
+    profile = session.get('profile', {})
+    hidden_sections = session.get('hidden_sections', [])
+    hidden_dates = session.get('hidden_dates', [])
+    design = session.get('design', 'display_profile')
+    logging.info(f"Rendering display_profile: profile_keys={list(profile.keys())}, hidden_sections={hidden_sections}, hidden_dates={hidden_dates}, design={design}")
+    try:
+        return render_template(
+            f"{design}.html",
+            profile=profile,
+            hidden_sections=hidden_sections,
+            hidden_dates=hidden_dates
+        )
+    except Exception as e:
+        logging.error(f"Template rendering error for {design}.html: {str(e)}\n{traceback.format_exc()}")
+        flash(f"Template error: {str(e)}. Falling back to default template.")
+        return render_template(
+            "display_profile.html",
+            profile=profile,
+            hidden_sections=hidden_sections,
+            hidden_dates=hidden_dates
+        )
+
+@app.route('/switch_design', methods=['POST'])
+def switch_design():
+    try:
+        design = request.form.get('design')
+        valid_designs = ['display_profile', 'd1', 'd2', 'd3']
+        if not design or design not in valid_designs:
+            logging.error(f"Invalid design requested: {design}")
+            return jsonify({"error": f"Invalid design: {design}. Must be one of {valid_designs}."}), 400
+
+        profile = session.get('profile', {})
+        hidden_sections = session.get('hidden_sections', [])
+        hidden_dates = session.get('hidden_dates', [])
+        if not profile:
+            logging.warning("No profile data in session for /switch_design")
+            return jsonify({"error": "No profile data available. Please create or upload a profile."}), 400
+
+        session.permanent = True
+        session['design'] = design
+        logging.info(f"Switching to design: {design}, hidden_sections: {hidden_sections}, hidden_dates: {hidden_dates}")
+        logging.info(f"Session after update: design={session.get('design')}, hidden_sections={session.get('hidden_sections')}, hidden_dates={session.get('hidden_dates')}")
+
+        try:
+            html_content = render_template(
+                f"{design}.html",
+                profile=sanitize_profile_data(profile),
+                hidden_sections=hidden_sections,
+                hidden_dates=hidden_dates
+            )
+            return jsonify({"html": html_content})
+        except Exception as e:
+            logging.error(f"Template rendering failed for {design}.html: {str(e)}\n{traceback.format_exc()}")
+            session['design'] = 'display_profile'
+            html_content = render_template(
+                "display_profile.html",
+                profile=sanitize_profile_data(profile),
+                hidden_sections=hidden_sections,
+                hidden_dates=hidden_dates
+            )
+            logging.info("Falling back to display_profile.html")
+            return jsonify({"html": html_content})
+
+    except Exception as e:
+        logging.error(f"Unexpected error in switch_design: {str(e)}\n{traceback.format_exc()}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
 @app.route('/download', methods=['POST'])
 def download():
     try:
@@ -1468,6 +1532,7 @@ def download_xlsx():
     finally:
         if output_path:
             cleanup_file(output_path)
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
