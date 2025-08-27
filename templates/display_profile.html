@@ -1072,7 +1072,7 @@
             <input type="hidden" name="design" id="design" value='{{ session.get("design", "display_profile") }}'>
             <button type="submit" class="download-btn" onclick="handleDownload()">📄 Download PDF</button>
           </form>
-          <form method="POST" action="/download_docx" id="download-docx-form" style="display: inline;">
+<!--           <form method="POST" action="/download_docx" id="download-docx-form" style="display: inline;">
             <input type="hidden" name="hidden_sections" id="hidden-sections-docx" value='{{ hidden_sections | tojson | safe }}'>
             <input type="hidden" name="design" id="design-docx" value='{{ session.get("design", "display_profile") }}'>
             <button type="submit" class="download-btn">📝 Download DOCX</button>
@@ -1081,7 +1081,7 @@
             <input type="hidden" name="hidden_sections" id="hidden-sections-xlsx" value='{{ hidden_sections | tojson | safe }}'>
             <input type="hidden" name="design" id="design-xlsx" value='{{ session.get("design", "display_profile") }}'>
             <button type="submit" class="download-btn">📊 Download XLSX</button>
-          </form>
+          </form> -->
         </div>
         <p style="color: rgba(255,255,255,0.8); margin-top: 1rem; font-size: 0.875rem;"></p>
       </div>
