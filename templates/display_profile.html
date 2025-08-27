@@ -785,7 +785,7 @@
   <body>
     <div class="profile-container">
       <div class="profile-header">
-        <h1 class="profile-name">{{ profile.get('name', 'Resume') | safe }}</h1>
+        <h1 class="profile-name">{{ profile.get('name', '') | safe }}</h1>
         <div class="profile-logo">
           <img src="https://netweb.biz/wp-content/uploads/2025/04/NetWeb-Logo-Updated-Websize.png" alt="Company Logo" />
         </div>
@@ -795,7 +795,7 @@
         <div class="control-panel">
           <div>
             <h3 style="margin: 0; font-size: 1.125rem;">Resume Customization</h3>
-            <p style="margin: 0.5rem 0 0; opacity: 0.9; font-size: 0.875rem;">Hide sections or dates you don't want to include in the final document</p>
+            <p style="margin: 0.5rem 0 0; opacity: 0.9; font-size: 0.875rem;">Hide sections or dates to exclude them from display and print</p>
           </div>
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <button class="control-btn" onclick="showAllSections()">Show All</button>
@@ -818,7 +818,7 @@
           </div>
         </div>
 
-        {% if profile.get('education_training_certifications', []) and 'education-section' not in hidden_sections %}
+        {% if profile.get('education_training_certifications') and 'education-section' not in hidden_sections %}
         <div class="section education-section" data-section-id="education-section">
           <h2 class="section-title">
             <span class="section-title-text">Education, Training & Certifications</span>
@@ -836,25 +836,25 @@
           <div class="section-content">
             <ul>
               {% for edu in profile.get('education_training_certifications', []) %}
-                {% if edu.get('title') %}
-                  <li>
-                    <div class="education-item">
-                      <div>
-                        <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
-                      </div>
+                <li>
+                  <div class="education-item">
+                    <div>
+                      <div class="education-degree">{{ edu.get('title', '') | safe }}</div>
+                    </div>
+                    {% if (edu.get('start_date') or edu.get('end_date')) and 'education-dates' not in hidden_dates %}
                       <div class="education-dates dates-content" data-dates-id="education-dates">
                         {{ edu.get('start_date', 'N/A') | format_date }} - {{ edu.get('end_date', 'N/A') | format_date }}
                       </div>
-                    </div>
-                  </li>
-                {% endif %}
+                    {% endif %}
+                  </div>
+                </li>
               {% endfor %}
             </ul>
           </div>
         </div>
         {% endif %}
 
-        {% if profile.get('total_experience', '') and 'experience-section' not in hidden_sections %}
+        {% if profile.get('total_experience') and 'experience-section' not in hidden_sections %}
         <div class="section" data-section-id="experience-section">
           <h2 class="section-title">
             <span class="section-title-text">Total Experience</span>
@@ -869,7 +869,7 @@
         </div>
         {% endif %}
 
-        {% if profile.get('professional_summary', '') and 'summary-section' not in hidden_sections %}
+        {% if profile.get('professional_summary') and 'summary-section' not in hidden_sections %}
         <div class="section" data-section-id="summary-section">
           <h2 class="section-title">
             <span class="section-title-text">Professional Summary</span>
@@ -880,7 +880,7 @@
           </h2>
           <div class="section-content">
             <ul>
-              {% for line in (profile.get('professional_summary', '') | default('')).split('\n') if line.strip() %}
+              {% for line in profile.get('professional_summary', '').split('\n') if line.strip() %}
                 <li>{{ line.lstrip('- ').strip() | safe }}</li>
               {% endfor %}
             </ul>
@@ -888,7 +888,7 @@
         </div>
         {% endif %}
 
-        {% if profile.get('work_experience', []) and 'work-experience-section' not in hidden_sections %}
+        {% if profile.get('work_experience') and 'work-experience-section' not in hidden_sections %}
         <div class="section" data-section-id="work-experience-section">
           <h2 class="section-title">
             <span class="section-title-text">Work Experience</span>
@@ -912,18 +912,20 @@
                       {{ work.get('company_name', '') | safe }} {% if work.get('company_name') and work.get('role') %} - {% endif %} {{ work.get('role', '') | safe }}
                     </div>
                     <div class="work-responsibilities">
-                      {% if work.get('responsibilities', '') %}
+                      {% if work.get('responsibilities') %}
                         <ul>
-                          {% for line in (work.get('responsibilities', '') | default('')).split('\n') if line.strip() %}
+                          {% for line in work.get('responsibilities', '').split('\n') if line.strip() %}
                             <li>{{ line.lstrip('- ').strip() | safe }}</li>
                           {% endfor %}
                         </ul>
                       {% endif %}
                     </div>
                   </div>
-                  <div class="work-dates dates-content" data-dates-id="work-experience-dates">
-                    {{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}
-                  </div>
+                  {% if (work.get('start_date') or work.get('end_date')) and 'work-experience-dates' not in hidden_dates %}
+                    <div class="work-dates dates-content" data-dates-id="work-experience-dates">
+                      {{ work.get('start_date', 'N/A') | format_date }} - {{ work.get('end_date', 'N/A') | format_date }}
+                    </div>
+                  {% endif %}
                 </div>
               {% endif %}
             {% endfor %}
@@ -931,7 +933,7 @@
         </div>
         {% endif %}
 
-        {% if (profile.get('netweb_projects', []) or profile.get('past_projects', [])) and 'projects-section' not in hidden_sections %}
+        {% if 'projects-section' not in hidden_sections %}
         <div class="section" data-section-id="projects-section">
           <h2 class="section-title">
             <span class="section-title-text">Projects</span>
@@ -941,53 +943,57 @@
             </button>
           </h2>
           <div class="section-content">
-            {% if profile.get('netweb_projects', []) %}
-              <h3 style="font-size: 1.125rem; font-weight: 600; color: #059669; margin-bottom: 0.5rem;">NetWeb Projects</h3>
-              {% for p in profile.get('netweb_projects', []) %}
-                {% if p.get('title') or p.get('description') %}
-                  <div class="project-item">
-                    <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
-                    <div class="project-description">
-                      <ul>
-                        {% if p.get('description', '') %}
-                          {% for desc in (p.get('description', '') | default('')).split('. ') if desc.strip() %}
-                            <li>{{ desc.strip() + '.' | safe }}</li>
-                          {% endfor %}
-                        {% else %}
-                          <li>No description provided.</li>
-                        {% endif %}
-                      </ul>
+            {% if profile.get('netweb_projects') or profile.get('past_projects') %}
+              {% if profile.get('netweb_projects') %}
+                <h3 style="font-size: 1.125rem; font-weight: 600; color: #059669; margin-bottom: 0.5rem;">NetWeb Projects</h3>
+                {% for p in profile.get('netweb_projects', []) %}
+                  {% if p.get('title') or p.get('description') %}
+                    <div class="project-item">
+                      <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
+                      <div class="project-description">
+                        <ul>
+                          {% if p.get('description') %}
+                            {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                              <li>{{ desc.strip() + '.' | safe }}</li>
+                            {% endfor %}
+                          {% else %}
+                            <li>No description provided.</li>
+                          {% endif %}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                {% endif %}
-              {% endfor %}
-            {% endif %}
-            {% if profile.get('past_projects', []) %}
-              <h3 style="font-size: 1.125rem; font-weight: 600; color: #6b21a8; margin-top: 1rem; margin-bottom: 0.5rem;">Past Projects</h3>
-              {% for p in profile.get('past_projects', []) %}
-                {% if p.get('title') or p.get('description') %}
-                  <div class="project-item">
-                    <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
-                    <div class="project-description">
-                      <ul>
-                        {% if p.get('description', '') %}
-                          {% for desc in (p.get('description', '') | default('')).split('. ') if desc.strip() %}
-                            <li>{{ desc.strip() + '.' | safe }}</li>
-                          {% endfor %}
-                        {% else %}
-                          <li>No description provided.</li>
-                        {% endif %}
-                      </ul>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              {% if profile.get('past_projects') %}
+                <h3 style="font-size: 1.125rem; font-weight: 600; color: #6b21a8; margin-top: 1rem; margin-bottom: 0.5rem;">Past Projects</h3>
+                {% for p in profile.get('past_projects', []) %}
+                  {% if p.get('title') or p.get('description') %}
+                    <div class="project-item">
+                      <div class="project-title">{{ p.get('title', 'Untitled Project') | safe }}</div>
+                      <div class="project-description">
+                        <ul>
+                          {% if p.get('description') %}
+                            {% for desc in p.get('description', '').split('. ') if desc.strip() %}
+                              <li>{{ desc.strip() + '.' | safe }}</li>
+                            {% endfor %}
+                          {% else %}
+                            <li>No description provided.</li>
+                          {% endif %}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                {% endif %}
-              {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            {% else %}
+              <p style="color: #6b7280; font-style: italic;">No projects available. Add projects in the edit profile page.</p>
             {% endif %}
           </div>
         </div>
         {% endif %}
 
-        {% if profile.get('roles_responsibilities', '') and 'roles-section' not in hidden_sections %}
+        {% if profile.get('roles_responsibilities') and 'roles-section' not in hidden_sections %}
         <div class="section" data-section-id="roles-section">
           <h2 class="section-title">
             <span class="section-title-text">Roles and Responsibilities</span>
@@ -998,7 +1004,7 @@
           </h2>
           <div class="section-content">
             <ul>
-              {% for line in (profile.get('roles_responsibilities', '') | default('')).split('\n') if line.strip() %}
+              {% for line in profile.get('roles_responsibilities', '').split('\n') if line.strip() %}
                 <li>{{ line.lstrip('- ').strip() | safe }}</li>
               {% endfor %}
             </ul>
@@ -1007,7 +1013,7 @@
         {% endif %}
 
         {% set skills = profile.get('technical_skills', {}) %}
-        {% if skills and (skills.get('web_technologies', []) or skills.get('scripting_languages', []) or skills.get('frameworks', []) or skills.get('databases', []) or skills.get('web_servers', []) or skills.get('tools', [])) and 'skills-section' not in hidden_sections %}
+        {% if skills and (skills.get('web_technologies') or skills.get('scripting_languages') or skills.get('frameworks') or skills.get('databases') or skills.get('web_servers') or skills.get('tools')) and 'skills-section' not in hidden_sections %}
         <div class="section" data-section-id="skills-section">
           <h2 class="section-title">
             <span class="section-title-text">Technical Skill Set</span>
@@ -1027,59 +1033,143 @@
           </h2>
           <div class="section-content">
             <div class="skills-grid">
-              {% for category in ['web_technologies', 'scripting_languages', 'frameworks', 'databases', 'web_servers', 'tools'] %}
-                {% if skills.get(category, []) %}
-                  <div class="skill-category">
-                    <div class="skill-category-title">{{ category | replace('_', ' ') | title }}</div>
-                    <div class="skill-tags">
-                      {% for skill in skills.get(category, []) %}
-                        <span class="skill-tag">{{ skill | safe }}</span>
-                      {% endfor %}
-                    </div>
-                  </div>
-                {% endif %}
-              {% endfor %}
+              {% if skills.get('web_technologies') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Web Technologies</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('web_technologies', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('scripting_languages') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Scripting Languages</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('scripting_languages', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('frameworks') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Frameworks</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('frameworks', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('databases') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Databases</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('databases', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('web_servers') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Web Servers</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('web_servers', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if skills.get('tools') %}
+              <div class="skill-category">
+                <div class="skill-category-title">Tools</div>
+                <div class="skill-tags">
+                  {% for skill in skills.get('tools', []) %}
+                    <span class="skill-tag">{{ skill | safe }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>
         {% endif %}
 
         {% set personal = profile.get('personal_details', {}) %}
-        {% if personal and (personal.get('employee_id', '') or personal.get('designation', '') or personal.get('date_of_joining', '') or personal.get('overall_experience', '') or personal.get('date_of_birth', '') or personal.get('contact_number', '') or personal.get('permanent_address', '') or personal.get('local_address', '') or personal.get('passport_details', '')) and 'personal-details-section' not in hidden_sections %}
+        {% if personal and (personal.get('employee_id') or personal.get('designation') or personal.get('date_of_joining') or personal.get('overall_experience') or personal.get('date_of_birth') or personal.get('contact_number') or personal.get('permanent_address') or personal.get('local_address') or personal.get('passport_details')) and 'personal-details-section' not in hidden_sections %}
         <div class="section" data-section-id="personal-details-section">
           <h2 class="section-title">
             <span class="section-title-text">Personal Details</span>
-            <button class="hide-toggle" onclick="toggleSectionVisibility('personal-details-section')" data-section="personal-details-section">
-              <span class="toggle-icon">👁️</span>
-              <span class="toggle-text">Hide</span>
-            </button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="hide-toggle" onclick="toggleSectionVisibility('personal-details-section')" data-section="personal-details-section">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide Section</span>
+              </button>
+              <button class="dates-toggle" onclick="toggleDatesVisibility('personal-dates')" data-dates-id="personal-dates">
+                <span class="toggle-icon">👁️</span>
+                <span class="toggle-text">Hide Dates</span>
+              </button>
+            </div>
           </h2>
           <div class="section-content">
             <div class="personal-details-grid">
-              {% for key, label in [
-                  ('employee_id', 'Employee ID'),
-                  ('designation', 'Designation'),
-                  ('date_of_joining', 'Date of Joining'),
-                  ('overall_experience', 'Overall Experience'),
-                  ('date_of_birth', 'Date of Birth'),
-                  ('contact_number', 'Contact Number'),
-                  ('permanent_address', 'Permanent Address'),
-                  ('local_address', 'Local Address'),
-                  ('passport_details', 'Passport')
-              ] %}
-                {% if personal.get(key, '') %}
-                  <div class="personal-detail-item">
-                    <div class="personal-detail-label">{{ label }}:</div>
-                    <div class="personal-detail-value">
-                      {% if key in ['date_of_joining', 'date_of_birth'] %}
-                        {{ personal.get(key, '') | format_date }}
-                      {% else %}
-                        {{ personal.get(key, '') | safe }}
-                      {% endif %}
-                    </div>
-                  </div>
-                {% endif %}
-              {% endfor %}
+              {% if personal.get('employee_id') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Employee ID:</div>
+                <div class="personal-detail-value">{{ personal.get('employee_id', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('designation') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Designation:</div>
+                <div class="personal-detail-value">{{ personal.get('designation', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('date_of_joining') and 'personal-dates' not in hidden_dates %}
+              <div class="personal-detail-item dates-content" data-dates-id="personal-dates">
+                <div class="personal-detail-label">Date of Joining:</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_joining', '') | format_date }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('overall_experience') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Overall Experience:</div>
+                <div class="personal-detail-value">{{ personal.get('overall_experience', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('date_of_birth') and 'personal-dates' not in hidden_dates %}
+              <div class="personal-detail-item dates-content" data-dates-id="personal-dates">
+                <div class="personal-detail-label">Date of Birth:</div>
+                <div class="personal-detail-value">{{ personal.get('date_of_birth', '') | format_date }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('contact_number') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Contact Number:</div>
+                <div class="personal-detail-value">{{ personal.get('contact_number', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('permanent_address') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Permanent Address:</div>
+                <div class="personal-detail-value">{{ personal.get('permanent_address', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('local_address') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Local Address:</div>
+                <div class="personal-detail-value">{{ personal.get('local_address', '') | safe }}</div>
+              </div>
+              {% endif %}
+              {% if personal.get('passport_details') %}
+              <div class="personal-detail-item">
+                <div class="personal-detail-label">Passport:</div>
+                <div class="personal-detail-value">{{ personal.get('passport_details', '') | safe }}</div>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -1095,18 +1185,6 @@
             <input type="hidden" name="hidden_dates" id="hidden-dates" value='{{ hidden_dates | default([]) | tojson | safe }}'>
             <input type="hidden" name="design" id="design" value='{{ session.get("design", "display_profile") }}'>
             <button type="submit" class="download-btn" onclick="handleDownload()">📄 Download PDF</button>
-          </form>
-          <form method="POST" action="/download_docx" id="download-docx-form" style="display: inline;">
-            <input type="hidden" name="hidden_sections" id="hidden-sections-docx" value='{{ hidden_sections | tojson | safe }}'>
-            <input type="hidden" name="hidden_dates" id="hidden-dates-docx" value='{{ hidden_dates | default([]) | tojson | safe }}'>
-            <input type="hidden" name="design" id="design-docx" value='{{ session.get("design", "display_profile") }}'>
-            <button type="submit" class="download-btn">📝 Download DOCX</button>
-          </form>
-          <form method="POST" action="/download_xlsx" id="download-xlsx-form" style="display: inline;">
-            <input type="hidden" name="hidden_sections" id="hidden-sections-xlsx" value='{{ hidden_sections | tojson | safe }}'>
-            <input type="hidden" name="hidden_dates" id="hidden-dates-xlsx" value='{{ hidden_dates | default([]) | tojson | safe }}'>
-            <input type="hidden" name="design" id="design-xlsx" value='{{ session.get("design", "display_profile") }}'>
-            <button type="submit" class="download-btn">📊 Download XLSX</button>
           </form>
         </div>
         <p style="color: rgba(255,255,255,0.8); margin-top: 1rem; font-size: 0.875rem;"></p>
@@ -1268,7 +1346,7 @@
         const datesButtons = document.querySelectorAll('.dates-toggle');
         
         hiddenSections = [];
-        hiddenDates = ['education-dates', 'work-experience-dates'];
+        hiddenDates = ['education-dates', 'work-experience-dates', 'personal-dates'];
         sections.forEach(section => {
           const sectionId = section.getAttribute('data-section-id');
           hiddenSections.push(sectionId);
@@ -1301,9 +1379,7 @@
         const hiddenSectionsJSON = JSON.stringify(hiddenSections);
         const inputs = [
           document.getElementById('hidden-sections'),
-          document.getElementById('hidden-sections-skills-xlsx'),
-          document.getElementById('hidden-sections-docx'),
-          document.getElementById('hidden-sections-xlsx')
+          document.getElementById('hidden-sections-skills-xlsx')
         ];
         inputs.forEach(input => {
           if (input) {
@@ -1317,9 +1393,7 @@
         const hiddenDatesJSON = JSON.stringify(hiddenDates);
         const inputs = [
           document.getElementById('hidden-dates'),
-          document.getElementById('hidden-dates-skills-xlsx'),
-          document.getElementById('hidden-dates-docx'),
-          document.getElementById('hidden-dates-xlsx')
+          document.getElementById('hidden-dates-skills-xlsx')
         ];
         inputs.forEach(input => {
           if (input) {
@@ -1366,9 +1440,7 @@
               attachEventListeners();
               const designInputs = [
                 document.getElementById('design'),
-                document.getElementById('design-skills-xlsx'),
-                document.getElementById('design-docx'),
-                document.getElementById('design-xlsx')
+                document.getElementById('design-skills-xlsx')
               ];
               designInputs.forEach(input => {
                 if (input) {
@@ -1397,7 +1469,7 @@
         try {
           const profileData = JSON.parse(profileDataInput.value);
           profileDataInput.value = encodeURIComponent(JSON.stringify(profileData));
-          console.log('Submitting PDF download with profile_data:', profileData, 'hidden_sections:', hiddenSections, 'hidden_dates:', hiddenDates, 'design:', document.getElementById('design').value);
+          console.log('Preparing PDF download with profile_data:', profileData, 'hidden_sections:', hiddenSections, 'hidden_dates:', hiddenDates, 'design:', document.getElementById('design').value);
           form.submit();
         } catch (e) {
           console.error('Error encoding profile_data for PDF:', e);
@@ -1409,7 +1481,7 @@
         updateHiddenSectionsInputs();
         updateHiddenDatesInputs();
         const form = document.getElementById('download-skills-xlsx-form');
-        console.log('Submitting Skills XLSX download with hidden_sections:', hiddenSections, 'hidden_dates:', hiddenDates, 'design:', document.getElementById('design-skills-xlsx').value);
+        console.log('Preparing Skills XLSX download with hidden_sections:', hiddenSections, 'hidden_dates:', hiddenDates, 'design:', document.getElementById('design-skills-xlsx').value);
         form.submit();
       }
 
@@ -1451,6 +1523,10 @@
                 break;
             }
           }
+        });
+
+        window.addEventListener('beforeprint', () => {
+          console.log('Preparing for print: hidden sections:', hiddenSections, 'hidden dates:', hiddenDates);
         });
       }
 
