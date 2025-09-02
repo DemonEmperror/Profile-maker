@@ -279,116 +279,193 @@
       background: #1e40af;
     }
     .format-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .format-modal-content {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .format-toolbar {
-      display: flex;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      background: #f3f2f1;
-      border-radius: 4px;
-      flex-wrap: wrap;
-    }
-    .format-toolbar button {
-      background: none;
-      border: none;
-      padding: 6px 8px;
-      cursor: pointer;
-      font-size: 14px;
-      border-radius: 4px;
-    }
-    .format-toolbar button:hover {
-      background: #e1dfdd;
-    }
-    .format-editor {
-      width: 100%;
-      min-height: 200px;
-      padding: 12px;
-      font-size: 15px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      outline: none;
-      background: white;
-    }
-    .format-editor ul {
-      list-style: disc;
-      padding-left: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    .format-editor ol {
-      list-style: decimal;
-      padding-left: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    .format-editor li {
-      padding: 0.5rem 0;
-      position: relative;
-    }
-    .format-editor b,
-    .format-editor strong {
-      font-weight: 600;
-      color: #1f2937;
-    }
-    .format-editor i,
-    .format-editor em {
-      font-style: italic;
-    }
-    .format-editor u {
-      text-decoration: underline;
-    }
-    .format-actions {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-      align-items: center;
-      margin-top: 1rem;
-    }
-    .format-actions button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-      min-width: 80px;
-      text-align: center;
-    }
-    .format-actions .save {
-      background: #10b981;
-      color: white;
-    }
-    .format-actions .save:hover {
-      background: #059669;
-    }
-    .format-actions .cancel {
-      background: #ef4444;
-      color: white;
-    }
-    .format-actions .cancel:hover {
-      background: #dc2626;
-    }
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+/* Replace your existing .format-modal-content CSS with this: */
+.format-modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Add this new CSS class: */
+.format-modal-header {
+  padding: 1.5rem 1.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.format-modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Replace your existing .format-toolbar CSS with this: */
+.format-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.format-toolbar button {
+  background: white;
+  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.format-toolbar button:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.format-toolbar button:active {
+  background: #e5e7eb;
+}
+
+/* Add this new CSS class: */
+.format-editor-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Replace your existing .format-editor CSS with this: */
+.format-editor {
+  width: 100%;
+  flex: 1;
+  padding: 1.5rem;
+  font-size: 15px;
+  border: none;
+  outline: none;
+  overflow-y: auto;
+  resize: none;
+  line-height: 1.6;
+  color: #374151;
+  background: white;
+}
+
+.format-editor:focus {
+  background: #fefefe;
+}
+
+.format-editor ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.format-editor ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.format-editor li {
+  padding: 0.5rem 0;
+  position: relative;
+}
+
+.format-editor b,
+.format-editor strong {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.format-editor i,
+.format-editor em {
+  font-style: italic;
+}
+
+.format-editor u {
+  text-decoration: underline;
+}
+
+/* Replace your existing .format-actions CSS with this: */
+.format-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.format-actions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.format-actions .save {
+  background: #10b981;
+  color: white;
+}
+
+.format-actions .save:hover {
+  background: #059669;
+}
+
+.format-actions .cancel {
+  background: #6b7280;
+  color: white;
+}
+
+.format-actions .cancel:hover {
+  background: #4b5563;
+}
+
+/* Update your mobile media query for the format modal: */
+@media (max-width: 768px) {
+  .format-modal {
+    padding: 0.5rem;
+  }
+  .format-modal-content {
+    max-height: 95vh;
+  }
+  .format-editor {
+    padding: 1rem;
+  }
+  .format-actions {
+    padding: 1rem;
+  }
+}
     .error-message {
       color: #ef4444;
       font-size: 0.9rem;
@@ -448,9 +525,6 @@
       }
       .format-toolbar {
         flex-wrap: wrap;
-      }
-      .format-actions {
-        justify-content: center;
       }
     }
     @media print {
@@ -648,9 +722,9 @@
                 <label for="work_company_{{ loop.index }}">Company Name</label>
                 <input type="text" id="work_company_{{ loop.index }}" name="work_experience[company_name][]" value="{{ exp.get('company_name', '') | safe }}" required />
                 <label for="work_start_{{ loop.index }}">Start Date</label>
-                <input type="date" id="work_start_{{ loop.index }}" name="work_experience[start_date][]" value="{{ exp.get('start_date', '') | safe }}" />
+                <input type="date" id="work_start_{{ loop.index }}" name="work_experience[start_date_converted][]" value="{{ exp.get('start_date', '') | safe }}" />
                 <label for="work_end_{{ loop.index }}">End Date</label>
-                <input type="date" id="work_end_{{ loop.index }}" name="work_experience[end_date][]" value="{{ exp.get('end_date', '') | safe }}" />
+                <input type="date" id="work_end_{{ loop.index }}" name="work_experience[end_date_converted][]" value="{{ exp.get('end_date', '') | safe }}" />
                 <label for="work_role_{{ loop.index }}">Role</label>
                 <input type="text" id="work_role_{{ loop.index }}" name="work_experience[role][]" value="{{ exp.get('role', '') | safe }}" required />
                 <label for="work_resp_{{ loop.index }}">Responsibilities</label>
@@ -730,7 +804,57 @@
   <script>
     let hiddenSections = [];
     let currentFieldId = '';
-    let educationIndex = "{{ profile.get('education_training_certifications', []) | length | tojson | safe }}" || 0;
+
+    function sanitizeHTML(html) {
+      const div = document.createElement('div');
+      div.innerHTML = html;
+
+      // Define allowed tags and attributes
+      const allowedTags = ['strong', 'b', 'i', 'em', 'u', 'ul', 'ol', 'li'];
+      const allowedAttributes = [];
+
+      // Remove unwanted attributes
+      div.querySelectorAll('*').forEach(element => {
+        if (!allowedTags.includes(element.tagName.toLowerCase())) {
+          element.replaceWith(...element.childNodes);
+        } else {
+          Array.from(element.attributes).forEach(attr => {
+            if (!allowedAttributes.includes(attr.name)) {
+              element.removeAttribute(attr.name);
+            }
+          });
+        }
+      });
+
+      // Ensure list styling
+      div.querySelectorAll('ul').forEach(ul => {
+        ul.style.listStyleType = 'disc';
+        ul.style.paddingLeft = '1.5rem';
+        ul.style.marginBottom = '1rem';
+      });
+      div.querySelectorAll('ol').forEach(ol => {
+        ol.style.listStyleType = 'decimal';
+        ol.style.paddingLeft = '1.5rem';
+        ol.style.marginBottom = '1rem';
+      });
+      div.querySelectorAll('li').forEach(li => {
+        li.style.padding = '0.5rem 0';
+      });
+
+      return div.innerHTML.trim();
+    }
+
+    function hasHTMLFormatting(text) {
+      return /<\/?[a-z][\s\S]*>/i.test(text);
+    }
+
+    function convertToBulletPoints(text) {
+      if (!text) return '';
+      const sentences = text.split('.').map(s => s.trim()).filter(s => s.length > 0);
+      if (sentences.length === 0) return '';
+      const bulletPoints = sentences.map(sentence => `<li>${sentence}.</li>`).join('');
+      return `<ul style="list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem;">${bulletPoints}</ul>`;
+    }
 
     try {
       const hiddenSectionsElement = document.getElementById('hidden_sections');
@@ -757,7 +881,6 @@
         }
       });
       updateHiddenSectionsInputs();
-      console.log('Page loaded, hidden sections initialized:', hiddenSections);
       setupEditableFields();
       setupValidation();
     });
@@ -766,28 +889,42 @@
       document.querySelectorAll('.contenteditable').forEach(div => {
         const hiddenInput = document.getElementById(div.id + '_hidden');
         if (hiddenInput) {
+          div.innerHTML = sanitizeHTML(div.innerHTML);
           hiddenInput.value = div.innerHTML.trim();
-          div.addEventListener('input', () => {
-            hiddenInput.value = div.innerHTML.trim();
-          });
+          console.log(`Initialized ${div.id}_hidden with value:`, hiddenInput.value);
+
+          if (div.id === 'professional_summary') {
+            div.addEventListener('input', () => {
+              const text = div.innerText.trim();
+              if (!hasHTMLFormatting(div.innerHTML) && text) {
+                div.innerHTML = convertToBulletPoints(text);
+              }
+              hiddenInput.value = sanitizeHTML(div.innerHTML.trim());
+              console.log(`Updated ${div.id}_hidden on input:`, hiddenInput.value);
+            });
+          } 
+          else {
+            div.addEventListener('input', () => {
+              hiddenInput.value = sanitizeHTML(div.innerHTML.trim());
+              console.log(`Updated ${div.id}_hidden on input:`, hiddenInput.value);
+            });
+          }
+        } else {
+          console.warn(`No hidden input found for ${div.id}`);
         }
       });
     }
 
     function setupValidation() {
-      // Age validation
       const dobInput = document.getElementById('date_of_birth');
       dobInput.addEventListener('change', validateAge);
 
-      // Contact number validation
       const contactNumber = document.getElementById('contact_number');
       contactNumber.addEventListener('input', validateContactNumber);
 
-      // Overall experience calculation
       const joiningDateInput = document.getElementById('date_of_joining');
       joiningDateInput.addEventListener('change', updateOverallExperience);
 
-      // Education duration validation
       document.querySelectorAll('[id^=edu_start_]').forEach(startDate => {
         startDate.addEventListener('change', () => validateEducationDuration(startDate.id));
       });
@@ -820,20 +957,20 @@
     }
 
     function validateContactNumber() {
-      const contactNumber = document.getElementById('contact_number');
-      const error = document.getElementById('contact_number_error');
-      const value = contactNumber.value.trim();
-      const isValid = /^\d{10}$/.test(value);
-      if (!isValid) {
-        error.style.display = 'block';
-        contactNumber.style.borderColor = '#ef4444';
-        return false;
-      } else {
-        error.style.display = 'none';
-        contactNumber.style.borderColor = '#d1d5db';
-        return true;
-      }
-    }
+  const contactNumber = document.getElementById('contact_number');
+  const error = document.getElementById('contact_number_error');
+
+  // Always hide error and reset border
+  if (error) {
+    error.style.display = 'none';
+  }
+  if (contactNumber) {
+    contactNumber.style.borderColor = '#d1d5db';
+  }
+
+  // Always return true (no validation enforced)
+  return true;
+}
 
     function validateEducationDuration(inputId) {
       const index = inputId.match(/\d+$/)[0];
@@ -906,7 +1043,7 @@
       currentFieldId = fieldId;
       const field = document.getElementById(fieldId);
       const editor = document.getElementById('formatEditor');
-      editor.innerHTML = field.innerHTML.trim();
+      editor.innerHTML = sanitizeHTML(field.innerHTML);
       document.getElementById('formatModal').style.display = 'flex';
       editor.focus();
     }
@@ -919,59 +1056,75 @@
 
     function formatModalText(command) {
       const editor = document.getElementById('formatEditor');
+      const selection = window.getSelection();
+      let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
       document.execCommand(command, false, null);
+
+      editor.querySelectorAll('ul').forEach(ul => {
+        ul.style.listStyleType = 'disc';
+        ul.style.paddingLeft = '1.5rem';
+        ul.style.marginBottom = '1rem';
+      });
+      editor.querySelectorAll('ol').forEach(ol => {
+        ol.style.listStyleType = 'decimal';
+        ol.style.paddingLeft = '1.5rem';
+        ol.style.marginBottom = '1rem';
+      });
+      editor.querySelectorAll('li').forEach(li => {
+        li.style.padding = '0.5rem 0';
+      });
+
       editor.focus();
+      if (range) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+
       if (currentFieldId) {
         const field = document.getElementById(currentFieldId);
-        field.innerHTML = editor.innerHTML.trim();
+        field.innerHTML = sanitizeHTML(editor.innerHTML);
         field.dispatchEvent(new Event('input'));
         updateHiddenField(currentFieldId);
       }
     }
 
     function saveFormatChanges() {
-      if (currentFieldId) {
-        const editor = document.getElementById('formatEditor');
-        const field = document.getElementById(currentFieldId);
-        // Sanitize and normalize the content
-        let content = editor.innerHTML.trim();
-        // Ensure proper list formatting
-        content = content.replace(/<div><br><\/div>/g, '').replace(/<div>/g, '<p>').replace(/<\/div>/g, '</p>');
-        field.innerHTML = content;
-        field.dispatchEvent(new Event('input'));
-        updateHiddenField(currentFieldId);
-        closeFormatModal();
+      if (!currentFieldId) {
+        console.error('No currentFieldId set. Cannot save changes.');
+        alert('Error: No field selected for formatting.');
+        return;
       }
+
+      const editor = document.getElementById('formatEditor');
+      const field = document.getElementById(currentFieldId);
+      const hiddenInput = document.getElementById(`${currentFieldId}_hidden`);
+
+      if (!editor || !field || !hiddenInput) {
+        console.error('Missing elements:', { editor, field, hiddenInput });
+        alert('Error: Unable to find editor or field elements.');
+        return;
+      }
+
+      const sanitizedContent = sanitizeHTML(editor.innerHTML);
+      field.innerHTML = sanitizedContent;
+      hiddenInput.value = sanitizedContent;
+
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+
+      console.log(`Saved content for ${currentFieldId}:`, sanitizedContent);
+      closeFormatModal();
     }
 
     function updateHiddenField(elementId) {
       const editable = document.getElementById(elementId);
       const hiddenInput = document.getElementById(`${elementId}_hidden`);
       if (editable && hiddenInput) {
-        hiddenInput.value = editable.innerHTML.trim();
+        hiddenInput.value = sanitizeHTML(editable.innerHTML.trim());
         console.log(`Updated ${elementId}_hidden:`, hiddenInput.value);
+      } else {
+        console.warn(`Failed to update hidden field for ${elementId}`);
       }
-    }
-
-    function updateProjectDescriptions(type) {
-      const containers = document.querySelectorAll(`#${type}-projects .section-item`);
-      containers.forEach((container, projectIndex) => {
-        const descEditable = document.getElementById(`${type}_desc_${projectIndex + 1}`);
-        const descHidden = document.getElementById(`${type}_desc_${projectIndex + 1}_hidden`);
-        if (descEditable && descHidden) {
-          descHidden.value = descEditable.innerHTML.trim();
-          console.log(`Updated ${type}_desc_${projectIndex + 1}_hidden:`, descHidden.value);
-        }
-      });
-      const workContainers = document.querySelectorAll(`#work-experience-items .section-item`);
-      workContainers.forEach((container, projectIndex) => {
-        const respEditable = document.getElementById(`work_resp_${projectIndex + 1}`);
-        const respHidden = document.getElementById(`work_resp_${projectIndex + 1}_hidden`);
-        if (respEditable && respHidden) {
-          respHidden.value = respEditable.innerHTML.trim();
-          console.log(`Updated work_resp_${projectIndex + 1}_hidden:`, respHidden.value);
-        }
-      });
     }
 
     function toggleSectionVisibility(sectionId) {
@@ -1083,9 +1236,9 @@
               <label for="work_company_${index}">Company Name</label>
               <input type="text" id="work_company_${index}" name="work_experience[company_name][]" required />
               <label for="work_start_${index}">Start Date</label>
-              <input type="date" id="work_start_${index}" name="work_experience[start_date][]" />
+              <input type="date" id="work_start_${index}" name="work_experience[start_date_converted][]" />
               <label for="work_end_${index}">End Date</label>
-              <input type="date" id="work_end_${index}" name="work_experience[end_date][]" />
+              <input type="date" id="work_end_${index}" name="work_experience[end_date_converted][]" />
               <label for="work_role_${index}">Role</label>
               <input type="text" id="work_role_${index}" name="work_experience[role][]" required />
               <label for="work_resp_${index}">Responsibilities</label>
@@ -1108,11 +1261,13 @@
           const hiddenInput = document.getElementById(newDiv.id + '_hidden');
           if (hiddenInput) {
             newDiv.addEventListener('input', () => {
-              hiddenInput.value = newDiv.innerHTML.trim();
+              hiddenInput.value = sanitizeHTML(newDiv.innerHTML.trim());
+              console.log(`Updated ${newDiv.id}_hidden on dynamic input:`, hiddenInput.value);
             });
+          } else {
+            console.warn(`No hidden input found for dynamic field ${newDiv.id}`);
           }
         }
-        // Add validation for new education items
         if (section === 'education') {
           document.getElementById(`edu_start_${index}`).addEventListener('change', () => validateEducationDuration(`edu_start_${index}`));
           document.getElementById(`edu_end_${index}`).addEventListener('change', () => validateEducationDuration(`edu_end_${index}`));
@@ -1134,11 +1289,13 @@
         alert('Please correct the errors in the form.');
         return;
       }
-      updateProjectDescriptions('netweb');
-      updateProjectDescriptions('past');
-      updateProjectDescriptions('work');
-      updateHiddenField('professional_summary');
-      updateHiddenField('roles_responsibilities');
+      document.querySelectorAll('.contenteditable').forEach(div => {
+        const hiddenInput = document.getElementById(div.id + '_hidden');
+        if (hiddenInput) {
+          hiddenInput.value = sanitizeHTML(div.innerHTML.trim());
+          console.log(`Submitting ${div.id}_hidden with value:`, hiddenInput.value);
+        }
+      });
       document.getElementById('loaderOverlay').style.display = 'flex';
     });
   </script>
