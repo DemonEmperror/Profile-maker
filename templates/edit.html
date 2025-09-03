@@ -582,11 +582,9 @@
             <input type="text" id="name" name="name" value="{{ profile.get('name', '') | safe }}" required />
             {% for key in ['employee_id', 'designation', 'date_of_joining', 'overall_experience', 'date_of_birth', 'contact_number', 'permanent_address', 'local_address', 'passport_details'] %}
             <label for="{{ key }}">{{ key.replace('_', ' ').title() }}</label>
-            <input type="{{ 'date' if key in ['date_of_joining', 'date_of_birth'] else 'text' }}" id="{{ key }}" name="personal_details[{{ key }}]" value="{{ profile.get('personal_details', {}).get(key, '') | safe }}" {{ 'required' if key == 'contact_number' else '' }} />
+            <input type="{{ 'date' if key in ['date_of_joining', 'date_of_birth'] else 'text' }}" id="{{ key }}" name="personal_details[{{ key }}]" value="{{ profile.get('personal_details', {}).get(key, '') | safe }}" />
             {% if key == 'date_of_birth' %}
             <div class="error-message" id="date_of_birth_error">Age must be greater than 18 years.</div>
-            {% elif key == 'contact_number' %}
-            <div class="error-message" id="contact_number_error">Contact number must be 10 digits.</div>
             {% endif %}
             {% endfor %}
           </div>
@@ -919,9 +917,6 @@
       const dobInput = document.getElementById('date_of_birth');
       dobInput.addEventListener('change', validateAge);
 
-      const contactNumber = document.getElementById('contact_number');
-      contactNumber.addEventListener('input', validateContactNumber);
-
       const joiningDateInput = document.getElementById('date_of_joining');
       joiningDateInput.addEventListener('change', updateOverallExperience);
 
@@ -956,22 +951,7 @@
       }
     }
 
-    function validateContactNumber() {
-  const contactNumber = document.getElementById('contact_number');
-  const error = document.getElementById('contact_number_error');
-
-  // Always hide error and reset border
-  if (error) {
-    error.style.display = 'none';
-  }
-  if (contactNumber) {
-    contactNumber.style.borderColor = '#d1d5db';
-  }
-
-  // Always return true (no validation enforced)
-  return true;
-}
-
+    
     function validateEducationDuration(inputId) {
       const index = inputId.match(/\d+$/)[0];
       const startDate = document.getElementById(`edu_start_${index}`).value;
@@ -1029,7 +1009,6 @@
         }
       });
       if (!validateAge()) isValid = false;
-      if (!validateContactNumber()) isValid = false;
       document.querySelectorAll('[id^=edu_item_]').forEach(item => {
         const index = item.id.match(/\d+$/)[0];
         if (!validateEducationDuration(`edu_start_${index}`)) {
