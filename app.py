@@ -21,7 +21,7 @@ import bleach
 from flask_session import Session
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Gemini API Key
 api_key = os.getenv("GEMINI_API_KEY")
